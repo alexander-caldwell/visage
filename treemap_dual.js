@@ -65,18 +65,26 @@ looker.plugins.visualizations.add({
     var root = element.querySelector('.tmd-root');
     if (root) return root;
 
-    element.innerHTML =
-      '<style>' +
+    // Built with createElement rather than innerHTML: a Looker instance with a
+    // Trusted Types policy can reject an innerHTML assignment outright, which
+    // would throw here and leave the tile blank.
+    while (element.firstChild) element.removeChild(element.firstChild);
+
+    var style = document.createElement('style');
+    style.textContent =
       '.tmd-root { width: 100%; height: 100%; overflow: hidden; font-family: inherit; }' +
       '.tmd-root text { font-size: 11px; }' +
       '.tmd-root .tmd-box { cursor: pointer; }' +
       '.tmd-root .tmd-box:hover { opacity: 0.85; }' +
       '.tmd-root .tmd-name { font-weight: 600; }' +
       '.tmd-root .tmd-note { font-size: 10px; fill: #6c7477; font-style: italic; }' +
-      '.tmd-root .tmd-empty { fill: #9aa1a4; font-style: italic; }' +
-      '</style>' +
-      '<div class="tmd-root"></div>';
-    return element.querySelector('.tmd-root');
+      '.tmd-root .tmd-empty { fill: #9aa1a4; font-style: italic; }';
+    element.appendChild(style);
+
+    root = document.createElement('div');
+    root.className = 'tmd-root';
+    element.appendChild(root);
+    return root;
   },
 
   create: function (element, config) {
@@ -150,7 +158,7 @@ looker.plugins.visualizations.add({
     }
 
     function render(width, height) {
-    root.innerHTML = '';
+    while (root.firstChild) root.removeChild(root.firstChild);
     root.style.height = height + 'px';
 
     var svgNS = 'http://www.w3.org/2000/svg';

@@ -23,6 +23,19 @@ values. Query shape: one dimension, two measures.
 Options: size by, colours, show names, show second measure, prefix second
 measure with its name, gap between boxes.
 
+### `diagnostic.js`
+
+Paints, as plain text, what Looker hands the visualisation: element size, row
+count, field names, and the first row's values. It also draws one small blue
+rectangle to confirm inline SVG works.
+
+Register it as ID `diagnostic`, label `Diagnostic`, main
+`https://alexander-caldwell.github.io/visigoth/diagnostic.js`.
+
+If a tile stays blank with this selected, the file is not being loaded at all,
+and the problem is the registration, the URL, or the instance's policy, not the
+chart.
+
 ## Registering in Looker
 
 Instance-wide, no LookML change. Admin > Platform > Visualizations > Add:
