@@ -91,16 +91,56 @@ looker.plugins.visualizations.add({
     var sizeField = config.size_by === 'second' ? meas[1] : meas[0];
     var otherField = config.size_by === 'second' ? meas[0] : meas[1];
 
-    var width = element.clientWidth;
-    var height = element.clientHeight;
-    if (!width || !height) {
-      // Container has no layout yet. Nothing sensible to draw.
-      done();
-      return;
+    // Looker can call updateAsync before the tile has been laid out, when the
+    // element measures zero. Bailing out then leaves a blank panel with no
+    // error, so measure every way available, walk up to an ancestor that has a
+    // size, and retry across a few frames before falling back to a default.
+    function measure(node) {
+      var box = node.getBoundingClientRect();
+      var w = Math.floor(box.width) || node.clientWidth || node.offsetWidth || 0;
+      var h = Math.floor(box.height) || node.clientHeight || node.offsetHeight || 0;
+
+      var parent = node.parentElement;
+      while (parent && (!w || !h)) {
+        var pbox = parent.getBoundingClientRect();
+        if (!w) w = Math.floor(pbox.width) || parent.clientWidth || parent.offsetWidth || 0;
+        if (!h) h = Math.floor(pbox.height) || parent.clientHeight || parent.offsetHeight || 0;
+        parent = parent.parentElement;
+      }
+      return { width: w, height: h };
     }
 
+    var vis = this;
     var root = this._root;
+    var attempts = 0;
+
+    function attempt() {
+      var size = measure(element);
+      if ((!size.width || !size.height) && attempts < 12) {
+        attempts++;
+        if (window.requestAnimationFrame) {
+          window.requestAnimationFrame(attempt);
+        } else {
+          window.setTimeout(attempt, 16);
+        }
+        return;
+      }
+      // Still unmeasurable: draw at a usable default rather than nothing.
+      try {
+        render(size.width || 600, size.height || 400);
+      } catch (err) {
+        // Without this the tile goes blank with nothing to read.
+        vis.addError({
+          title: 'Treemap failed to render',
+          message: (err && err.message) || String(err)
+        });
+      }
+      done();
+    }
+
+    function render(width, height) {
     root.innerHTML = '';
+    root.style.height = height + 'px';
 
     var svgNS = 'http://www.w3.org/2000/svg';
 
@@ -135,7 +175,6 @@ looker.plugins.visualizations.add({
 
     if (!data.length) {
       drawMessage('No results');
-      done();
       return;
     }
 
@@ -160,7 +199,6 @@ looker.plugins.visualizations.add({
 
     if (!items.length) {
       drawMessage('No positive values to size boxes by');
-      done();
       return;
     }
 
@@ -358,6 +396,8 @@ looker.plugins.visualizations.add({
     }
 
     root.appendChild(svg);
-    done();
+    }
+
+    attempt();
   }
 });
