@@ -57,7 +57,14 @@ looker.plugins.visualizations.add({
     }
   },
 
-  create: function (element, config) {
+  // Looker re-mounts a tile and hands updateAsync an element whose contents
+  // have been wiped. Caching the container from create() and drawing into it
+  // then puts the chart in a detached node: no error, empty tile. So rebuild
+  // the container whenever it is missing, and never cache it across renders.
+  _ensureRoot: function (element) {
+    var root = element.querySelector('.tmd-root');
+    if (root) return root;
+
     element.innerHTML =
       '<style>' +
       '.tmd-root { width: 100%; height: 100%; overflow: hidden; font-family: inherit; }' +
@@ -69,7 +76,11 @@ looker.plugins.visualizations.add({
       '.tmd-root .tmd-empty { fill: #9aa1a4; font-style: italic; }' +
       '</style>' +
       '<div class="tmd-root"></div>';
-    this._root = element.querySelector('.tmd-root');
+    return element.querySelector('.tmd-root');
+  },
+
+  create: function (element, config) {
+    this._ensureRoot(element);
   },
 
   updateAsync: function (data, element, config, queryResponse, details, done) {
@@ -111,7 +122,7 @@ looker.plugins.visualizations.add({
     }
 
     var vis = this;
-    var root = this._root;
+    var root = this._ensureRoot(element);
     var attempts = 0;
 
     function attempt() {
