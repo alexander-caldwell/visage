@@ -7,10 +7,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.0.0. The version is logged once on load, so the browser console says
+// Build v1.0.1. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('dumbbell build v1.0.0');
+if (window.console && console.log) console.log('dumbbell build v1.0.1');
 
 looker.plugins.visualizations.add({
   id: 'dumbbell',
@@ -115,6 +115,8 @@ looker.plugins.visualizations.add({
       '.dmb-grid-line { stroke: var(--dmb-grid); stroke-width: 1; }' +
       '.dmb-gap { font-size: 11px; fill: var(--dmb-ink-2); }' +
       '.dmb-note { font-size: 10px; fill: var(--dmb-muted); }' +
+      '.dmb-warn { font-size: 11px; color: var(--dmb-muted); font-style: italic;' +
+      '  overflow: hidden; text-overflow: ellipsis; min-width: 0; }' +
       '.dmb-empty { font-size: 12px; fill: var(--dmb-muted); }' +
       '.dmb-tip { position: absolute; z-index: 5; pointer-events: none; opacity: 0;' +
       '  transition: opacity 90ms ease-out; max-width: 260px;' +
@@ -314,6 +316,25 @@ looker.plugins.visualizations.add({
       return cut + '…';
     }
 
+    // Looker dimension values are often long and distinguished only by their
+    // tail: "... Migration : M1" against "... : M2". Cutting the end makes two
+    // different rows read identically, so long labels lose their middle and
+    // keep both ends.
+    function fitRowLabel(text, font, room) {
+      if (textWidth(text, font) <= room) return text;
+
+      var tail = text.slice(-10);
+      var tailWidth = textWidth('…' + tail, font);
+      if (tailWidth >= room * 0.8) return fit(text, font, room);
+
+      var head = text;
+      while (head.length > 1 && textWidth(head, font) + tailWidth > room) {
+        head = head.slice(0, -1);
+      }
+      if (head.length < 4) return fit(text, font, room);
+      return head + '…' + tail;
+    }
+
     // Two series, so a legend is always present: identity never rests on colour
     // alone.
     var legendHeight = 0;
@@ -333,6 +354,26 @@ looker.plugins.visualizations.add({
         key.appendChild(name);
         legend.appendChild(key);
       });
+      // A dumbbell puts both measures on one scale, so it only says anything
+      // when they are the same kind of quantity. Say so rather than drawing a
+      // column of dots pinned at zero.
+      var peakA = 0;
+      var peakB = 0;
+      rows.forEach(function (d) {
+        if (d.a !== null) peakA = Math.max(peakA, Math.abs(d.a));
+        if (d.b !== null) peakB = Math.max(peakB, Math.abs(d.b));
+      });
+      var ratio = peakA && peakB ? Math.max(peakA / peakB, peakB / peakA) : 0;
+
+      if (ratio > 25) {
+        var warn = document.createElement('div');
+        warn.className = 'dmb-warn';
+        warn.textContent = 'Scales differ ' +
+          Math.round(ratio).toLocaleString() + 'x. A dumbbell compares two ' +
+          'measures of the same kind on one scale.';
+        legend.appendChild(warn);
+      }
+
       root.appendChild(legend);
       legendHeight = legend.offsetHeight || 22;
     }
@@ -510,7 +551,7 @@ looker.plugins.visualizations.add({
         height: Math.max(1, Math.round(rowHeight))
       }));
 
-      var label = fit(d.name, fonts.label, labelRoom);
+      var label = fitRowLabel(d.name, fonts.label, labelRoom);
       if (label) {
         var text = el('text', { class: 'dmb-label', x: labelRoom, y: midY + 4 });
         text.textContent = label;
@@ -570,10 +611,11 @@ looker.plugins.visualizations.add({
         var left = Math.min(x(d.a), x(d.b)) - radius - 6 - gapWidth;
 
         // Placed right of the pair, or left of it when the edge is too close.
-        // Never clipped, and never drawn if neither side has room.
+        // Both sides are bounded by the plot, so the label can never land on
+        // the row names, and it is dropped rather than drawn in the wrong place.
         var gx = null;
         if (right + gapWidth <= width - 2) gx = right;
-        else if (left >= plotLeft - labelRoom) gx = left;
+        else if (left >= plotLeft + 2) gx = left;
 
         if (gx !== null) {
           var gapText = el('text', { class: 'dmb-gap', x: gx, y: midY + 4 });

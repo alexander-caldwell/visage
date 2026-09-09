@@ -44,8 +44,18 @@ Two measures per row on one shared scale, joined by a connector. Reads as
 "where is each row on each measure, and how big is the gap". Query shape: one
 dimension, two measures, the same shape as the treemap.
 
+**Both measures share one scale, so they must be the same kind of quantity**:
+hours logged against hours budgeted, revenue this year against last year, NPS
+before against after. Two measures of different magnitude (revenue against an
+NPS score) put one dot against zero on every row and say nothing. The chart
+detects that, prints a note beside the legend, and still draws. For two
+unrelated measures use the treemap instead, where area carries one and colour
+the other.
+
 - Two categorical hues in fixed order, one per measure, with a legend, so
   identity never rests on colour alone.
+- Long row labels lose their middle, not their end: Looker values are often
+  distinguished only by a tail such as "... : M1" against "... : M2".
 - Rows sorted by either measure, by the size of the gap, or left in query order.
 - Where the two values are equal, one marker is split down the middle rather
   than one dot hiding behind the other.
@@ -81,8 +91,8 @@ Instance-wide, no LookML change. Admin > Platform > Visualizations > Add:
 
 | ID | Label | Main |
 |---|---|---|
-| `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.2.0/treemap_dual.js` |
-| `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.2.0/dumbbell.js` |
+| `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.2.1/treemap_dual.js` |
+| `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.2.1/dumbbell.js` |
 
 Or in a LookML project manifest:
 
