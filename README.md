@@ -13,15 +13,30 @@ Treemap where box area comes from one measure and each box prints two measure
 values. Query shape: one dimension, two measures.
 
 - Area from the first measure by default; the "Size by" option flips to the second.
+- Colour carries the second measure on a single-hue scale, light to dark, so the
+  chart shows both measures at once. Colour follows the value, never the row's
+  rank, so filtering rows out never repaints the rows that remain. Switch to one
+  flat colour with the "Colour by" option.
+- A caption names what area and colour mean, with the colour range, so no box
+  has to repeat a measure name.
 - Each box shows the dimension name, the sizing measure, then the other measure.
-- Text drops line by line as boxes shrink, and truncates to the box width.
-- Box text is dark on pale fills and white on dark ones.
+- Text is measured before it is drawn, never clipped. Lines drop as boxes
+  shrink; a label that cannot keep four of its own characters is dropped rather
+  than cut to a stub, and a box with no room for its name carries no text at
+  all. The tooltip always has the full values.
+- Box text is ink or white, whichever reads on that fill. Every pairing clears
+  5:1 contrast.
+- Dark mode has its own colour steps, not a flipped copy: the light scale's
+  darkest blues sit too close to a dark surface to read.
+- Hovering a box shows a tooltip with the name and both measures. Tab moves
+  between boxes and shows the same tooltip; Enter or Space opens the drill menu.
 - Rows with a null, zero or negative sizing value cannot be drawn as a box. They
-  are counted in a footnote rather than silently dropped.
+  are counted in a footnote rather than silently dropped. A row missing the
+  second measure gets a grey box, named in the caption.
 - Clicking a box opens Looker's drill menu where the row has drill links.
 
-Options: size by, colours, show names, show second measure, prefix second
-measure with its name, gap between boxes.
+Options: size by, colour by, show caption, show names, show second measure,
+prefix second measure with its name, gap between boxes.
 
 ### `diagnostic.js`
 
@@ -30,7 +45,7 @@ count, field names, and the first row's values. It also draws one small blue
 rectangle to confirm inline SVG works.
 
 Register it as ID `diagnostic`, label `Diagnostic`, main
-`https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.0.0/diagnostic.js`.
+`https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.1.0/diagnostic.js`.
 
 If a tile stays blank with this selected, the file is not being loaded at all,
 and the problem is the registration, the URL, or the instance's policy, not the
@@ -44,7 +59,7 @@ Instance-wide, no LookML change. Admin > Platform > Visualizations > Add:
 |---|---|
 | ID | `treemap_dual` |
 | Label | `Treemap (Dual Value)` |
-| Main | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.0.0/treemap_dual.js` |
+| Main | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.1.0/treemap_dual.js` |
 
 Or in a LookML project manifest:
 
@@ -52,7 +67,7 @@ Or in a LookML project manifest:
 visualization: {
   id: "treemap_dual"
   label: "Treemap (Dual Value)"
-  url: "https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.0.0/treemap_dual.js"
+  url: "https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.1.0/treemap_dual.js"
   sri_hash: "sha384-njSpEVPRmkUzJHAOwgiNGfmtj5fuSIMA+qtfr2o0KBcGaPBs4jIYilkfAObs25iY"
 }
 ```
