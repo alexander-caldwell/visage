@@ -6,6 +6,11 @@
 //
 // Self-contained: the squarify layout is inlined, so there are no dependencies
 // to declare in the manifest and nothing to load from a CDN at render time.
+//
+// Build v1.1.1. The version is logged once on load, so the browser console says
+// which build a Looker instance is actually running.
+
+if (window.console && console.log) console.log('treemap_dual build v1.1.1');
 
 looker.plugins.visualizations.add({
   id: 'treemap_dual',
