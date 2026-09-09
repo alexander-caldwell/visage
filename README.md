@@ -30,7 +30,7 @@ count, field names, and the first row's values. It also draws one small blue
 rectangle to confirm inline SVG works.
 
 Register it as ID `diagnostic`, label `Diagnostic`, main
-`https://alexander-caldwell.github.io/visigoth/diagnostic.js`.
+`https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.0.0/diagnostic.js`.
 
 If a tile stays blank with this selected, the file is not being loaded at all,
 and the problem is the registration, the URL, or the instance's policy, not the
@@ -44,7 +44,7 @@ Instance-wide, no LookML change. Admin > Platform > Visualizations > Add:
 |---|---|
 | ID | `treemap_dual` |
 | Label | `Treemap (Dual Value)` |
-| Main | `https://alexander-caldwell.github.io/visigoth/treemap_dual.js` |
+| Main | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.0.0/treemap_dual.js` |
 
 Or in a LookML project manifest:
 
@@ -52,15 +52,34 @@ Or in a LookML project manifest:
 visualization: {
   id: "treemap_dual"
   label: "Treemap (Dual Value)"
-  url: "https://alexander-caldwell.github.io/visigoth/treemap_dual.js"
+  url: "https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.0.0/treemap_dual.js"
+  sri_hash: "sha384-njSpEVPRmkUzJHAOwgiNGfmtj5fuSIMA+qtfr2o0KBcGaPBs4jIYilkfAObs25iY"
 }
 ```
 
 A manifest change must be committed and deployed to production before the chart
 appears in an Explore. Instance-wide registration takes effect immediately.
 
-Files here are served by GitHub Pages, so a push updates the live chart. Looker
-and browsers cache the file, so allow a few minutes or hard-refresh.
+## Serve from jsDelivr, not GitHub Pages
+
+Use `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@<tag>/<file>.js`.
+
+GitHub Pages does not work for this. Chrome refuses the file with
+`net::ERR_BLOCKED_BY_ORB` and the tile stays blank with no Looker error,
+because Pages does not send a `Cross-Origin-Resource-Policy` header and the
+Looker page will not accept a cross-origin script without one. jsDelivr sends
+`cross-origin-resource-policy: cross-origin`, as does cdnjs, which is why
+Looker can already load d3 and Highcharts from there.
+
+jsDelivr serves a tagged URL as immutable and caches it for a year. So a change
+needs a new tag and a new URL in Looker:
+
+```
+git tag -a v1.0.1 -m "..." && git push origin v1.0.1
+```
+
+A branch URL such as `@main` avoids re-registering but caches for about 12
+hours, which makes a fix look like it did not work.
 
 ## Source
 
