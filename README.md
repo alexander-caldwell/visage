@@ -26,6 +26,10 @@ values. Query shape: one dimension, two measures.
   all. The tooltip always has the full values.
 - Box text is ink or white, whichever reads on that fill. Every pairing clears
   5:1 contrast.
+- The theme follows the tile, not the viewer's machine. The chart reads the
+  background colour it is sitting on, so a light dashboard stays light even for
+  someone whose laptop is in dark mode. The "Theme" option forces Light or Dark
+  when you want to override that.
 - Dark mode has its own colour steps, not a flipped copy: the light scale's
   darkest blues sit too close to a dark surface to read.
 - Hovering a box shows a tooltip with the name and both measures. Tab moves
@@ -52,6 +56,8 @@ detects that, prints a note beside the legend, and still draws. For two
 unrelated measures use the treemap instead, where area carries one and colour
 the other.
 
+- The theme follows the tile, not the viewer's machine, with a "Theme" option
+  to force Light or Dark.
 - Two categorical hues in fixed order, one per measure, with a legend, so
   identity never rests on colour alone.
 - Long row labels lose their middle, not their end: Looker values are often
@@ -91,8 +97,8 @@ Instance-wide, no LookML change. Admin > Platform > Visualizations > Add:
 
 | ID | Label | Main |
 |---|---|---|
-| `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.2.1/treemap_dual.js` |
-| `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.2.1/dumbbell.js` |
+| `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.3.0/treemap_dual.js` |
+| `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.3.0/dumbbell.js` |
 
 Or in a LookML project manifest:
 

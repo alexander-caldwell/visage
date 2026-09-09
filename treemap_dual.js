@@ -7,16 +7,25 @@
 // Self-contained: the squarify layout is inlined, so there are no dependencies
 // to declare in the manifest and nothing to load from a CDN at render time.
 //
-// Build v1.1.1. The version is logged once on load, so the browser console says
+// Build v1.2.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('treemap_dual build v1.1.1');
+if (window.console && console.log) console.log('treemap_dual build v1.2.0');
 
 looker.plugins.visualizations.add({
   id: 'treemap_dual',
   label: 'Treemap (Dual Value)',
 
   options: {
+    theme: {
+      type: 'string',
+      label: 'Theme',
+      display: 'select',
+      values: [{ 'Match Looker': 'auto' }, { 'Light': 'light' }, { 'Dark': 'dark' }],
+      default: 'auto',
+      section: 'Style',
+      order: 0
+    },
     size_by: {
       type: 'string',
       label: 'Size by',
@@ -118,8 +127,7 @@ looker.plugins.visualizations.add({
       '  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;' +
       '  -webkit-font-smoothing: antialiased;' +
       '}' +
-      '@media (prefers-color-scheme: dark) {' +
-      '  .tmd-root { --tmd-surface: #1a1a19; --tmd-ink: #ffffff; --tmd-ink-2: #c3c2b7;' +
+      '.tmd-root.tmd-dark { --tmd-surface: #1a1a19; --tmd-ink: #ffffff; --tmd-ink-2: #c3c2b7;' +
       '    --tmd-muted: #898781; --tmd-hairline: rgba(255,255,255,0.10);' +
       '    --tmd-s0: #b7d3f6; --tmd-i0: #0b0b0b;' +
       '    --tmd-s1: #9ec5f4; --tmd-i1: #0b0b0b;' +
@@ -130,7 +138,6 @@ looker.plugins.visualizations.add({
       '    --tmd-s6: #184f95; --tmd-i6: #ffffff;' +
       '    --tmd-flat: #3987e5; --tmd-flat-ink: #0b0b0b;' +
       '    --tmd-null: #3a3a37; --tmd-null-ink: #ffffff; }' +
-      '}' +
       '.tmd-caption { display: flex; gap: 14px; align-items: center; padding: 0 1px 6px;' +
       '  font-size: 11px; color: var(--tmd-muted); white-space: nowrap; overflow: hidden; }' +
       '.tmd-caption-item { display: flex; gap: 6px; align-items: center; min-width: 0; }' +
@@ -171,8 +178,41 @@ looker.plugins.visualizations.add({
     return root;
   },
 
+  // The tile should match the dashboard it sits in, not the viewer's operating
+  // system. Looker's own theme is not exposed to a visualisation, so read the
+  // background colour of the first ancestor that paints one, and fall back to
+  // the OS preference only when nothing does.
+  _hostIsDark: function (element) {
+    var node = element;
+    while (node && node !== document.documentElement) {
+      var colour = window.getComputedStyle(node).backgroundColor;
+      var parts = /rgba?\(([^)]+)\)/.exec(colour);
+      if (parts) {
+        var channels = parts[1].split(',').map(function (v) { return parseFloat(v); });
+        var alpha = channels.length > 3 ? channels[3] : 1;
+        if (alpha > 0.1) {
+          var brightness = (0.299 * channels[0] + 0.587 * channels[1] + 0.114 * channels[2]) / 255;
+          return brightness < 0.5;
+        }
+      }
+      node = node.parentElement;
+    }
+    return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  },
+
+  _applyTheme: function (element, root, config) {
+    var dark;
+    if (config.theme === 'dark') dark = true;
+    else if (config.theme === 'light') dark = false;
+    else dark = this._hostIsDark(element);
+
+    if (dark) root.classList.add('tmd-dark');
+    else root.classList.remove('tmd-dark');
+  },
+
   create: function (element, config) {
-    this._ensureRoot(element);
+    var root = this._ensureRoot(element);
+    this._applyTheme(element, root, config || {});
   },
 
   updateAsync: function (data, element, config, queryResponse, details, done) {
@@ -215,6 +255,7 @@ looker.plugins.visualizations.add({
 
     var vis = this;
     var root = this._ensureRoot(element);
+    this._applyTheme(element, root, config);
     var attempts = 0;
 
     function attempt() {

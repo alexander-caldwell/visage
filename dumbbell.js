@@ -7,16 +7,25 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.0.1. The version is logged once on load, so the browser console says
+// Build v1.1.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('dumbbell build v1.0.1');
+if (window.console && console.log) console.log('dumbbell build v1.1.0');
 
 looker.plugins.visualizations.add({
   id: 'dumbbell',
   label: 'Dumbbell',
 
   options: {
+    theme: {
+      type: 'string',
+      label: 'Theme',
+      display: 'select',
+      values: [{ 'Match Looker': 'auto' }, { 'Light': 'light' }, { 'Dark': 'dark' }],
+      default: 'auto',
+      section: 'Style',
+      order: 0
+    },
     sort_by: {
       type: 'string',
       label: 'Sort rows by',
@@ -90,12 +99,10 @@ looker.plugins.visualizations.add({
       '  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;' +
       '  -webkit-font-smoothing: antialiased;' +
       '}' +
-      '@media (prefers-color-scheme: dark) {' +
-      '  .dmb-root { --dmb-surface: #1a1a19; --dmb-ink: #ffffff; --dmb-ink-2: #c3c2b7;' +
+      '.dmb-root.dmb-dark { --dmb-surface: #1a1a19; --dmb-ink: #ffffff; --dmb-ink-2: #c3c2b7;' +
       '    --dmb-muted: #898781; --dmb-grid: #2c2c2a; --dmb-connector: #383835;' +
       '    --dmb-hairline: rgba(255,255,255,0.10);' +
       '    --dmb-a: #3987e5; --dmb-b: #d95926; }' +
-      '}' +
       '.dmb-legend { display: flex; gap: 14px; align-items: center; padding: 0 1px 6px;' +
       '  font-size: 11px; color: var(--dmb-ink-2); white-space: nowrap; overflow: hidden; }' +
       '.dmb-key { display: flex; gap: 6px; align-items: center; min-width: 0; }' +
@@ -141,8 +148,41 @@ looker.plugins.visualizations.add({
     return root;
   },
 
+  // The tile should match the dashboard it sits in, not the viewer's operating
+  // system. Looker's own theme is not exposed to a visualisation, so read the
+  // background colour of the first ancestor that paints one, and fall back to
+  // the OS preference only when nothing does.
+  _hostIsDark: function (element) {
+    var node = element;
+    while (node && node !== document.documentElement) {
+      var colour = window.getComputedStyle(node).backgroundColor;
+      var parts = /rgba?\(([^)]+)\)/.exec(colour);
+      if (parts) {
+        var channels = parts[1].split(',').map(function (v) { return parseFloat(v); });
+        var alpha = channels.length > 3 ? channels[3] : 1;
+        if (alpha > 0.1) {
+          var brightness = (0.299 * channels[0] + 0.587 * channels[1] + 0.114 * channels[2]) / 255;
+          return brightness < 0.5;
+        }
+      }
+      node = node.parentElement;
+    }
+    return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  },
+
+  _applyTheme: function (element, root, config) {
+    var dark;
+    if (config.theme === 'dark') dark = true;
+    else if (config.theme === 'light') dark = false;
+    else dark = this._hostIsDark(element);
+
+    if (dark) root.classList.add('dmb-dark');
+    else root.classList.remove('dmb-dark');
+  },
+
   create: function (element, config) {
-    this._ensureRoot(element);
+    var root = this._ensureRoot(element);
+    this._applyTheme(element, root, config || {});
   },
 
   updateAsync: function (data, element, config, queryResponse, details, done) {
@@ -185,6 +225,7 @@ looker.plugins.visualizations.add({
 
     var vis = this;
     var root = this._ensureRoot(element);
+    this._applyTheme(element, root, config);
     var attempts = 0;
 
     function attempt() {
