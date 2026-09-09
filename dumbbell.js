@@ -7,10 +7,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.1.0. The version is logged once on load, so the browser console says
+// Build v1.2.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('dumbbell build v1.1.0');
+if (window.console && console.log) console.log('dumbbell build v1.2.0');
 
 looker.plugins.visualizations.add({
   id: 'dumbbell',
@@ -376,6 +376,149 @@ looker.plugins.visualizations.add({
       return head + '…' + tail;
     }
 
+    // Labels wrap, then shrink, and are only dropped when even the smallest
+    // size cannot carry something readable. A name lost to a narrow box is
+    // information gone, and Looker dimension values are usually long.
+    var FONT_STACK = 'system-ui, -apple-system, "Segoe UI", sans-serif';
+
+    function fontOf(size, weight) {
+      return (weight ? weight + ' ' : '') + size + 'px ' + FONT_STACK;
+    }
+
+    // Keeps the end of a value when the middle has to go: Looker names are
+    // often distinguished only by their tail, "... Phase 2" against
+    // "... Phase 3", so cutting the end makes two different rows read alike.
+    function middleFit(text, font, room) {
+      if (textWidth(text, font) <= room) return text;
+      var tail = text.slice(-9);
+      while (tail.length > 2 && textWidth('…' + tail, font) > room * 0.55) tail = tail.slice(1);
+      var head = text.slice(0, text.length - tail.length);
+      while (head.length > 1 && textWidth(head + '…' + tail, font) > room) head = head.slice(0, -1);
+      if (head.length < 2) return null;
+      return head + '…' + tail;
+    }
+
+    function wrapLines(text, font, room, maxRows, keepTail) {
+      var words = String(text).split(/\s+/).filter(Boolean);
+      if (!words.length || room < 8) return null;
+
+      var lines = [];
+      var current = '';
+      var tooWide = false;
+
+      words.forEach(function (word) {
+        if (tooWide) return;
+        var candidate = current ? current + ' ' + word : word;
+        if (textWidth(candidate, font) <= room) {
+          current = candidate;
+          return;
+        }
+        // A word wider than the line is never split down the middle: breaking
+        // "Liberis" into "Lib" and "eris" reads as two words. Fail here so a
+        // smaller size is tried, and an ellipsis used as the last resort.
+        if (textWidth(word, font) > room) {
+          tooWide = true;
+          return;
+        }
+        if (current) lines.push(current);
+        current = word;
+      });
+      if (tooWide) return null;
+      if (current) lines.push(current);
+      if (!lines.length) return null;
+
+      if (lines.length > maxRows) {
+        var kept = lines.slice(0, maxRows - 1);
+        var remainder = lines.slice(maxRows - 1).join(' ');
+        var lastLine = keepTail
+          ? middleFit(remainder, font, room)
+          : null;
+        if (!lastLine) {
+          lastLine = remainder;
+          while (lastLine.length > 1 && textWidth(lastLine + '…', font) > room) {
+            lastLine = lastLine.slice(0, -1);
+          }
+          lastLine += '…';
+        }
+        lines = kept.concat([lastLine]);
+      }
+
+      var shortest = lines.reduce(function (min, line) {
+        return Math.min(min, line.replace('…', '').length);
+      }, Infinity);
+      if (shortest < 2) return null;
+      if (lines.length === 1 && lines[0].replace('…', '').length < Math.min(3, text.length)) return null;
+
+      return lines;
+    }
+
+    // Tries each size in turn, wrapping to whatever rows the height allows.
+    function layoutLabel(text, opts) {
+      var sizes = opts.sizes || [12, 11, 10, 9];
+      var room = opts.width;
+      var maxLines = opts.maxLines || 3;
+
+      for (var i = 0; i < sizes.length; i++) {
+        var size = sizes[i];
+        var font = fontOf(size, opts.weight);
+        var lineHeight = Math.ceil(size * 1.22);
+        var rows = Math.max(1, Math.min(maxLines, Math.floor(opts.height / lineHeight)));
+        if (rows < 1) continue;
+        var lines = wrapLines(text, font, room, rows, opts.keepTail);
+        if (lines && lines.length * lineHeight <= opts.height) {
+          return { lines: lines, size: size, font: font, lineHeight: lineHeight,
+                   height: lines.length * lineHeight };
+        }
+      }
+
+      // Last resort: one line at the smallest size, cut with an ellipsis.
+      var smallest = sizes[sizes.length - 1];
+      var smallFont = fontOf(smallest, opts.weight);
+      var smallHeight = Math.ceil(smallest * 1.22);
+      if (smallHeight <= opts.height) {
+        var cut = opts.keepTail ? middleFit(text, smallFont, room) : null;
+        if (!cut) cut = fit(text, smallFont, room);
+        if (cut) {
+          return { lines: [cut], size: smallest, font: smallFont,
+                   lineHeight: smallHeight, height: smallHeight };
+        }
+      }
+      return null;
+    }
+
+    // Draws a laid-out label as one or more <text> rows.
+    function drawLabel(parent, layout, opts) {
+      layout.lines.forEach(function (line, i) {
+        var text = el('text', {
+          class: opts.cls || '',
+          x: opts.x,
+          y: Math.round(opts.top + layout.lineHeight * (i + 0.78)),
+          'text-anchor': opts.anchor || 'middle'
+        });
+        text.setAttribute('font-size', layout.size);
+        if (opts.weight) text.setAttribute('font-weight', opts.weight);
+        if (opts.opacity) text.setAttribute('opacity', opts.opacity);
+        if (opts.fill) text.style.fill = opts.fill;
+        text.textContent = line;
+        parent.appendChild(text);
+      });
+      return layout.height;
+    }
+
+
+    function compact(value) {
+      var abs = Math.abs(value);
+      if (abs >= 1e9) return (value / 1e9).toFixed(1).replace(/\.0$/, '') + 'bn';
+      if (abs >= 1e6) return (value / 1e6).toFixed(1).replace(/\.0$/, '') + 'm';
+      if (abs >= 1e4) return Math.round(value / 1e3) + 'k';
+      if (abs >= 1e3) return (value / 1e3).toFixed(1).replace(/\.0$/, '') + 'k';
+      if (abs >= 10) return String(Math.round(value));
+      if (abs >= 1) return value.toLocaleString(undefined, { maximumFractionDigits: 1 });
+      if (abs === 0) return '0';
+      // Small numbers must not all round to "0": keep two significant digits.
+      return Number(value.toPrecision(2)).toString();
+    }
+
     // Two series, so a legend is always present: identity never rests on colour
     // alone.
     var legendHeight = 0;
@@ -592,11 +735,24 @@ looker.plugins.visualizations.add({
         height: Math.max(1, Math.round(rowHeight))
       }));
 
-      var label = fitRowLabel(d.name, fonts.label, labelRoom);
-      if (label) {
-        var text = el('text', { class: 'dmb-label', x: labelRoom, y: midY + 4 });
-        text.textContent = label;
-        group.appendChild(text);
+      // The row name wraps onto a second line where the row is tall enough,
+      // shrinks if it must, and only then falls back to a middle truncation
+      // that keeps both ends of the value.
+      var nameLayout = layoutLabel(d.name, {
+        width: labelRoom, height: Math.min(rowHeight - 2, 30),
+        sizes: [12, 11, 10], maxLines: 2, keepTail: true
+      });
+      if (nameLayout) {
+        drawLabel(group, nameLayout, {
+          cls: 'dmb-label', x: labelRoom, top: midY - nameLayout.height / 2, anchor: 'end'
+        });
+      } else {
+        var label = fitRowLabel(d.name, fonts.label, labelRoom);
+        if (label) {
+          var text = el('text', { class: 'dmb-label', x: labelRoom, y: midY + 4 });
+          text.textContent = label;
+          group.appendChild(text);
+        }
       }
 
       if (d.a !== null && d.b !== null) {

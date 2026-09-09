@@ -7,10 +7,10 @@
 // Self-contained: the squarify layout is inlined, so there are no dependencies
 // to declare in the manifest and nothing to load from a CDN at render time.
 //
-// Build v1.2.0. The version is logged once on load, so the browser console says
+// Build v1.4.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('treemap_dual build v1.2.0');
+if (window.console && console.log) console.log('treemap_dual build v1.4.0');
 
 looker.plugins.visualizations.add({
   id: 'treemap_dual',
@@ -377,6 +377,149 @@ looker.plugins.visualizations.add({
       return textWidth(out, font) <= room ? out : null;
     }
 
+    // Labels wrap, then shrink, and are only dropped when even the smallest
+    // size cannot carry something readable. A name lost to a narrow box is
+    // information gone, and Looker dimension values are usually long.
+    var FONT_STACK = 'system-ui, -apple-system, "Segoe UI", sans-serif';
+
+    function fontOf(size, weight) {
+      return (weight ? weight + ' ' : '') + size + 'px ' + FONT_STACK;
+    }
+
+    // Keeps the end of a value when the middle has to go: Looker names are
+    // often distinguished only by their tail, "... Phase 2" against
+    // "... Phase 3", so cutting the end makes two different rows read alike.
+    function middleFit(text, font, room) {
+      if (textWidth(text, font) <= room) return text;
+      var tail = text.slice(-9);
+      while (tail.length > 2 && textWidth('…' + tail, font) > room * 0.55) tail = tail.slice(1);
+      var head = text.slice(0, text.length - tail.length);
+      while (head.length > 1 && textWidth(head + '…' + tail, font) > room) head = head.slice(0, -1);
+      if (head.length < 2) return null;
+      return head + '…' + tail;
+    }
+
+    function wrapLines(text, font, room, maxRows, keepTail) {
+      var words = String(text).split(/\s+/).filter(Boolean);
+      if (!words.length || room < 8) return null;
+
+      var lines = [];
+      var current = '';
+      var tooWide = false;
+
+      words.forEach(function (word) {
+        if (tooWide) return;
+        var candidate = current ? current + ' ' + word : word;
+        if (textWidth(candidate, font) <= room) {
+          current = candidate;
+          return;
+        }
+        // A word wider than the line is never split down the middle: breaking
+        // "Liberis" into "Lib" and "eris" reads as two words. Fail here so a
+        // smaller size is tried, and an ellipsis used as the last resort.
+        if (textWidth(word, font) > room) {
+          tooWide = true;
+          return;
+        }
+        if (current) lines.push(current);
+        current = word;
+      });
+      if (tooWide) return null;
+      if (current) lines.push(current);
+      if (!lines.length) return null;
+
+      if (lines.length > maxRows) {
+        var kept = lines.slice(0, maxRows - 1);
+        var remainder = lines.slice(maxRows - 1).join(' ');
+        var lastLine = keepTail
+          ? middleFit(remainder, font, room)
+          : null;
+        if (!lastLine) {
+          lastLine = remainder;
+          while (lastLine.length > 1 && textWidth(lastLine + '…', font) > room) {
+            lastLine = lastLine.slice(0, -1);
+          }
+          lastLine += '…';
+        }
+        lines = kept.concat([lastLine]);
+      }
+
+      var shortest = lines.reduce(function (min, line) {
+        return Math.min(min, line.replace('…', '').length);
+      }, Infinity);
+      if (shortest < 2) return null;
+      if (lines.length === 1 && lines[0].replace('…', '').length < Math.min(3, text.length)) return null;
+
+      return lines;
+    }
+
+    // Tries each size in turn, wrapping to whatever rows the height allows.
+    function layoutLabel(text, opts) {
+      var sizes = opts.sizes || [12, 11, 10, 9];
+      var room = opts.width;
+      var maxLines = opts.maxLines || 3;
+
+      for (var i = 0; i < sizes.length; i++) {
+        var size = sizes[i];
+        var font = fontOf(size, opts.weight);
+        var lineHeight = Math.ceil(size * 1.22);
+        var rows = Math.max(1, Math.min(maxLines, Math.floor(opts.height / lineHeight)));
+        if (rows < 1) continue;
+        var lines = wrapLines(text, font, room, rows, opts.keepTail);
+        if (lines && lines.length * lineHeight <= opts.height) {
+          return { lines: lines, size: size, font: font, lineHeight: lineHeight,
+                   height: lines.length * lineHeight };
+        }
+      }
+
+      // Last resort: one line at the smallest size, cut with an ellipsis.
+      var smallest = sizes[sizes.length - 1];
+      var smallFont = fontOf(smallest, opts.weight);
+      var smallHeight = Math.ceil(smallest * 1.22);
+      if (smallHeight <= opts.height) {
+        var cut = opts.keepTail ? middleFit(text, smallFont, room) : null;
+        if (!cut) cut = fit(text, smallFont, room);
+        if (cut) {
+          return { lines: [cut], size: smallest, font: smallFont,
+                   lineHeight: smallHeight, height: smallHeight };
+        }
+      }
+      return null;
+    }
+
+    // Draws a laid-out label as one or more <text> rows.
+    function drawLabel(parent, layout, opts) {
+      layout.lines.forEach(function (line, i) {
+        var text = el('text', {
+          class: opts.cls || '',
+          x: opts.x,
+          y: Math.round(opts.top + layout.lineHeight * (i + 0.78)),
+          'text-anchor': opts.anchor || 'middle'
+        });
+        text.setAttribute('font-size', layout.size);
+        if (opts.weight) text.setAttribute('font-weight', opts.weight);
+        if (opts.opacity) text.setAttribute('opacity', opts.opacity);
+        if (opts.fill) text.style.fill = opts.fill;
+        text.textContent = line;
+        parent.appendChild(text);
+      });
+      return layout.height;
+    }
+
+
+    function compact(value) {
+      var abs = Math.abs(value);
+      if (abs >= 1e9) return (value / 1e9).toFixed(1).replace(/\.0$/, '') + 'bn';
+      if (abs >= 1e6) return (value / 1e6).toFixed(1).replace(/\.0$/, '') + 'm';
+      if (abs >= 1e4) return Math.round(value / 1e3) + 'k';
+      if (abs >= 1e3) return (value / 1e3).toFixed(1).replace(/\.0$/, '') + 'k';
+      if (abs >= 10) return String(Math.round(value));
+      if (abs >= 1) return value.toLocaleString(undefined, { maximumFractionDigits: 1 });
+      if (abs === 0) return '0';
+      // Small numbers must not all round to "0": keep two significant digits.
+      return Number(value.toPrecision(2)).toString();
+    }
+
     var colourByMeasure = config.colour_by !== 'flat';
     var steps = vis._steps;
     var others = items.map(function (d) { return d.other; })
@@ -582,6 +725,7 @@ looker.plugins.visualizations.add({
 
     var inset = pad / 2;
     var lineHeight = 15;
+    var thinTargets = [];
 
     items.forEach(function (d) {
       if (!d.rect) return;
@@ -636,50 +780,95 @@ looker.plugins.visualizations.add({
         });
       }
 
-      var padX = 8;
+      var padX = 6;
       var room = boxWidth - padX * 2;
-      var lines = [];
+      var cursor = 4;
+      var budget = boxHeight - 8;
       var named = true;
 
+      // The name wraps across lines and shrinks before it is given up, then the
+      // figures take whatever room is left. Nothing is clipped, and anything
+      // dropped is still in the tooltip.
       if (config.show_labels) {
-        var name = fit(d.name, fonts.name, room);
-        // A bare number in an unnamed box says nothing, so when the name will
-        // not fit the box carries no text at all and the tooltip does the work.
-        named = !!name;
-        if (name) lines.push({ text: name, cls: 'tmd-name', font: fonts.name });
-      }
-
-      var primary = named ? fit(d.sizeText, fonts.value, room) : null;
-      if (primary) lines.push({ text: primary, cls: 'tmd-value', font: fonts.value });
-
-      if (named && config.show_secondary) {
-        // Prefer the prefixed form, but a truncated prefix tells the reader
-        // nothing, so fall back to the bare value before truncating.
-        var second = null;
-        if (config.secondary_prefix) {
-          second = fit(otherField.label_short + ': ' + d.otherText, fonts.second, room, true);
-        }
-        if (!second) second = fit(d.otherText, fonts.second, room);
-        if (second) lines.push({ text: second, cls: 'tmd-second', font: fonts.second, dim: true });
-      }
-
-      while (lines.length && lines.length * lineHeight + 9 > boxHeight) {
-        lines.pop();
-      }
-
-      lines.forEach(function (line, i) {
-        var text = el('text', {
-          class: line.cls,
-          x: padX,
-          y: 17 + i * lineHeight
+        var reserve = config.show_secondary ? 26 : 14;
+        var nameLayout = layoutLabel(d.name, {
+          width: room, height: Math.max(0, budget - reserve),
+          sizes: [12, 11, 10, 9], weight: '600', maxLines: 3, keepTail: true
         });
-        text.style.fill = tokens.ink;
-        if (line.dim) text.setAttribute('opacity', '0.78');
-        text.textContent = line.text;
-        group.appendChild(text);
-      });
+        named = !!nameLayout;
+        if (nameLayout) {
+          drawLabel(group, nameLayout, {
+            cls: 'tmd-name', x: padX, top: cursor, anchor: 'start',
+            fill: tokens.ink, weight: '600'
+          });
+          cursor += nameLayout.height;
+          budget -= nameLayout.height;
+        }
+      }
+
+      // A bare number in an unnamed box says nothing, so the figures only
+      // appear once the name has a place.
+      if (named) {
+        var primaryLayout = layoutLabel(d.sizeText, {
+          width: room, height: budget, sizes: [12, 11, 10], maxLines: 1
+        });
+        if (primaryLayout) {
+          drawLabel(group, primaryLayout, {
+            cls: 'tmd-value', x: padX, top: cursor, anchor: 'start', fill: tokens.ink
+          });
+          cursor += primaryLayout.height;
+          budget -= primaryLayout.height;
+        }
+
+        if (config.show_secondary) {
+          // Prefer the prefixed form, but a truncated prefix tells the reader
+          // nothing, so fall back to the bare value.
+          var secondText = null;
+          if (config.secondary_prefix) {
+            var prefixed = otherField.label_short + ': ' + d.otherText;
+            if (wrapLines(prefixed, fontOf(11), room, 1)) secondText = prefixed;
+          }
+          if (!secondText) secondText = d.otherText;
+
+          var secondLayout = layoutLabel(secondText, {
+            width: room, height: budget, sizes: [11, 10, 9], maxLines: 1
+          });
+          if (secondLayout) {
+            drawLabel(group, secondLayout, {
+              cls: 'tmd-second', x: padX, top: cursor, anchor: 'start',
+              fill: tokens.ink, opacity: '0.78'
+            });
+          }
+        }
+      }
 
       svg.appendChild(group);
+
+      // A box too small to point at keeps an invisible target, added after all
+      // the boxes so it sits on top.
+      if (boxWidth < 10 || boxHeight < 10) {
+        thinTargets.push({ group: group, cx: x + boxWidth / 2, cy: y + boxHeight / 2 });
+      }
+    });
+
+    thinTargets.forEach(function (target) {
+      var hit = el('rect', {
+        class: 'tmd-hit',
+        x: Math.max(0, target.cx - 6),
+        y: Math.max(0, target.cy - 6),
+        width: 12,
+        height: 12,
+        fill: 'transparent'
+      });
+      hit.addEventListener('pointermove', function (event) {
+        target.group.dispatchEvent(new PointerEvent('pointermove', {
+          clientX: event.clientX, clientY: event.clientY, bubbles: false
+        }));
+      });
+      hit.addEventListener('pointerleave', function () {
+        target.group.dispatchEvent(new PointerEvent('pointerleave', { bubbles: false }));
+      });
+      svg.appendChild(hit);
     });
 
     if (skipped) {

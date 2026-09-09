@@ -5,6 +5,38 @@ Custom visualisations for Looker, hosted for registration by URL.
 Each file is a single plain JavaScript file written against the Looker
 visualisation API. No build step, no bundler, no dependencies to load.
 
+## House rules
+
+Every chart here follows the same rules, because each was learned from a chart
+that failed in a real Looker instance.
+
+**Labels.** Wrap, then shrink (12, 11, 10, 9px), then truncate, then drop, in
+that order. Words are never split down the middle: "Liberis" as "Lib" and
+"eris" reads as two words. When a cut is unavoidable it comes out of the middle
+so the tail survives, because Looker values are often distinguished only by
+their end ("... Phase 2" against "... Phase 3"). A column too narrow for flat
+text gets its name turned on its side. Text is measured with the real font
+before it is drawn, never estimated, never clipped.
+
+**Hover.** Anything a label had to give up is still on the mark. Every tile,
+box, column and cell answers for itself on hover and on keyboard focus,
+including marks too small to point at, which carry an invisible target of usable
+size. Verified by hovering every mark in the chart, smallest first.
+
+**Never a blank tile.** The container is rebuilt on every render, never cached,
+because Looker re-mounts a tile and hands over a wiped element. A tile that
+measures zero is measured again across a few frames and then drawn at a
+fallback size. No `innerHTML`, which a Trusted Types policy rejects by throwing.
+Drawing is wrapped so any error appears in Looker's own error box.
+
+**Theme.** The chart reads the background of the tile it sits in, so a light
+dashboard stays light for a viewer whose machine is in dark mode. Dark mode has
+its own colour steps, not a flipped copy.
+
+**Colour.** Follows the value or the entity, never the row's position, so
+filtering never repaints the rows that remain. Sequential is one hue light to
+dark; categorical is eight hues in fixed order, never cycled.
+
 ## Charts
 
 ### `treemap_dual.js`
@@ -20,6 +52,7 @@ values. Query shape: one dimension, two measures.
 - A caption names what area and colour mean, with the colour range, so no box
   has to repeat a measure name.
 - Each box shows the dimension name, the sizing measure, then the other measure.
+  Names wrap onto up to three lines and shrink before they are given up.
 - Text is measured before it is drawn, never clipped. Lines drop as boxes
   shrink; a label that cannot keep four of its own characters is dropped rather
   than cut to a stub, and a box with no room for its name carries no text at
@@ -69,8 +102,13 @@ area is its share of the grand total.
   one "Other".
 - Columns past the limit (8 by default) are grouped into "Other" rather than
   drawn as unreadable slivers, and the footnote says how many.
-- Cells name themselves where they are tall enough, show the share where they
-  are not, and are read from the tooltip when they are smaller still.
+- Cells name themselves where they are tall enough, wrapping and shrinking to
+  fit, show the figure and share where they are not, and are read from the
+  tooltip when they are smaller still. Every cell has its own tooltip giving its
+  figure, its share of its column and its share of the whole.
+- Columns carry the absolute figures inside them: the area measure, the width
+  measure, then the rate. The caption gives both totals, so the scale of the
+  whole chart is stated once.
 - Text inside a fill is ink or white by measured contrast; the lowest pairing is
   4.8:1.
 - Theme follows the tile. Hover, keyboard focus and drill work as in the other
@@ -134,9 +172,9 @@ Instance-wide, no LookML change. Admin > Platform > Visualizations > Add:
 
 | ID | Label | Main |
 |---|---|---|
-| `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.4.0/treemap_dual.js` |
-| `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.4.0/dumbbell.js` |
-| `marimekko` | Marimekko | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.4.0/marimekko.js` |
+| `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.5.0/treemap_dual.js` |
+| `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.5.0/dumbbell.js` |
+| `marimekko` | Marimekko | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.5.0/marimekko.js` |
 
 Or in a LookML project manifest:
 

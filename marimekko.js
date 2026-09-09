@@ -17,10 +17,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.0.0. The version is logged once on load, so the browser console says
+// Build v1.2.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('marimekko build v1.0.0');
+if (window.console && console.log) console.log('marimekko build v1.2.0');
 
 looker.plugins.visualizations.add({
   id: 'marimekko',
@@ -73,6 +73,13 @@ looker.plugins.visualizations.add({
       type: 'boolean',
       label: 'Shade columns by height',
       default: false,
+      section: 'Style',
+      order: 1
+    },
+    show_values: {
+      type: 'boolean',
+      label: 'Show figures in columns',
+      default: true,
       section: 'Style',
       order: 1
     },
@@ -368,6 +375,136 @@ looker.plugins.visualizations.add({
       return cut + '…';
     }
 
+    // Labels wrap, then shrink, and are only dropped when even the smallest
+    // size cannot carry something readable. A name lost to a narrow box is
+    // information gone, and Looker dimension values are usually long.
+    var FONT_STACK = 'system-ui, -apple-system, "Segoe UI", sans-serif';
+
+    function fontOf(size, weight) {
+      return (weight ? weight + ' ' : '') + size + 'px ' + FONT_STACK;
+    }
+
+    // Keeps the end of a value when the middle has to go: Looker names are
+    // often distinguished only by their tail, "... Phase 2" against
+    // "... Phase 3", so cutting the end makes two different rows read alike.
+    function middleFit(text, font, room) {
+      if (textWidth(text, font) <= room) return text;
+      var tail = text.slice(-9);
+      while (tail.length > 2 && textWidth('…' + tail, font) > room * 0.55) tail = tail.slice(1);
+      var head = text.slice(0, text.length - tail.length);
+      while (head.length > 1 && textWidth(head + '…' + tail, font) > room) head = head.slice(0, -1);
+      if (head.length < 2) return null;
+      return head + '…' + tail;
+    }
+
+    function wrapLines(text, font, room, maxRows, keepTail) {
+      var words = String(text).split(/\s+/).filter(Boolean);
+      if (!words.length || room < 8) return null;
+
+      var lines = [];
+      var current = '';
+      var tooWide = false;
+
+      words.forEach(function (word) {
+        if (tooWide) return;
+        var candidate = current ? current + ' ' + word : word;
+        if (textWidth(candidate, font) <= room) {
+          current = candidate;
+          return;
+        }
+        // A word wider than the line is never split down the middle: breaking
+        // "Liberis" into "Lib" and "eris" reads as two words. Fail here so a
+        // smaller size is tried, and an ellipsis used as the last resort.
+        if (textWidth(word, font) > room) {
+          tooWide = true;
+          return;
+        }
+        if (current) lines.push(current);
+        current = word;
+      });
+      if (tooWide) return null;
+      if (current) lines.push(current);
+      if (!lines.length) return null;
+
+      if (lines.length > maxRows) {
+        var kept = lines.slice(0, maxRows - 1);
+        var remainder = lines.slice(maxRows - 1).join(' ');
+        var lastLine = keepTail
+          ? middleFit(remainder, font, room)
+          : null;
+        if (!lastLine) {
+          lastLine = remainder;
+          while (lastLine.length > 1 && textWidth(lastLine + '…', font) > room) {
+            lastLine = lastLine.slice(0, -1);
+          }
+          lastLine += '…';
+        }
+        lines = kept.concat([lastLine]);
+      }
+
+      var shortest = lines.reduce(function (min, line) {
+        return Math.min(min, line.replace('…', '').length);
+      }, Infinity);
+      if (shortest < 2) return null;
+      if (lines.length === 1 && lines[0].replace('…', '').length < Math.min(3, text.length)) return null;
+
+      return lines;
+    }
+
+    // Tries each size in turn, wrapping to whatever rows the height allows.
+    function layoutLabel(text, opts) {
+      var sizes = opts.sizes || [12, 11, 10, 9];
+      var room = opts.width;
+      var maxLines = opts.maxLines || 3;
+
+      for (var i = 0; i < sizes.length; i++) {
+        var size = sizes[i];
+        var font = fontOf(size, opts.weight);
+        var lineHeight = Math.ceil(size * 1.22);
+        var rows = Math.max(1, Math.min(maxLines, Math.floor(opts.height / lineHeight)));
+        if (rows < 1) continue;
+        var lines = wrapLines(text, font, room, rows, opts.keepTail);
+        if (lines && lines.length * lineHeight <= opts.height) {
+          return { lines: lines, size: size, font: font, lineHeight: lineHeight,
+                   height: lines.length * lineHeight };
+        }
+      }
+
+      // Last resort: one line at the smallest size, cut with an ellipsis.
+      var smallest = sizes[sizes.length - 1];
+      var smallFont = fontOf(smallest, opts.weight);
+      var smallHeight = Math.ceil(smallest * 1.22);
+      if (smallHeight <= opts.height) {
+        var cut = opts.keepTail ? middleFit(text, smallFont, room) : null;
+        if (!cut) cut = fit(text, smallFont, room);
+        if (cut) {
+          return { lines: [cut], size: smallest, font: smallFont,
+                   lineHeight: smallHeight, height: smallHeight };
+        }
+      }
+      return null;
+    }
+
+    // Draws a laid-out label as one or more <text> rows.
+    function drawLabel(parent, layout, opts) {
+      layout.lines.forEach(function (line, i) {
+        var text = el('text', {
+          class: opts.cls || '',
+          x: opts.x,
+          y: Math.round(opts.top + layout.lineHeight * (i + 0.78)),
+          'text-anchor': opts.anchor || 'middle'
+        });
+        text.setAttribute('font-size', layout.size);
+        if (opts.weight) text.setAttribute('font-weight', opts.weight);
+        if (opts.opacity) text.setAttribute('opacity', opts.opacity);
+        if (opts.fill) text.style.fill = opts.fill;
+        text.textContent = line;
+        parent.appendChild(text);
+      });
+      return layout.height;
+    }
+
+
     function compact(value) {
       var abs = Math.abs(value);
       if (abs >= 1e9) return (value / 1e9).toFixed(1).replace(/\.0$/, '') + 'bn';
@@ -529,12 +666,18 @@ looker.plugins.visualizations.add({
       // "Revenue per Hours" reads badly, so the width measure's name is put in
       // the singular for this one phrase. Only the two-measure layout has a
       // width measure at all.
+      var totalWidthValue = columns.reduce(function (sum, c) { return sum + c.weight; }, 0);
+      var totalHeightValue = columns.reduce(function (sum, c) { return sum + (c.value || 0); }, 0);
+
       caption.textContent = mode === 'variwide'
         ? 'Width: share of ' + widthField.label_short +
+          ' (' + compact(totalWidthValue) + ' total)' +
           ' · Height: ' + heightField.label_short + ' per ' +
           widthField.label_short.replace(/s$/, '') +
-          ' · Area: ' + heightField.label_short
+          ' · Area: ' + heightField.label_short +
+          ' (' + compact(totalHeightValue) + ' total)'
         : 'Width: share of ' + measureField.label_short + ' by ' + dims[0].label_short +
+          ' (' + compact(columns.reduce(function (sum, c) { return sum + c.weight; }, 0)) + ' total)' +
           ' · Height: split of ' + measureField.label_short + ' by ' + dims[1].label_short +
           (nested ? ' · Colour: ' + dims[0].label_short : '');
       root.appendChild(caption);
@@ -584,17 +727,50 @@ looker.plugins.visualizations.add({
     }
 
     var noteHeight = (skipped || grouped) ? 15 : 0;
-    var nameHeight = config.show_column_labels ? 16 : 0;
     var axisWidth = config.show_axis ? 46 : 2;
 
     var plotLeft = axisWidth;
     var plotWidth = Math.max(20, width - plotLeft - 6);
     var plotTop = 2;
-    var plotHeight = Math.max(20, height - captionHeight - legendHeight - noteHeight - nameHeight - plotTop);
 
     var totalWeight = columns.reduce(function (sum, c) { return sum + c.weight; }, 0) || 1;
+    var grandTotal = totalWeight;
     var gap = columns.length > 1 ? 2 : 0;
     var usableWidth = Math.max(10, plotWidth - gap * (columns.length - 1));
+
+    // Column widths do not depend on the height, so they are worked out first:
+    // whether any name is too narrow to sit flat decides how much room the
+    // label band needs.
+    columns.forEach(function (column) {
+      column.pixels = Math.max(1, (column.weight / totalWeight) * usableWidth);
+    });
+
+    var nameHeight = 0;
+    var rotateNames = false;
+    if (config.show_column_labels) {
+      var flatFont = fontOf(9);
+      var needsRotation = 0;
+      var longestName = 0;
+      columns.forEach(function (column) {
+        var flat = wrapLines(column.name, flatFont, column.pixels - 3, 2);
+        if (!flat) {
+          needsRotation++;
+          longestName = Math.max(longestName, textWidth(column.name, flatFont));
+        }
+      });
+
+      if (needsRotation) {
+        // Turned on its side, a name that has no width has all the height it
+        // needs. Costs some plot height, so only done when something would
+        // otherwise be lost.
+        rotateNames = true;
+        nameHeight = Math.min(96, Math.max(34, Math.ceil(longestName) + 10));
+      } else {
+        nameHeight = 28;
+      }
+    }
+
+    var plotHeight = Math.max(20, height - captionHeight - legendHeight - noteHeight - nameHeight - plotTop);
 
     var maxRate = 0;
     if (mode === 'variwide') {
@@ -630,8 +806,11 @@ looker.plugins.visualizations.add({
         svg.appendChild(el('line', {
           class: 'mrk-grid-line', x1: plotLeft, x2: plotLeft + plotWidth, y1: y, y2: y
         }));
+        // The topmost tick's baseline would sit above the tile on a short
+        // plot, so labels are held inside it.
+        var labelY = Math.min(Math.max(y + 4, plotTop + 9), plotTop + plotHeight);
         var label = el('text', {
-          class: 'mrk-tick', x: plotLeft - 6, y: y + 4, 'text-anchor': 'end'
+          class: 'mrk-tick', x: plotLeft - 6, y: labelY, 'text-anchor': 'end'
         });
         label.textContent = tick.label;
         svg.appendChild(label);
@@ -689,9 +868,10 @@ looker.plugins.visualizations.add({
     }
 
     var x = plotLeft;
+    var thinTargets = [];
 
     columns.forEach(function (column, columnIndex) {
-      var colWidth = Math.max(1, (column.weight / totalWeight) * usableWidth);
+      var colWidth = column.pixels;
       var left = Math.round(x);
       var right = Math.round(x + colWidth);
       var boxWidth = Math.max(1, right - left);
@@ -729,15 +909,34 @@ looker.plugins.visualizations.add({
           '. ' + heightField.label_short + ' per ' + widthField.label_short + ': ' +
           compact(column.rate) + '.');
 
-        // The rate is the height, so print it on the cap where it fits.
-        var rateLabel = fit(compact(column.rate), fonts.value, boxWidth - 8);
-        if (rateLabel && colHeight >= 22) {
-          var value = el('text', {
-            class: 'mrk-value', x: left + boxWidth / 2, y: top + 15, 'text-anchor': 'middle'
+        // The height is already the rate, so the figures the reader cannot get
+        // from the axes go inside the column: the area measure first, then the
+        // width measure, then the rate. Each is dropped from the bottom when
+        // the column runs out of room.
+        if (config.show_values !== false) {
+          var room = boxWidth - 8;
+          var stack = [
+            { text: column.valueText || compact(column.value), weight: '600', sizes: [12, 11, 10, 9] },
+            { text: column.weightText || compact(column.weight), sizes: [11, 10, 9], opacity: '0.86' },
+            { text: compact(column.rate) + ' per ' + widthField.label_short.replace(/s$/, '').toLowerCase(),
+              sizes: [10, 9], opacity: '0.7' }
+          ];
+
+          var cursor = top + 4;
+          var budget = colHeight - 8;
+          stack.forEach(function (entry) {
+            if (budget < 10) return;
+            var layout = layoutLabel(entry.text, {
+              width: room, height: budget, sizes: entry.sizes, weight: entry.weight, maxLines: 2
+            });
+            if (!layout) return;
+            drawLabel(group, layout, {
+              cls: 'mrk-value', x: left + boxWidth / 2, top: cursor,
+              fill: ink, weight: entry.weight, opacity: entry.opacity
+            });
+            cursor += layout.height + 1;
+            budget -= layout.height + 1;
           });
-          value.style.fill = ink;
-          value.textContent = rateLabel;
-          group.appendChild(value);
         }
 
         group.addEventListener('pointermove', function (event) {
@@ -778,31 +977,59 @@ looker.plugins.visualizations.add({
           cell.style.fill = fill;
           group.appendChild(cell);
 
+          // Every tile answers for itself on hover, however small it is: a cell
+          // with no room for a label is exactly the one a reader needs to point
+          // at. The column's figures come along as context.
+          var cellShare = Math.round((segment.value / columnTotal) * 100) + '%';
+          var totalShare = ((segment.value / grandTotal) * 100);
+          cell.addEventListener('pointermove', function (event) {
+            showTip(segment.name, [
+              [measureField.label_short, segment.valueText || compact(segment.value)],
+              ['Share of ' + column.name, cellShare],
+              ['Share of all ' + measureField.label_short, (totalShare < 1 ? totalShare.toFixed(1) : Math.round(totalShare)) + '%'],
+              null,
+              [dims[0].label_short, column.name]
+            ], event.clientX, event.clientY);
+            event.stopPropagation();
+          });
+
           var segShare = (segment.value / columnTotal) * 100;
-          var shareLabel = fit(Math.round(segShare) + '%', fonts.value, boxWidth - 8);
 
-          // A tall enough cell can carry its own name above the share; a
-          // shorter one gets the share alone; the smallest get neither and are
-          // read from the tooltip.
-          var lines = [];
-          if (segHeight >= 36) {
-            var segName = fit(segment.name, fonts.label, boxWidth - 10);
-            if (segName) lines.push(segName);
+          // The name wraps and shrinks to fit; the figure and the share follow
+          // while there is room. Anything that will not fit stays in the
+          // tooltip rather than being clipped.
+          var blocks = [];
+          var nameLayout = layoutLabel(segment.name, {
+            width: boxWidth - 10, height: Math.max(0, segHeight - 26),
+            sizes: [11, 10, 9], weight: '600', maxLines: 3, keepTail: true
+          });
+          if (nameLayout) blocks.push({ layout: nameLayout, weight: '600' });
+
+          var figure = config.show_values !== false
+            ? (segment.valueText || compact(segment.value)) + '  ·  ' + Math.round(segShare) + '%'
+            : Math.round(segShare) + '%';
+          var used = nameLayout ? nameLayout.height : 0;
+          var figureLayout = layoutLabel(figure, {
+            width: boxWidth - 10, height: Math.max(0, segHeight - 6 - used),
+            sizes: [11, 10, 9], maxLines: 1
+          });
+          if (!figureLayout) {
+            figureLayout = layoutLabel(Math.round(segShare) + '%', {
+              width: boxWidth - 10, height: Math.max(0, segHeight - 6 - used),
+              sizes: [11, 10, 9], maxLines: 1
+            });
           }
-          if (shareLabel) lines.push(shareLabel);
+          if (figureLayout) blocks.push({ layout: figureLayout, opacity: '0.86' });
 
-          if (lines.length && segHeight >= 20) {
-            var startY = Math.round(y + segHeight / 2) - (lines.length - 1) * 7 + 4;
-            lines.forEach(function (line, li) {
-              var text = el('text', {
-                class: 'mrk-value', x: left + boxWidth / 2,
-                y: startY + li * 14, 'text-anchor': 'middle'
+          if (blocks.length) {
+            var stackHeight = blocks.reduce(function (sum, b) { return sum + b.layout.height; }, 0);
+            var cursor = Math.round(y + (segHeight - stackHeight) / 2);
+            blocks.forEach(function (block) {
+              drawLabel(group, block.layout, {
+                cls: 'mrk-value', x: left + boxWidth / 2, top: cursor,
+                fill: ink, weight: block.weight, opacity: block.opacity
               });
-              text.style.fill = ink;
-              if (li === 0 && lines.length > 1) text.setAttribute('font-weight', '600');
-              else if (lines.length > 1) text.setAttribute('opacity', '0.82');
-              text.textContent = line;
-              group.appendChild(text);
+              cursor += block.layout.height;
             });
           }
 
@@ -858,21 +1085,65 @@ looker.plugins.visualizations.add({
         });
       }
 
-      // Column names sit under the plot, dropped rather than clipped.
+      // Column names sit under the plot. They wrap to two lines and shrink
+      // before being dropped, because a client name is the thing a reader most
+      // needs and Looker values are long.
       if (config.show_column_labels) {
-        var nameLabel = fit(column.name, fonts.label, boxWidth - 4);
-        if (nameLabel) {
-          var nameText = el('text', {
-            class: 'mrk-colname', x: left + boxWidth / 2,
-            y: plotTop + plotHeight + 12, 'text-anchor': 'middle'
+        var flatLayout = wrapLines(column.name, fontOf(9), boxWidth - 3, 2)
+          ? layoutLabel(column.name, {
+              width: boxWidth - 3, height: Math.min(28, nameHeight) - 1,
+              sizes: [11, 10, 9], maxLines: 2, keepTail: true
+            })
+          : null;
+
+        if (flatLayout) {
+          drawLabel(group, flatLayout, {
+            cls: 'mrk-colname', x: left + boxWidth / 2, top: plotTop + plotHeight + 1
           });
-          nameText.textContent = nameLabel;
-          group.appendChild(nameText);
+        } else if (rotateNames) {
+          var size = boxWidth >= 14 ? 10 : 9;
+          var rotated = fit(column.name, fontOf(size), nameHeight - 8);
+          if (rotated) {
+            var turned = el('text', {
+              class: 'mrk-colname',
+              transform: 'translate(' + (left + boxWidth / 2 + size * 0.36) + ',' +
+                (plotTop + plotHeight + nameHeight - 4) + ') rotate(-90)',
+              'text-anchor': 'start'
+            });
+            turned.setAttribute('font-size', size);
+            turned.textContent = rotated;
+            group.appendChild(turned);
+          }
         }
       }
 
       svg.appendChild(group);
+
+      // Columns narrower than a pointer can comfortably hit get an invisible
+      // target, added after the columns so it sits on top of them.
+      if (boxWidth < 8) {
+        thinTargets.push({ group: group, centre: left + boxWidth / 2 });
+      }
+
       x += colWidth + gap;
+    });
+
+    thinTargets.forEach(function (target) {
+      var hit = el('rect', {
+        class: 'mrk-hit',
+        x: Math.max(plotLeft, target.centre - 5),
+        y: plotTop,
+        width: 10,
+        height: plotHeight,
+        fill: 'transparent'
+      });
+      hit.addEventListener('pointermove', function (event) {
+        target.group.dispatchEvent(new PointerEvent('pointermove', {
+          clientX: event.clientX, clientY: event.clientY, bubbles: false
+        }));
+      });
+      hit.addEventListener('pointerleave', hideTip);
+      svg.appendChild(hit);
     });
 
     if (skipped || grouped) {
