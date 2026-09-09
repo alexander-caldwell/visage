@@ -45,7 +45,7 @@ count, field names, and the first row's values. It also draws one small blue
 rectangle to confirm inline SVG works.
 
 Register it as ID `diagnostic`, label `Diagnostic`, main
-`https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.1.0/diagnostic.js`.
+`https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.1.1/diagnostic.js`.
 
 If a tile stays blank with this selected, the file is not being loaded at all,
 and the problem is the registration, the URL, or the instance's policy, not the
@@ -59,7 +59,7 @@ Instance-wide, no LookML change. Admin > Platform > Visualizations > Add:
 |---|---|
 | ID | `treemap_dual` |
 | Label | `Treemap (Dual Value)` |
-| Main | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.1.0/treemap_dual.js` |
+| Main | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.1.1/treemap_dual.js` |
 
 Or in a LookML project manifest:
 
@@ -67,8 +67,8 @@ Or in a LookML project manifest:
 visualization: {
   id: "treemap_dual"
   label: "Treemap (Dual Value)"
-  url: "https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.1.0/treemap_dual.js"
-  sri_hash: "sha384-njSpEVPRmkUzJHAOwgiNGfmtj5fuSIMA+qtfr2o0KBcGaPBs4jIYilkfAObs25iY"
+  url: "https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.1.1/treemap_dual.js"
+  sri_hash: "sha384-Ym0QIBQmJ2VkEZzLfCCqEb2qifL2B5YKWYX7wIZeJxYqno/IoYSWtiI0XVx35FfS"
 }
 ```
 
@@ -86,15 +86,38 @@ Looker page will not accept a cross-origin script without one. jsDelivr sends
 `cross-origin-resource-policy: cross-origin`, as does cdnjs, which is why
 Looker can already load d3 and Highcharts from there.
 
-jsDelivr serves a tagged URL as immutable and caches it for a year. So a change
-needs a new tag and a new URL in Looker:
+Use a **tagged** URL. jsDelivr serves it as immutable and caches it for a year,
+so what Looker runs never changes underneath you.
+
+A branch URL such as `@main` is a fixed URL, but it is not usable for iteration.
+jsDelivr caches which commit a branch points at for about 12 hours, and its
+purge endpoint does not clear that: a purge was measured as reporting success on
+both providers while the old file kept being served four minutes later. Browsers
+are told to hold the file for 7 days on top of that.
+
+## Releasing a change
+
+1. Edit the chart and check it in the harness (screenshot, both sizes).
+2. Bump the build string at the top of the file, which is logged on load so the
+   browser console says which build an instance is running.
+3. Commit, tag, push both:
 
 ```
-git tag -a v1.0.1 -m "..." && git push origin v1.0.1
+git commit -am "..." && git tag -a v1.1.2 -m "..." && git push origin main && git push origin v1.1.2
 ```
 
-A branch URL such as `@main` avoids re-registering but caches for about 12
-hours, which makes a fix look like it did not work.
+4. Confirm the CDN serves the new file, byte for byte:
+
+```
+curl -s https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.1.2/treemap_dual.js | shasum -a 256
+shasum -a 256 treemap_dual.js
+```
+
+5. Paste the new tag's URL into the Looker admin entry, replacing the old one.
+
+Steps 4 and 5 are the price of a pinned URL. The alternative that removes them
+is registering the file inside the LookML project with `file:` instead of `url:`,
+where Looker serves it same-origin and there is no URL to maintain.
 
 ## Source
 
