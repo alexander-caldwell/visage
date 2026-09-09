@@ -75,6 +75,48 @@ values. Query shape: one dimension, two measures.
 Options: size by, colour by, show caption, show names, show second measure,
 prefix second measure with its name, gap between boxes.
 
+### `histogram.js`
+
+Buckets one measure across the rows of the query and draws how many rows land
+in each bucket. Query shape: one dimension, one or more measures.
+
+Looker's own charts cannot draw this. They draw one bar per row, so a
+distribution has to be bucketed in SQL first, which makes the bin width a model
+change. Here it is a visualisation option.
+
+- The bin width is chosen by Freedman-Diaconis, or set by hand as a fixed number
+  of bins or a fixed width, with an optional start value for aligning the first
+  bin to a round number.
+- The width stays as computed even when one far value leaves most bins empty:
+  widening the bins to close the gap hides the shape of the bulk of the data,
+  and the empty span is itself worth seeing. The "Extreme values" option is how
+  a reader closes it, either pulling the outliers into the 1st to 99th
+  percentile or leaving out anything beyond 1.5 times the interquartile range.
+  Either way the caption says how many were affected.
+- Bar height is the number of rows, their share of all rows, or a second
+  measure summed inside the bin.
+- Optional mean, median and percentile lines. Each is named where it stands, on
+  two rows when two lines fall close together, so no line is left unlabelled.
+- Bars are one colour, or shaded light to dark with their own height. Shading
+  follows the height, never the bin's position, so filtering never repaints the
+  bars that remain.
+- The value axis carries absolute figures and each bar prints its own, dropped
+  only where two numbers would touch and always still in the tooltip.
+- Bin edge numbers thin out as the tile narrows, and turn on their side rather
+  than disappear when the numbers are long and the tile is not.
+- Every column answers on hover and on keyboard focus, empty ones included,
+  with its range, its row count, its share, and the first few rows in it by
+  name. Enter or Space opens the drill menu for the rows in that bin.
+- A caption names what the bars and the lines mean, gives the row count, the
+  range and the bin width, and says when there are too few values for a
+  histogram to mean anything.
+- Theme follows the tile, with its own colour steps in dark mode.
+
+Options: measure to bin, bar height, measure to sum, extreme values, bin width
+mode, number of bins, bin width, first bin start, theme, bar colour, bar
+shading, show values, show axes, show caption, mean line, median line,
+percentile line.
+
 ### `marimekko.js`
 
 Column widths carry one measure and heights carry another, so each column's
@@ -175,6 +217,7 @@ Instance-wide, no LookML change. Admin > Platform > Visualizations > Add:
 | `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.5.0/treemap_dual.js` |
 | `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.5.0/dumbbell.js` |
 | `marimekko` | Marimekko | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.5.0/marimekko.js` |
+| `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.6.0/histogram.js` |
 
 Or in a LookML project manifest:
 
