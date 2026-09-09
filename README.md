@@ -38,6 +38,30 @@ values. Query shape: one dimension, two measures.
 Options: size by, colour by, show caption, show names, show second measure,
 prefix second measure with its name, gap between boxes.
 
+### `dumbbell.js`
+
+Two measures per row on one shared scale, joined by a connector. Reads as
+"where is each row on each measure, and how big is the gap". Query shape: one
+dimension, two measures, the same shape as the treemap.
+
+- Two categorical hues in fixed order, one per measure, with a legend, so
+  identity never rests on colour alone.
+- Rows sorted by either measure, by the size of the gap, or left in query order.
+- Where the two values are equal, one marker is split down the middle rather
+  than one dot hiding behind the other.
+- Only the largest gap is labelled directly; a number on every row goes unread.
+  The label moves to the other side of the pair when the edge is close, and is
+  dropped rather than clipped.
+- A row missing one measure draws a single dot. A row missing both is counted in
+  a footnote.
+- Hovering a row washes it and shows a tooltip with both values and the gap.
+  Tab moves between rows; Enter or Space opens the drill menu.
+- Scale starts at zero by default; the "Start scale at zero" option turns that
+  off for tightly clustered values.
+
+Options: sort rows by, start scale at zero, row label width, label the largest
+gap, show scale.
+
 ### `diagnostic.js`
 
 Paints, as plain text, what Looker hands the visualisation: element size, row
@@ -55,11 +79,10 @@ chart.
 
 Instance-wide, no LookML change. Admin > Platform > Visualizations > Add:
 
-| Field | Value |
-|---|---|
-| ID | `treemap_dual` |
-| Label | `Treemap (Dual Value)` |
-| Main | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.1.1/treemap_dual.js` |
+| ID | Label | Main |
+|---|---|---|
+| `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.2.0/treemap_dual.js` |
+| `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.2.0/dumbbell.js` |
 
 Or in a LookML project manifest:
 
