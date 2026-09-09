@@ -42,6 +42,43 @@ values. Query shape: one dimension, two measures.
 Options: size by, colour by, show caption, show names, show second measure,
 prefix second measure with its name, gap between boxes.
 
+### `marimekko.js`
+
+Column widths carry one measure and heights carry another, so each column's
+area is a third quantity you can compare by eye. Two query shapes, picked
+automatically.
+
+**One dimension, two measures.** Width is each row's share of one measure,
+height is the other measure divided by the first, so area is the second
+measure. Clients by hours and revenue: width is share of hours, height is
+revenue per hour, area is revenue. A wide short column is a lot of hours at a
+low rate; a narrow tall one is a small job at a high rate. The chart picks which
+measure sets the width so the height reads as a number above 1, rather than as
+"0.008 hours per pound"; override with "Column width from".
+
+**Two dimensions, one measure.** Width is each column's share of the measure,
+each column is full height and split by the second dimension, so every cell's
+area is its share of the grand total.
+
+- When the second dimension nests inside the first, so every engagement belongs
+  to one client, colour follows the column instead of the second dimension.
+  Colouring by a second dimension that is never shared between columns puts most
+  of the chart in a grey "Other" and says nothing.
+- When the second dimension is shared across columns, such as a status, colour
+  follows it and a legend appears. Eight hues in fixed order; the rest fold into
+  one "Other".
+- Columns past the limit (8 by default) are grouped into "Other" rather than
+  drawn as unreadable slivers, and the footnote says how many.
+- Cells name themselves where they are tall enough, show the share where they
+  are not, and are read from the tooltip when they are smaller still.
+- Text inside a fill is ink or white by measured contrast; the lowest pairing is
+  4.8:1.
+- Theme follows the tile. Hover, keyboard focus and drill work as in the other
+  charts.
+
+Options: theme, layout, column width from, columns before grouping, shade
+columns by height, show caption, show scale, show column names.
+
 ### `dumbbell.js`
 
 Two measures per row on one shared scale, joined by a connector. Reads as
@@ -97,8 +134,9 @@ Instance-wide, no LookML change. Admin > Platform > Visualizations > Add:
 
 | ID | Label | Main |
 |---|---|---|
-| `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.3.0/treemap_dual.js` |
-| `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.3.0/dumbbell.js` |
+| `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.4.0/treemap_dual.js` |
+| `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.4.0/dumbbell.js` |
+| `marimekko` | Marimekko | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.4.0/marimekko.js` |
 
 Or in a LookML project manifest:
 
