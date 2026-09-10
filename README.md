@@ -232,11 +232,11 @@ Instance-wide, no LookML change. Admin > Platform > Visualizations > Add:
 
 | ID | Label | Main |
 |---|---|---|
-| `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.6.0/treemap_dual.js` |
-| `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.6.0/dumbbell.js` |
-| `marimekko` | Marimekko | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.6.0/marimekko.js` |
-| `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.6.0/histogram.js` |
-| `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.6.0/histogram.js` |
+| `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.7.0/treemap_dual.js` |
+| `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.7.0/dumbbell.js` |
+| `marimekko` | Marimekko | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.7.0/marimekko.js` |
+| `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.7.0/histogram.js` |
+| `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.7.0/histogram.js` |
 
 Or in a LookML project manifest:
 
