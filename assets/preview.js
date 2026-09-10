@@ -108,13 +108,12 @@ const DURATIONS = (() => {
 // Descriptions say what the chart does with the data, in the chart's own terms.
 export const CHARTS = [
   { id: 'treemap_dual', name: 'Treemap', data: REVENUE_AND_MARGIN,
-    blurb: 'Every client as a box: bigger box, more revenue. Colour carries a ' +
-      'second measure, so size and rate read at once, and both figures are ' +
-      'printed inside the box.' },
+    blurb: 'Every client as a box: bigger box, more revenue. A second measure ' +
+      'is optional and colours the boxes, so size and rate read at once.' },
   { id: 'marimekko', name: 'Marimekko', data: REVENUE_AND_HOURS,
-    blurb: 'Column width is each client’s share of hours and height is revenue ' +
-      'per hour, so a column’s area is its revenue. Wide and short means many ' +
-      'hours at a low rate.' },
+    blurb: 'Two layouts under one name. Shown here as a variwide: width is ' +
+      'share of hours, height is revenue per hour, so a column’s area is its ' +
+      'revenue. Give it two dimensions instead and it draws a true mosaic.' },
   { id: 'dumbbell', name: 'Dumbbell', data: HOURS_VS_BUDGET,
     blurb: 'Hours logged and hours budgeted on one row, joined by a line. The ' +
       'line length is the overrun, and the widest gap is labelled.' },
@@ -231,6 +230,29 @@ export async function renderInto(tile, chart, config) {
   return vis;
 }
 
+// The chip on a card has less room than a chart page, so the shape is
+// abbreviated there: "1 dim + 2 measures" rather than the full sentence.
+export function shortShape(shape) {
+  if (!shape) return '';
+  return shape
+    .replace(/\s*\([^)]*\)/g, '')
+    .replace(/dimensions/g, 'dims')
+    .replace(/dimension/g, 'dim')
+    .replace(/measures/g, 'meas')
+    .replace(/measure/g, 'meas')
+    .trim();
+}
+
+// Whether a control applies given the rest of the config. A chart declares this
+// on the option itself, which is why a control can look inert: it is waiting on
+// another setting.
+export function appliesNow(option, config) {
+  var rule = option.applies_when;
+  if (!rule) return { active: true };
+  var wanted = Array.isArray(rule.value) ? rule.value : [rule.value];
+  return { active: wanted.indexOf(config[rule.option]) !== -1, reason: rule.reason };
+}
+
 // The label a select shows for a stored value, so a default reads as the panel
 // reads rather than as the value in the file.
 export function displayValue(option, value) {
@@ -249,46 +271,4 @@ export function optionType(option) {
   if (option.values) return option.values.map((v) => Object.keys(v)[0]).join(' · ');
   if (option.display === 'color' || option.display === 'colors') return 'colour';
   return option.type === 'boolean' ? 'on / off' : option.type;
-}
-
-// The full control/type/default table, collapsed by default: it is worth having
-// and too long to sit open.
-export function optionsTable(vis) {
-  const wrap = document.createElement('details');
-  wrap.className = 'options-detail';
-
-  const summary = document.createElement('summary');
-  const count = Object.keys(vis.options || {}).length;
-  summary.textContent = 'All ' + count + ' controls, with types and defaults';
-  wrap.appendChild(summary);
-
-  const table = document.createElement('table');
-  table.className = 'options';
-  table.innerHTML =
-    '<thead><tr><th>Control</th><th>Type</th><th>Default</th></tr></thead>';
-  const body = document.createElement('tbody');
-
-  Object.keys(vis.options || {}).forEach((key) => {
-    const option = vis.options[key];
-    const row = document.createElement('tr');
-
-    const label = document.createElement('td');
-    label.textContent = option.label || key;
-    const name = document.createElement('code');
-    name.textContent = key;
-    label.append(document.createElement('br'), name);
-
-    const type = document.createElement('td');
-    type.textContent = optionType(option);
-
-    const value = document.createElement('td');
-    value.textContent = displayValue(option, option.default);
-
-    row.append(label, type, value);
-    body.appendChild(row);
-  });
-
-  table.appendChild(body);
-  wrap.appendChild(table);
-  return wrap;
 }

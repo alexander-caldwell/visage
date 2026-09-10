@@ -7,10 +7,10 @@
 // Self-contained: the squarify layout is inlined, so there are no dependencies
 // to declare in the manifest and nothing to load from a CDN at render time.
 //
-// Build v1.7.0. The version is logged once on load, so the browser console says
+// Build v1.8.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('treemap_dual build v1.7.0');
+if (window.console && console.log) console.log('treemap_dual build v1.8.0');
 
 looker.plugins.visualizations.add({
   id: 'treemap_dual',
@@ -18,7 +18,12 @@ looker.plugins.visualizations.add({
 
   // Declared for the catalogue and the gallery. Looker ignores keys it
   // does not know, so this costs nothing at render time.
-  data_shape: '1 dimension + 2 measures',
+  data_shape: '1 dimension + 1 measure (a second measure adds colour)',
+  good_for: [
+    'Share of a total across many categories, where a pie would be unreadable',
+    'Two measures at once: size for the amount, colour for a rate',
+    'Spotting the few categories that account for most of the total'
+  ],
 
   options: {
     theme: {
@@ -225,18 +230,21 @@ looker.plugins.visualizations.add({
     var dims = queryResponse.fields.dimension_like || [];
     var meas = queryResponse.fields.measure_like || [];
 
-    if (dims.length < 1 || meas.length < 2) {
+    if (dims.length < 1 || meas.length < 1) {
       this.addError({
         title: 'Wrong query shape',
-        message: 'Treemap (Dual Value) needs one dimension and two measures: the one that sizes the boxes, and a second one shown alongside it.'
+        message: 'Treemap needs one dimension and at least one measure. A second measure is optional: it colours the boxes and prints alongside the first.'
       });
       done();
       return;
     }
 
     var dimName = dims[0].name;
-    var sizeField = config.size_by === 'second' ? meas[1] : meas[0];
-    var otherField = config.size_by === 'second' ? meas[0] : meas[1];
+    var hasSecond = meas.length > 1;
+    var sizeField = (hasSecond && config.size_by === 'second') ? meas[1] : meas[0];
+    var otherField = hasSecond
+      ? (config.size_by === 'second' ? meas[0] : meas[1])
+      : null;
 
     // Looker can call updateAsync before the tile has been laid out, when the
     // element measures zero. Bailing out then leaves a blank panel with no
@@ -340,8 +348,8 @@ looker.plugins.visualizations.add({
         name: cellText(row[dimName]),
         size: size,
         sizeText: cellText(row[sizeField.name]),
-        other: cellNumber(row[otherField.name]),
-        otherText: cellText(row[otherField.name]),
+        other: otherField ? cellNumber(row[otherField.name]) : null,
+        otherText: otherField ? cellText(row[otherField.name]) : '',
         links: (row[dimName] && row[dimName].links) || []
       });
     });
@@ -532,7 +540,7 @@ looker.plugins.visualizations.add({
       return Number(value.toPrecision(2)).toString();
     }
 
-    var colourByMeasure = config.colour_by !== 'flat';
+    var colourByMeasure = config.colour_by !== 'flat' && !!otherField;
     var steps = vis._steps;
     var others = items.map(function (d) { return d.other; })
       .filter(function (v) { return v !== null; });
@@ -573,7 +581,7 @@ looker.plugins.visualizations.add({
       areaItem.appendChild(areaLabel);
       caption.appendChild(areaItem);
 
-      if (colourByMeasure && others.length) {
+      if (colourByMeasure && otherField && others.length) {
         var colourItem = document.createElement('div');
         colourItem.className = 'tmd-caption-item';
         var low = document.createElement('span');
@@ -702,7 +710,7 @@ looker.plugins.visualizations.add({
     var tipName = document.createElement('div');
     tipName.className = 'tmd-tip-name';
     tip.appendChild(tipName);
-    var tipRows = [sizeField, otherField].map(function (field) {
+    var tipRows = [sizeField, otherField].filter(Boolean).map(function (field) {
       var row = document.createElement('div');
       row.className = 'tmd-tip-row';
       var key = document.createElement('span');
@@ -717,7 +725,7 @@ looker.plugins.visualizations.add({
     function showTip(d, clientX, clientY) {
       tipName.textContent = d.name;
       tipRows[0].textContent = d.sizeText || '∅';
-      tipRows[1].textContent = d.otherText || '∅';
+      if (tipRows[1]) tipRows[1].textContent = d.otherText || '∅';
       tip.setAttribute('data-shown', '1');
 
       var host = root.getBoundingClientRect();
@@ -757,7 +765,7 @@ looker.plugins.visualizations.add({
         role: 'img'
       });
       var described = d.name + '. ' + sizeField.label_short + ': ' + d.sizeText +
-        '. ' + otherField.label_short + ': ' + d.otherText + '.';
+        (otherField ? '. ' + otherField.label_short + ': ' + d.otherText : '') + '.';
       group.setAttribute('aria-label', described);
 
       var rect = el('rect', {
@@ -832,7 +840,7 @@ looker.plugins.visualizations.add({
           budget -= primaryLayout.height;
         }
 
-        if (config.show_secondary) {
+        if (config.show_secondary && otherField) {
           // Prefer the prefixed form, but a truncated prefix tells the reader
           // nothing, so fall back to the bare value.
           var secondText = null;

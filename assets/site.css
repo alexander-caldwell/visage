@@ -34,7 +34,11 @@ code { font-family: var(--mono); font-size: 0.9em; color: var(--ink-2); word-bre
   display: flex; flex-direction: column; gap: 44px; }
 
 .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.09em;
-  text-transform: uppercase; color: var(--accent); margin: 0; }
+  text-transform: uppercase; color: var(--accent); margin: 0;
+  display: flex; align-items: center; gap: 8px; }
+.mark { width: 22px; height: 22px; display: block; flex: 0 0 auto; }
+.mark .eye { fill: var(--ground); }
+.mark .face { fill: var(--accent); }
 h1 { font-size: clamp(44px, 7.5vw, 88px); line-height: 1.02; font-weight: 600;
   letter-spacing: -0.035em; margin: 8px 0 0; text-wrap: balance; }
 .standfirst { margin: 18px 0 0; font-size: 18px; color: var(--ink-2); max-width: 60ch; }
@@ -69,8 +73,8 @@ summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outli
 .finder input::placeholder { color: var(--muted); }
 .finder .result { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
 
-.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-@media (max-width: 1000px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+@media (max-width: 1000px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 660px) { .grid { grid-template-columns: 1fr; } }
 
 .card {
@@ -84,7 +88,11 @@ summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outli
 .card p { margin: 0; font-size: 13.5px; color: var(--ink-2); }
 .shape { font-family: var(--mono); font-size: 10.5px; color: var(--muted);
   border: 1px solid var(--rule); border-radius: 3px; padding: 2px 6px;
-  align-self: flex-start; }
+  align-self: flex-start; max-width: 100%; overflow-wrap: anywhere; }
+.uses { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column;
+  gap: 3px; }
+.uses li { font-size: 12.5px; color: var(--muted); padding-left: 12px; position: relative; }
+.uses li::before { content: "—"; position: absolute; left: 0; }
 .card[hidden] { display: none; }
 
 .tile { background: var(--panel); }
@@ -105,9 +113,16 @@ summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outli
   background: var(--rule); border: 1px solid var(--rule); }
 .controls .row { background: var(--panel); padding: 10px 14px; display: flex;
   gap: 12px; align-items: center; justify-content: space-between; }
-.controls .row label { font-size: 13.5px; }
-.controls .row .hint { display: block; font-family: var(--mono); font-size: 10px;
-  color: var(--muted); }
+.controls .row { align-items: flex-start; }
+.controls .row label { font-size: 13.5px; display: flex; flex-direction: column; gap: 2px;
+  min-width: 0; }
+.controls .row .hint { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.controls .row.inactive { opacity: 0.55; }
+.controls .row.inactive .why { color: var(--accent); }
+.controls .row .why { font-size: 11px; color: var(--muted); }
+.controls .field { display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
+  flex: 0 0 auto; }
+.controls .default { font-family: var(--mono); font-size: 9.5px; color: var(--muted); }
 .controls select, .controls input[type="number"], .controls input[type="text"] {
   font-family: var(--sans); font-size: 13px; color: var(--ink); background: var(--ground);
   border: 1px solid var(--rule); border-radius: 3px; padding: 5px 7px; max-width: 168px;
@@ -138,6 +153,9 @@ table.options code { font-size: 10.5px; color: var(--muted); }
 .snippet { display: flex; gap: 10px; align-items: center; background: var(--panel);
   border: 1px solid var(--rule); padding: 10px 12px; }
 .snippet code { flex: 1 1 auto; font-size: 11.5px; }
+
+.uses-block h2 { font-family: var(--mono); font-size: 11px; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--muted); margin: 4px 0 8px; font-weight: 500; }
 
 .prose { max-width: 74ch; }
 .prose h1 { font-size: clamp(32px, 4.5vw, 46px); margin: 0 0 18px; }

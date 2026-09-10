@@ -3,10 +3,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.1.0. The version is logged once on load, so the browser console says
+// Build v1.2.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('scatter_plot build v1.1.0');
+if (window.console && console.log) console.log('scatter_plot build v1.2.0');
 
 looker.plugins.visualizations.add({
   id: 'scatter_plot',
@@ -15,6 +15,11 @@ looker.plugins.visualizations.add({
   // Declared for the catalogue and the gallery. Looker ignores keys it
   // does not know, so this costs nothing at render time.
   data_shape: '1 dimension + 2 measures (a third measure sizes the dots)',
+  good_for: [
+    'Whether two measures move together, across many rows',
+    'Finding outliers that no ranking would surface',
+    'A third measure as dot size, for three at once',
+  ],
 
   options: {
     theme: {

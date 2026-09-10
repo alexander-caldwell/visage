@@ -7,10 +7,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.6.0. The version is logged once on load, so the browser console says
+// Build v1.7.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('dumbbell build v1.6.0');
+if (window.console && console.log) console.log('dumbbell build v1.7.0');
 
 looker.plugins.visualizations.add({
   id: 'dumbbell',
@@ -19,6 +19,11 @@ looker.plugins.visualizations.add({
   // Declared for the catalogue and the gallery. Looker ignores keys it
   // does not know, so this costs nothing at render time.
   data_shape: '1 dimension + 2 measures',
+  good_for: [
+    'Actual against target, or before against after, per row',
+    'Showing the size of a gap rather than two separate bars',
+    'Ranking rows by how far apart the two measures are'
+  ],
 
   options: {
     theme: {
@@ -73,6 +78,36 @@ looker.plugins.visualizations.add({
       default: '',
       section: 'Style',
       order: 22
+    },
+    colour_a: {
+      type: 'array',
+      label: 'First Measure Colour',
+      display: 'color',
+      default: ['#2a78d6'],
+      section: 'Style',
+      order: 6
+    },
+    colour_b: {
+      type: 'array',
+      label: 'Second Measure Colour',
+      display: 'color',
+      default: ['#eb6834'],
+      section: 'Style',
+      order: 7
+    },
+    marker_size: {
+      type: 'number',
+      label: 'Dot Size (px)',
+      default: 5,
+      section: 'Style',
+      order: 8
+    },
+    connector_width: {
+      type: 'number',
+      label: 'Connector Thickness (px)',
+      default: 2,
+      section: 'Style',
+      order: 9
     },
     label_width: {
       type: 'number',
@@ -142,7 +177,7 @@ looker.plugins.visualizations.add({
       '.dmb-row:hover .dmb-band, .dmb-row:focus-visible .dmb-band { opacity: 0.06; }' +
       '.dmb-band { fill: var(--dmb-ink); opacity: 0; transition: opacity 90ms ease-out; }' +
       '.dmb-row:focus { outline: none; }' +
-      '.dmb-connector { stroke: var(--dmb-connector); stroke-width: 2; stroke-linecap: round; }' +
+      '.dmb-connector { stroke: var(--dmb-connector); stroke-linecap: round; }' +
       '.dmb-marker { stroke: var(--dmb-surface); stroke-width: 2; }' +
       '.dmb-label { font-size: 12px; fill: var(--dmb-ink); text-anchor: end; }' +
       '.dmb-tick { font-size: 11px; fill: var(--dmb-muted); font-variant-numeric: tabular-nums; }' +
@@ -282,6 +317,13 @@ looker.plugins.visualizations.add({
     function render(width, height) {
     while (root.firstChild) root.removeChild(root.firstChild);
     root.style.height = height + 'px';
+
+    // A colour option overrides the theme token; left alone, the token wins so
+    // the chart still answers to a dark dashboard.
+    var colourA = (config.colour_a && config.colour_a[0]) || 'var(--dmb-a)';
+    var colourB = (config.colour_b && config.colour_b[0]) || 'var(--dmb-b)';
+    var dotRadius = Math.max(2, Math.min(14, Number(config.marker_size) || 5));
+    var connectorWidth = Math.max(1, Math.min(10, Number(config.connector_width) || 2));
 
     var svgNS = 'http://www.w3.org/2000/svg';
 
@@ -562,7 +604,7 @@ looker.plugins.visualizations.add({
     if (width >= 300) {
       legend = document.createElement('div');
       legend.className = 'dmb-legend';
-      [[fieldA, 'var(--dmb-a)'], [fieldB, 'var(--dmb-b)']].forEach(function (pair) {
+      [[fieldA, colourA], [fieldB, colourB]].forEach(function (pair) {
         var key = document.createElement('div');
         key.className = 'dmb-key';
         var dot = document.createElement('div');
@@ -643,7 +685,7 @@ looker.plugins.visualizations.add({
     }
 
     var rowHeight = plotHeight / rows.length;
-    var radius = Math.max(4, Math.min(6, rowHeight * 0.22));
+    var radius = Math.max(2, Math.min(dotRadius, rowHeight * 0.34));
 
     var svg = el('svg', {
       class: 'dmb-plot',
@@ -691,7 +733,7 @@ looker.plugins.visualizations.add({
     tipName.className = 'dmb-tip-name';
     tip.appendChild(tipName);
 
-    var tipValues = [[fieldA, 'var(--dmb-a)'], [fieldB, 'var(--dmb-b)']].map(function (pair) {
+    var tipValues = [[fieldA, colourA], [fieldB, colourB]].map(function (pair) {
       var row = document.createElement('div');
       row.className = 'dmb-tip-row';
       var key = document.createElement('div');
@@ -812,7 +854,8 @@ looker.plugins.visualizations.add({
           x1: x(d.a),
           x2: x(d.b),
           y1: midY,
-          y2: midY
+          y2: midY,
+          'stroke-width': connectorWidth
         }));
       }
 
@@ -826,9 +869,9 @@ looker.plugins.visualizations.add({
         var cx = (x(d.a) + x(d.b)) / 2;
         var halves = [
           ['M ' + cx + ' ' + (midY - radius) + ' A ' + radius + ' ' + radius +
-            ' 0 0 0 ' + cx + ' ' + (midY + radius) + ' Z', 'var(--dmb-a)'],
+            ' 0 0 0 ' + cx + ' ' + (midY + radius) + ' Z', colourA],
           ['M ' + cx + ' ' + (midY - radius) + ' A ' + radius + ' ' + radius +
-            ' 0 0 1 ' + cx + ' ' + (midY + radius) + ' Z', 'var(--dmb-b)']
+            ' 0 0 1 ' + cx + ' ' + (midY + radius) + ' Z', colourB]
         ];
         halves.forEach(function (half) {
           var wedge = el('path', { d: half[0] });
@@ -839,7 +882,7 @@ looker.plugins.visualizations.add({
         ring.style.fill = 'none';
         group.appendChild(ring);
       } else {
-        [[d.a, 'var(--dmb-a)'], [d.b, 'var(--dmb-b)']].forEach(function (pair) {
+        [[d.a, colourA], [d.b, colourB]].forEach(function (pair) {
           if (pair[0] === null) return;
           var dot = el('circle', {
             class: 'dmb-marker',

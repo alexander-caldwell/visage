@@ -1,5 +1,15 @@
-// Marimekko: column widths carry one measure, column heights carry another, so
-// each column's area is a third quantity the reader can compare by eye.
+// Marimekko, in both of its usual senses.
+//
+// A Marimekko proper (also a mosaic plot, or a mekko) takes two dimensions and
+// one measure: columns of variable width, each split by the second dimension,
+// so every cell's area is its share of the grand total. That is the "mosaic"
+// layout here.
+//
+// The same name is often given to a variable-width bar chart, or "variwide":
+// one dimension and two measures, where width comes from one measure and height
+// from the other divided by it, so a column's area is the second measure. That
+// is the "variwide" layout here, and it is a different chart with a shared
+// name. The caption on the chart says which one is being drawn.
 //
 // Two query shapes, picked automatically:
 //
@@ -17,10 +27,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.7.0. The version is logged once on load, so the browser console says
+// Build v1.10.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('marimekko build v1.7.0');
+if (window.console && console.log) console.log('marimekko build v1.10.0');
 
 looker.plugins.visualizations.add({
   id: 'marimekko',
@@ -28,7 +38,12 @@ looker.plugins.visualizations.add({
 
   // Declared for the catalogue and the gallery. Looker ignores keys it
   // does not know, so this costs nothing at render time.
-  data_shape: '1 dimension + 2 measures, or 2 dimensions + 1 measure',
+  data_shape: '2 dimensions + 1 measure (mosaic), or 1 dimension + 2 measures (variwide)',
+  good_for: [
+    'Share of share: how big each group is, and what it is made of',
+    'Two levels of a hierarchy at once, such as client then engagement',
+    'Spotting a group whose size and composition disagree'
+  ],
 
   options: {
     theme: {
@@ -46,8 +61,8 @@ looker.plugins.visualizations.add({
       display: 'select',
       values: [
         { 'Choose From the Query': 'auto' },
-        { 'Width and Height From Two Measures': 'variwide' },
-        { 'Split Columns by a Second Dimension': 'mosaic' }
+        { 'Variwide: Two Measures': 'variwide' },
+        { 'Mosaic: Split by a Second Dimension': 'mosaic' }
       ],
       default: 'auto',
       section: 'Data',
@@ -56,6 +71,8 @@ looker.plugins.visualizations.add({
     width_from: {
       type: 'string',
       label: 'Column Width From',
+      applies_when: { option: 'mode', value: ['auto', 'variwide'],
+        reason: 'the layout is Variwide, or chosen from the query' },
       display: 'select',
       values: [
         { 'Whichever Reads Better': 'auto' },
@@ -76,6 +93,8 @@ looker.plugins.visualizations.add({
     shade_columns: {
       type: 'boolean',
       label: 'Shade Columns by Height',
+      applies_when: { option: 'mode', value: ['auto', 'variwide'],
+        reason: 'the layout is Variwide, or chosen from the query' },
       default: false,
       section: 'Style',
       order: 1

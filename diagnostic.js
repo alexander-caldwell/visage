@@ -19,6 +19,10 @@
     // Declared for the catalogue and the gallery. Looker ignores keys it
     // does not know, so this costs nothing at render time.
     data_shape: 'any query',
+    good_for: [
+      'Working out what Looker is actually handing a visualisation',
+      'Proving a registration and a URL work before blaming the chart',
+    ],
 
     create: function (element, config) {
       while (element.firstChild) element.removeChild(element.firstChild);

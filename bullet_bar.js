@@ -7,10 +7,10 @@
 // no innerHTML, errors surface through addError, labels wrap and shrink, every
 // row answers on hover and on keyboard focus, and the theme follows the tile.
 //
-// Build v2.4.0. The version is logged once on load, so the browser console says
+// Build v2.5.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('bullet_bar build v2.4.0');
+if (window.console && console.log) console.log('bullet_bar build v2.5.0');
 
 looker.plugins.visualizations.add({
   id: 'bullet_bar',
@@ -19,6 +19,11 @@ looker.plugins.visualizations.add({
   // Declared for the catalogue and the gallery. Looker ignores keys it
   // does not know, so this costs nothing at render time.
   data_shape: '1 dimension + 2 measures',
+  good_for: [
+    'Actual against target down a list, compactly',
+    'A KPI list where each row has its own target',
+    'Dashboards where a gauge per metric would not fit',
+  ],
 
   options: {
     theme: {

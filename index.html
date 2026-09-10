@@ -12,12 +12,17 @@
   <header>
     <div class="top">
       <div>
-        <p class="eyebrow">Visage</p>
+        <p class="eyebrow"><svg class="mark" viewBox="0 0 24 24" role="img" aria-label="Visage">
+          <path class="face" d="M3 4h18v7a9 9 0 0 1-9 9 9 9 0 0 1-9-9V4Z"/>
+          <ellipse class="eye" cx="8.5" cy="9.5" rx="2" ry="2.4"/>
+          <ellipse class="eye" cx="15.5" cy="9.5" rx="2" ry="2.4"/>
+        </svg><span>Visage</span></p>
         <h1>Custom visualisations for Looker</h1>
-        <p class="standfirst">Charts Looker's built-in suite cannot draw, each a single
-          JavaScript file with nothing to bundle and nothing to load. Every chart here is
-          live: the file in this repo is rendered on this page by the same calls Looker
-          makes, and its controls are read out of the file rather than written down.</p>
+        <p class="standfirst">A living suite of charts Looker's built-in options cannot draw,
+          each a single JavaScript file with nothing to bundle and nothing to load. Every
+          chart here is live: the file in this repo is rendered on this page by the same
+          calls Looker makes, and its controls are read out of the file rather than written
+          down. Search by name, by the data it needs, or by what you are trying to show.</p>
       </div>
       <button id="theme" type="button">Dark dashboard</button>
     </div>

@@ -1,4 +1,4 @@
-import { CHARTS, renderInto } from './preview.js';
+import { CHARTS, renderInto, shortShape } from './preview.js';
 import { bindTheme, bindResize } from './theme.js';
 
 const grid = document.getElementById('grid');
@@ -28,11 +28,16 @@ const cards = CHARTS.map((chart) => {
   const blurb = document.createElement('p');
   blurb.textContent = chart.blurb;
 
-  body.append(name, shape, blurb);
+  // Use cases come from the chart file. They make the card searchable by intent
+  // as well as by name.
+  const uses = document.createElement('ul');
+  uses.className = 'uses';
+
+  body.append(name, shape, blurb, uses);
   card.append(tile, body);
   grid.appendChild(card);
 
-  return { chart, card, tile, shape, blurb };
+  return { chart, card, tile, shape, blurb, uses };
 });
 
 let rendering = false;
@@ -47,7 +52,18 @@ async function renderAll() {
       if (item.card.hidden) continue;
       try {
         const vis = await renderInto(item.tile, item.chart);
-        item.shape.textContent = 'needs: ' + (vis.data_shape || 'see the chart page');
+        item.shape.textContent = 'needs: ' + (shortShape(vis.data_shape) || 'see the chart page');
+        item.shape.title = vis.data_shape || '';
+
+        if (vis.good_for && vis.good_for.length && !item.uses.childElementCount) {
+          vis.good_for.slice(0, 2).forEach((use) => {
+            const line = document.createElement('li');
+            line.textContent = use;
+            item.uses.appendChild(line);
+          });
+          item.searchText = [item.chart.name, item.chart.id, item.chart.blurb,
+            vis.data_shape, vis.good_for.join(' ')].join(' ').toLowerCase();
+        }
       } catch (err) {
         item.tile.classList.add('failed');
         item.tile.textContent = err.message;
@@ -63,7 +79,9 @@ function filter() {
   let shown = 0;
 
   cards.forEach((item) => {
-    const haystack = [
+    // What a chart is good for is part of the haystack, so searching "target",
+    // "outliers" or "over time" finds the right chart.
+    const haystack = item.searchText || [
       item.chart.name, item.chart.id, item.chart.blurb, item.shape.textContent
     ].join(' ').toLowerCase();
     const match = !term || haystack.includes(term);

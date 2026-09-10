@@ -14,10 +14,10 @@
 // shrink and thin out and are never clipped, every column answers on hover and
 // on keyboard focus, and the theme follows the tile.
 //
-// Build v1.1.0. The version is logged once on load, so the browser console says
+// Build v1.2.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('histogram build v1.1.0');
+if (window.console && console.log) console.log('histogram build v1.2.0');
 
 looker.plugins.visualizations.add({
   id: 'histogram',
@@ -26,6 +26,11 @@ looker.plugins.visualizations.add({
   // Declared for the catalogue and the gallery. Looker ignores keys it
   // does not know, so this costs nothing at render time.
   data_shape: '1 measure (a dimension is optional)',
+  good_for: [
+    'The shape of one measure: where values cluster and how long the tail is',
+    'Deciding a threshold, such as an SLA, from real spread rather than an average',
+    'Showing that a mean hides a skew',
+  ],
 
   options: {
     value_measure: {
@@ -53,6 +58,7 @@ looker.plugins.visualizations.add({
     sum_measure: {
       type: 'string',
       label: 'Measure to Sum (Bar Height "Sum of a Measure")',
+      applies_when: { option: 'height_by', value: 'sum', reason: 'Bar Height is "Sum of a Measure"' },
       display: 'select',
       values: [{ 'Last Measure': '' }],
       default: '',
@@ -89,6 +95,7 @@ looker.plugins.visualizations.add({
     bin_count: {
       type: 'number',
       label: 'Number of Bins (Mode "Fixed Number of Bins")',
+      applies_when: { option: 'bin_mode', value: 'count', reason: 'Bin Width is "Fixed Number of Bins"' },
       default: 10,
       section: 'Bins',
       order: 1
@@ -96,6 +103,7 @@ looker.plugins.visualizations.add({
     bin_width: {
       type: 'number',
       label: 'Bin Width (Mode "Fixed Bin Width", 0 = Automatic)',
+      applies_when: { option: 'bin_mode', value: 'width', reason: 'Bin Width is "Fixed Bin Width"' },
       default: 0,
       section: 'Bins',
       order: 2

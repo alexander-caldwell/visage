@@ -3,10 +3,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.2.0. The version is logged once on load, so the browser console says
+// Build v1.3.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('grouped_column build v1.2.0');
+if (window.console && console.log) console.log('grouped_column build v1.3.0');
 
 looker.plugins.visualizations.add({
   id: 'grouped_column',
@@ -15,6 +15,11 @@ looker.plugins.visualizations.add({
   // Declared for the catalogue and the gallery. Looker ignores keys it
   // does not know, so this costs nothing at render time.
   data_shape: '1 dimension + 1 or more measures',
+  good_for: [
+    'Two or three measures compared across a short list of categories',
+    'Actual against target, or this year against last, side by side',
+    'Any comparison where exact values matter more than shape',
+  ],
 
   options: {
     theme: {

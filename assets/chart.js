@@ -1,5 +1,5 @@
-import { CHARTS, chartById, renderInto, defaultConfig, optionsTable,
-         REGISTRATION_BASE } from './preview.js';
+import { CHARTS, chartById, renderInto, defaultConfig, optionType,
+         displayValue, appliesNow, REGISTRATION_BASE } from './preview.js';
 import { bindTheme, bindResize } from './theme.js';
 
 const params = new URLSearchParams(location.search);
@@ -56,11 +56,24 @@ function buildControls() {
 
     const label = document.createElement('label');
     label.setAttribute('for', 'opt-' + key);
-    label.textContent = option.label || key;
+    const name = document.createElement('span');
+    name.textContent = option.label || key;
+
+    // The control carries its own type and default, so there is no second copy
+    // of the same list underneath it.
     const hint = document.createElement('span');
     hint.className = 'hint';
-    hint.textContent = key;
-    label.appendChild(hint);
+    hint.textContent = key + '  ·  ' + optionType(option);
+    label.append(name, hint);
+
+    const state = appliesNow(option, config);
+    if (!state.active) {
+      row.classList.add('inactive');
+      const why = document.createElement('span');
+      why.className = 'why';
+      why.textContent = 'applies when ' + state.reason;
+      label.appendChild(why);
+    }
 
     let input;
     if (option.type === 'boolean') {
@@ -69,7 +82,7 @@ function buildControls() {
       input.checked = !!config[key];
       input.addEventListener('change', () => {
         config[key] = input.checked;
-        draw();
+        draw().then(buildControls);
       });
     } else if (option.values) {
       input = document.createElement('select');
@@ -84,7 +97,7 @@ function buildControls() {
       });
       input.addEventListener('change', () => {
         config[key] = input.value;
-        draw();
+        draw().then(buildControls);
       });
     } else if (option.display === 'color' || option.display === 'colors') {
       input = document.createElement('input');
@@ -115,7 +128,16 @@ function buildControls() {
     }
 
     input.id = 'opt-' + key;
-    row.append(label, input);
+    input.disabled = !state.active;
+
+    const field = document.createElement('div');
+    field.className = 'field';
+    const shown = document.createElement('span');
+    shown.className = 'default';
+    shown.textContent = 'default ' + displayValue(option, option.default);
+    field.append(input, shown);
+
+    row.append(label, field);
     controls.appendChild(row);
   });
 }
@@ -135,7 +157,20 @@ async function start() {
 
   config = defaultConfig(vis);
   buildControls();
-  tableSlot.replaceChildren(optionsTable(vis));
+
+  // Use cases come from the chart file, so the page cannot disagree with it.
+  if (vis.good_for && vis.good_for.length) {
+    const heading = document.createElement('h2');
+    heading.textContent = 'Good for';
+    const list = document.createElement('ul');
+    list.className = 'uses';
+    vis.good_for.forEach((use) => {
+      const item = document.createElement('li');
+      item.textContent = use;
+      list.appendChild(item);
+    });
+    tableSlot.replaceChildren(heading, list);
+  }
 
   bindTheme(draw);
   bindResize(draw);
