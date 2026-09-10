@@ -3,7 +3,12 @@
 // data. Options are read off the registered object, so this page cannot drift
 // from what the charts actually offer.
 
-const BASE = 'https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@1/';
+// The charts are loaded from this page's own directory, not from the CDN. The
+// gallery lives in the same repo as the files, so it always shows the current
+// ones. Loading them through `@1` would show whatever release the CDN's
+// 12-hour range cache is still pointing at, which is the one thing a gallery
+// must not do.
+const BASE = './';
 
 const field = (name, label, type, format) => ({
   name, label, label_short: label, type, value_format: format || null
