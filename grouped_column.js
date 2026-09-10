@@ -3,14 +3,18 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.0.0. The version is logged once on load, so the browser console says
+// Build v1.2.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('grouped_column build v1.0.0');
+if (window.console && console.log) console.log('grouped_column build v1.2.0');
 
 looker.plugins.visualizations.add({
   id: 'grouped_column',
   label: 'Grouped Column',
+
+  // Declared for the catalogue and the gallery. Looker ignores keys it
+  // does not know, so this costs nothing at render time.
+  data_shape: '1 dimension + 1 or more measures',
 
   options: {
     theme: {
@@ -80,7 +84,7 @@ looker.plugins.visualizations.add({
       '  --cl-c3: #c98500; --cl-c4: #d55181; --cl-c5: #008300;' +
       '  --cl-c6: #9085e9; --cl-c7: #e66767; --cl-other: #4a4a46; }' +
       '.cl-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center;' +
-      '  padding: 0 1px 6px; font-size: 11px; color: var(--cl-ink-2); overflow: hidden; }' +
+      '  padding: 2px 6px 9px; font-size: 11px; color: var(--cl-ink-2); overflow: hidden; }' +
       '.cl-key { display: flex; gap: 6px; align-items: center; min-width: 0; max-width: 220px; }' +
       '.cl-key span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }' +
       '.cl-swatch { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; }' +
@@ -444,7 +448,7 @@ looker.plugins.visualizations.add({
             var cap = el('text', {
               class: 'cl-tick', x: x + barWidth / 2, y: y - 4, 'text-anchor': 'middle'
             });
-            cap.setAttribute('font-size', '10');
+            cap.style.fontSize = '10px';
             cap.style.fill = 'var(--cl-ink-2)';
             cap.textContent = valueLabel;
             svg.appendChild(cap);

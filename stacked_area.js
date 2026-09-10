@@ -3,14 +3,18 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.0.0. The version is logged once on load, so the browser console says
+// Build v1.1.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('stacked_area build v1.0.0');
+if (window.console && console.log) console.log('stacked_area build v1.1.0');
 
 looker.plugins.visualizations.add({
   id: 'stacked_area',
   label: 'Stacked Area',
+
+  // Declared for the catalogue and the gallery. Looker ignores keys it
+  // does not know, so this costs nothing at render time.
+  data_shape: '1 dimension + 1 measure (a second dimension gives the bands)',
 
   options: {
     theme: {
@@ -82,7 +86,7 @@ looker.plugins.visualizations.add({
       '  --ar-c3: #c98500; --ar-c4: #d55181; --ar-c5: #008300;' +
       '  --ar-c6: #9085e9; --ar-c7: #e66767; --ar-other: #4a4a46; }' +
       '.ar-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center;' +
-      '  padding: 0 1px 6px; font-size: 11px; color: var(--ar-ink-2); overflow: hidden; }' +
+      '  padding: 2px 6px 9px; font-size: 11px; color: var(--ar-ink-2); overflow: hidden; }' +
       '.ar-key { display: flex; gap: 6px; align-items: center; min-width: 0; max-width: 220px; }' +
       '.ar-key span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }' +
       '.ar-swatch { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; }' +

@@ -7,14 +7,18 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.3.0. The version is logged once on load, so the browser console says
+// Build v1.6.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('dumbbell build v1.3.0');
+if (window.console && console.log) console.log('dumbbell build v1.6.0');
 
 looker.plugins.visualizations.add({
   id: 'dumbbell',
   label: 'Dumbbell',
+
+  // Declared for the catalogue and the gallery. Looker ignores keys it
+  // does not know, so this costs nothing at render time.
+  data_shape: '1 dimension + 2 measures',
 
   options: {
     theme: {
@@ -126,7 +130,7 @@ looker.plugins.visualizations.add({
       '    --dmb-muted: #898781; --dmb-grid: #2c2c2a; --dmb-connector: #383835;' +
       '    --dmb-hairline: rgba(255,255,255,0.10);' +
       '    --dmb-a: #3987e5; --dmb-b: #d95926; }' +
-      '.dmb-legend { display: flex; gap: 14px; align-items: center; padding: 0 1px 6px;' +
+      '.dmb-legend { display: flex; gap: 14px; align-items: center; padding: 2px 6px 9px;' +
       '  font-size: 11px; color: var(--dmb-ink-2); white-space: nowrap; overflow: hidden; }' +
       '.dmb-key { display: flex; gap: 6px; align-items: center; min-width: 0; }' +
       '.dmb-key span { overflow: hidden; text-overflow: ellipsis; }' +
@@ -426,6 +430,12 @@ looker.plugins.visualizations.add({
       var words = String(text).split(/\s+/).filter(Boolean);
       if (!words.length || room < 8) return null;
 
+      // A canvas measurement and the same string rendered as SVG text disagree
+      // by a pixel or so, because the two resolve the system font stack
+      // separately. Measured text sitting exactly on its limit can then render
+      // a hair past the tile edge, so keep 2px in hand.
+      room = room - 2;
+
       var lines = [];
       var current = '';
       var tooWide = false;
@@ -519,7 +529,9 @@ looker.plugins.visualizations.add({
           y: Math.round(opts.top + layout.lineHeight * (i + 0.78)),
           'text-anchor': opts.anchor || 'middle'
         });
-        text.setAttribute('font-size', layout.size);
+        // An inline style beats the class's own font-size; the attribute
+        // does not, which silently undid every shrink.
+        text.style.fontSize = layout.size + 'px';
         if (opts.weight) text.setAttribute('font-weight', opts.weight);
         if (opts.opacity) text.setAttribute('opacity', opts.opacity);
         if (opts.fill) text.style.fill = opts.fill;
@@ -920,7 +932,7 @@ looker.plugins.visualizations.add({
           transform: 'translate(' + (yTitleBand - 4) + ',' + (plotHeight / 2) + ') rotate(-90)',
           'text-anchor': 'middle'
         });
-        turned.setAttribute('font-size', yLaid.size);
+        turned.style.fontSize = yLaid.size + 'px';
         turned.textContent = yLaid.lines[0];
         svg.appendChild(turned);
       }

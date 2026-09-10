@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visage</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<div class="wrap">
+  <p class="crumb"><a href="index.html">&larr; All charts</a></p>
+
+  <div class="detail-head">
+    <h1 id="name">Chart</h1>
+    <span class="shape" id="shape">needs: …</span>
+    <span class="build" id="id"></span>
+    <button id="theme" type="button">Dark dashboard</button>
+  </div>
+
+  <p class="standfirst" id="blurb"></p>
+
+  <div class="stage">
+    <div>
+      <div class="tile" id="tile"></div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <div class="controls-head">
+        <h2>Controls</h2>
+        <button class="reset" id="reset" type="button">Reset to defaults</button>
+      </div>
+      <div class="controls" id="controls"></div>
+      <div id="table"></div>
+    </div>
+  </div>
+
+  <div class="snippet">
+    <code id="url"></code>
+    <button id="copy" type="button">Copy</button>
+  </div>
+
+  <footer>
+    <p>These controls are the chart's real Looker options, read out of the file. Changing one
+      here re-renders the chart exactly as changing it in an Explore would.</p>
+    <p><a href="docs/?doc=hosting">Hosting</a> &middot;
+       <a href="docs/?doc=approach">Technical approach</a> &middot;
+       <a href="index.html">All charts</a></p>
+  </footer>
+</div>
+<script type="module" src="assets/chart.js"></script>
+</body>
+</html>

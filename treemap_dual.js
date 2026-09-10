@@ -7,14 +7,18 @@
 // Self-contained: the squarify layout is inlined, so there are no dependencies
 // to declare in the manifest and nothing to load from a CDN at render time.
 //
-// Build v1.4.0. The version is logged once on load, so the browser console says
+// Build v1.7.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('treemap_dual build v1.4.0');
+if (window.console && console.log) console.log('treemap_dual build v1.7.0');
 
 looker.plugins.visualizations.add({
   id: 'treemap_dual',
   label: 'Treemap (Dual Value)',
+
+  // Declared for the catalogue and the gallery. Looker ignores keys it
+  // does not know, so this costs nothing at render time.
+  data_shape: '1 dimension + 2 measures',
 
   options: {
     theme: {
@@ -138,7 +142,7 @@ looker.plugins.visualizations.add({
       '    --tmd-s6: #184f95; --tmd-i6: #ffffff;' +
       '    --tmd-flat: #3987e5; --tmd-flat-ink: #0b0b0b;' +
       '    --tmd-null: #3a3a37; --tmd-null-ink: #ffffff; }' +
-      '.tmd-caption { display: flex; gap: 14px; align-items: center; padding: 0 1px 6px;' +
+      '.tmd-caption { display: flex; gap: 14px; align-items: center; padding: 2px 6px 9px;' +
       '  font-size: 11px; color: var(--tmd-muted); white-space: nowrap; overflow: hidden; }' +
       '.tmd-caption-item { display: flex; gap: 6px; align-items: center; min-width: 0; }' +
       '.tmd-caption-item span { overflow: hidden; text-overflow: ellipsis; }' +
@@ -403,6 +407,12 @@ looker.plugins.visualizations.add({
       var words = String(text).split(/\s+/).filter(Boolean);
       if (!words.length || room < 8) return null;
 
+      // A canvas measurement and the same string rendered as SVG text disagree
+      // by a pixel or so, because the two resolve the system font stack
+      // separately. Measured text sitting exactly on its limit can then render
+      // a hair past the tile edge, so keep 2px in hand.
+      room = room - 2;
+
       var lines = [];
       var current = '';
       var tooWide = false;
@@ -496,7 +506,9 @@ looker.plugins.visualizations.add({
           y: Math.round(opts.top + layout.lineHeight * (i + 0.78)),
           'text-anchor': opts.anchor || 'middle'
         });
-        text.setAttribute('font-size', layout.size);
+        // An inline style beats the class's own font-size; the attribute
+        // does not, which silently undid every shrink.
+        text.style.fontSize = layout.size + 'px';
         if (opts.weight) text.setAttribute('font-weight', opts.weight);
         if (opts.opacity) text.setAttribute('opacity', opts.opacity);
         if (opts.fill) text.style.fill = opts.fill;

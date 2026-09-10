@@ -16,6 +16,10 @@
     id: 'diagnostic',
     label: 'Diagnostic',
 
+    // Declared for the catalogue and the gallery. Looker ignores keys it
+    // does not know, so this costs nothing at render time.
+    data_shape: 'any query',
+
     create: function (element, config) {
       while (element.firstChild) element.removeChild(element.firstChild);
       var style = document.createElement('style');

@@ -7,14 +7,18 @@
 // no innerHTML, errors surface through addError, labels wrap and shrink, every
 // row answers on hover and on keyboard focus, and the theme follows the tile.
 //
-// Build v2.0.0. The version is logged once on load, so the browser console says
+// Build v2.4.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('bullet_bar build v2.0.0');
+if (window.console && console.log) console.log('bullet_bar build v2.4.0');
 
 looker.plugins.visualizations.add({
   id: 'bullet_bar',
   label: 'Bullet Bar',
+
+  // Declared for the catalogue and the gallery. Looker ignores keys it
+  // does not know, so this costs nothing at render time.
+  data_shape: '1 dimension + 2 measures',
 
   options: {
     theme: {
@@ -294,6 +298,12 @@ looker.plugins.visualizations.add({
       var words = String(text).split(/\s+/).filter(Boolean);
       if (!words.length || room < 8) return null;
 
+      // A canvas measurement and the same string rendered as SVG text disagree
+      // by a pixel or so, because the two resolve the system font stack
+      // separately. Measured text sitting exactly on its limit can then render
+      // a hair past the tile edge, so keep 2px in hand.
+      room = room - 2;
+
       var lines = [];
       var current = '';
       var tooWide = false;
@@ -387,7 +397,9 @@ looker.plugins.visualizations.add({
           y: Math.round(opts.top + layout.lineHeight * (i + 0.78)),
           'text-anchor': opts.anchor || 'middle'
         });
-        text.setAttribute('font-size', layout.size);
+        // An inline style beats the class's own font-size; the attribute
+        // does not, which silently undid every shrink.
+        text.style.fontSize = layout.size + 'px';
         if (opts.weight) text.setAttribute('font-weight', opts.weight);
         if (opts.opacity) text.setAttribute('opacity', opts.opacity);
         if (opts.fill) text.style.fill = opts.fill;

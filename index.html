@@ -5,90 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Visage — custom visualisations for Looker</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<style>
-  :root {
-    --ground: #f4f6f9;
-    --panel: #ffffff;
-    --ink: #101418;
-    --ink-2: #454e5b;
-    --muted: #6d7684;
-    --rule: #d9dee6;
-    --accent: #2a78d6;
-    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  }
-  :root[data-theme="dark"] {
-    --ground: #14161a;
-    --panel: #1b1e24;
-    --ink: #f1f3f6;
-    --ink-2: #c2c8d2;
-    --muted: #8d95a2;
-    --rule: #2b3039;
-    --accent: #6aa6ec;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--ground); color: var(--ink);
-    font-family: var(--sans); font-size: 15px; line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
-  }
-  .wrap { max-width: 1120px; margin: 0 auto; padding: 44px 24px 96px;
-    display: flex; flex-direction: column; gap: 48px; }
-  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.09em;
-    text-transform: uppercase; color: var(--accent); margin: 0; }
-  h1 { font-size: 40px; line-height: 1.1; font-weight: 600; letter-spacing: -0.02em;
-    margin: 10px 0 0; }
-  .standfirst { margin: 14px 0 0; font-size: 17px; color: var(--ink-2); max-width: 62ch; }
-  .top { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end;
-    justify-content: space-between; }
-  button {
-    font-family: var(--sans); font-size: 14px; color: var(--ink);
-    background: var(--panel); border: 1px solid var(--rule); border-radius: 4px;
-    padding: 8px 14px; cursor: pointer;
-  }
-  button:hover { border-color: var(--accent); }
-  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-  .how { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2px; background: var(--rule); border: 1px solid var(--rule); }
-  .how > div { background: var(--panel); padding: 16px 18px; }
-  .how h2 { font-family: var(--mono); font-size: 11px; letter-spacing: 0.07em;
-    text-transform: uppercase; color: var(--muted); margin: 0 0 8px; font-weight: 500; }
-  .how p { margin: 0 0 8px; font-size: 14px; color: var(--ink-2); }
-  .how p:last-child { margin: 0; }
-  code { font-family: var(--mono); font-size: 0.9em; color: var(--ink-2); word-break: break-all; }
-
-  section.chart { display: flex; flex-direction: column; gap: 14px; }
-  .head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px;
-    border-bottom: 1px solid var(--rule); padding-bottom: 10px; }
-  .chart-name { font-size: 24px; font-weight: 600; letter-spacing: -0.015em; margin: 0; }
-  .build, .count { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
-  .blurb { margin: 0; color: var(--ink-2); max-width: 68ch; }
-  .split { display: grid; grid-template-columns: 1.6fr 1fr; gap: 22px; align-items: start; }
-  .tile { height: 380px; background: var(--panel); border: 1px solid var(--rule); }
-  .tile.failed { display: flex; align-items: center; justify-content: center;
-    color: #b5533c; font-family: var(--mono); font-size: 12px; padding: 16px;
-    text-align: center; }
-  .panel { display: flex; flex-direction: column; gap: 8px; }
-  table.options { width: 100%; border-collapse: collapse; font-size: 13px; }
-  table.options th { text-align: left; font-family: var(--mono); font-size: 10.5px;
-    letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
-    font-weight: 500; padding: 0 8px 6px 0; border-bottom: 1px solid var(--rule); }
-  table.options td { padding: 7px 8px 7px 0; border-bottom: 1px solid var(--rule);
-    color: var(--ink-2); vertical-align: top; }
-  table.options td:first-child { color: var(--ink); }
-  table.options code { font-size: 10.5px; color: var(--muted); }
-  footer { border-top: 1px solid var(--rule); padding-top: 20px; color: var(--muted);
-    font-size: 13.5px; display: flex; flex-direction: column; gap: 8px; }
-  footer p { margin: 0; max-width: 78ch; }
-  a { color: var(--accent); }
-  @media (max-width: 800px) {
-    h1 { font-size: 30px; }
-    .split { grid-template-columns: 1fr; }
-    .tile { height: 300px; }
-    .wrap { padding: 30px 18px 64px; gap: 36px; }
-  }
-</style>
+<link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
 <div class="wrap">
@@ -97,99 +14,55 @@
       <div>
         <p class="eyebrow">Visage</p>
         <h1>Custom visualisations for Looker</h1>
-        <p class="standfirst">Nine charts Looker's built-in suite cannot draw, each a single
-          JavaScript file with no dependencies. Every chart below is live: the file in this repo is
-          rendered on this page by the same calls Looker makes, and its controls are read out of
-          the file rather than written down here.</p>
+        <p class="standfirst">Charts Looker's built-in suite cannot draw, each a single
+          JavaScript file with nothing to bundle and nothing to load. Every chart here is
+          live: the file in this repo is rendered on this page by the same calls Looker
+          makes, and its controls are read out of the file rather than written down.</p>
       </div>
       <button id="theme" type="button">Dark dashboard</button>
     </div>
   </header>
 
-  <div class="how">
+  <div class="panels">
     <div>
       <h2>Register one</h2>
-      <p>Looker admin, Platform, Visualizations, Add. Use the chart's <code>id</code> shown
-        below, any label you like, and this URL:</p>
+      <p>Looker admin, Platform, Visualizations, Add. Use the chart's <code>id</code>, any
+        label you like, and this URL:</p>
       <p><code>https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@1/&lt;id&gt;.js</code></p>
     </div>
     <div>
-      <h2>Why @1 and not a version</h2>
-      <p><code>@1</code> tracks the newest 1.x release, so a fix reaches your instance without
-        anyone editing the registration. Pin an exact tag such as <code>@v1.8.0</code> when you
-        need the file never to change.</p>
+      <h2>Why @1</h2>
+      <p><code>@1</code> tracks the newest 1.x release, so a fix reaches your instance
+        without anyone editing the registration. Pin an exact tag when the file must never
+        change under you.</p>
+      <p><a href="docs/?doc=hosting">Hosting in full</a></p>
     </div>
     <div>
-      <h2>One caveat</h2>
-      <p>The CDN caches which release <code>@1</code> points at for about 12 hours, and browsers
-        hold the file for up to 7 days. A change is not instant. Register a pinned tag while
-        iterating, then move back to <code>@1</code>.</p>
+      <h2>How they are built</h2>
+      <p>Written against captured Looker data, rendered headlessly, screenshotted, and put
+        through a suite of checks, each one a failure that happened in a real instance.</p>
+      <p><a href="docs/?doc=approach">The approach, and what was rejected</a></p>
     </div>
   </div>
 
-  <section class="chart" id="treemap_dual">
-    <div class="head"><h2 class="chart-name">Treemap</h2><span class="build"></span><span class="count"></span></div>
-    <p class="blurb">Box area from one measure, colour from another, both figures printed in the box.</p>
-    <div class="split"><div class="tile"></div><div class="panel"></div></div>
-  </section>
+  <div class="finder">
+    <label for="search">Search</label>
+    <input id="search" type="search" placeholder="Search by name, id, shape or what it does"
+      autocomplete="off">
+    <span class="result" id="result"></span>
+  </div>
 
-  <section class="chart" id="marimekko">
-    <div class="head"><h2 class="chart-name">Marimekko</h2><span class="build"></span><span class="count"></span></div>
-    <p class="blurb">Width carries one measure, height the other, so each column's area is a third quantity.</p>
-    <div class="split"><div class="tile"></div><div class="panel"></div></div>
-  </section>
-
-  <section class="chart" id="dumbbell">
-    <div class="head"><h2 class="chart-name">Dumbbell</h2><span class="build"></span><span class="count"></span></div>
-    <p class="blurb">Two measures per row on one shared scale, joined by a connector showing the gap.</p>
-    <div class="split"><div class="tile"></div><div class="panel"></div></div>
-  </section>
-
-  <section class="chart" id="histogram">
-    <div class="head"><h2 class="chart-name">Histogram</h2><span class="build"></span><span class="count"></span></div>
-    <p class="blurb">Distribution of one measure, binned, with optional mean, median and percentile lines.</p>
-    <div class="split"><div class="tile"></div><div class="panel"></div></div>
-  </section>
-
-  <section class="chart" id="line_series">
-    <div class="head"><h2 class="chart-name">Line</h2><span class="build"></span><span class="count"></span></div>
-    <p class="blurb">One line per series across an ordered dimension.</p>
-    <div class="split"><div class="tile"></div><div class="panel"></div></div>
-  </section>
-
-  <section class="chart" id="stacked_area">
-    <div class="head"><h2 class="chart-name">Stacked Area</h2><span class="build"></span><span class="count"></span></div>
-    <p class="blurb">One band per series, stacked, in absolute values or share of total.</p>
-    <div class="split"><div class="tile"></div><div class="panel"></div></div>
-  </section>
-
-  <section class="chart" id="grouped_column">
-    <div class="head"><h2 class="chart-name">Grouped Column</h2><span class="build"></span><span class="count"></span></div>
-    <p class="blurb">One group per dimension value, one column per measure.</p>
-    <div class="split"><div class="tile"></div><div class="panel"></div></div>
-  </section>
-
-  <section class="chart" id="scatter_plot">
-    <div class="head"><h2 class="chart-name">Scatter</h2><span class="build"></span><span class="count"></span></div>
-    <p class="blurb">One dot per row, two measures placing it, a third sizing it.</p>
-    <div class="split"><div class="tile"></div><div class="panel"></div></div>
-  </section>
-
-  <section class="chart" id="bullet_bar">
-    <div class="head"><h2 class="chart-name">Bullet Bar</h2><span class="build"></span><span class="count"></span></div>
-    <p class="blurb">Actual against target, one row per dimension value.</p>
-    <div class="split"><div class="tile"></div><div class="panel"></div></div>
-  </section>
+  <div class="grid" id="grid"></div>
 
   <footer>
-    <p>The figures on this page are invented sample data, not anyone's numbers. Switching the
-      button above between light and dark shows what each chart does on a dark dashboard: it reads
-      the background of the tile it is drawn into rather than the viewer's system setting.</p>
-    <p>Every chart passes a suite of 21 checks covering re-mounted tiles, tiles that measure zero
-      before layout, dark and light dashboards, narrow tiles, empty and null data, and text
-      overflowing its tile.</p>
+    <p>The figures are invented sample data, not anyone's numbers. The dashboard switch
+      shows what each chart does on a dark dashboard: it reads the background of the tile it
+      is drawn into rather than the viewer's system setting.</p>
+    <p><a href="docs/?doc=hosting">Hosting</a> &middot;
+       <a href="docs/?doc=approach">Technical approach</a> &middot;
+       <a href="https://github.com/alexander-caldwell/visage">Repository</a></p>
   </footer>
 </div>
-<script src="gallery.js"></script>
+<script type="module" src="assets/index.js"></script>
 </body>
 </html>

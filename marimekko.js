@@ -17,14 +17,18 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.3.0. The version is logged once on load, so the browser console says
+// Build v1.7.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('marimekko build v1.3.0');
+if (window.console && console.log) console.log('marimekko build v1.7.0');
 
 looker.plugins.visualizations.add({
   id: 'marimekko',
   label: 'Marimekko',
+
+  // Declared for the catalogue and the gallery. Looker ignores keys it
+  // does not know, so this costs nothing at render time.
+  data_shape: '1 dimension + 2 measures, or 2 dimensions + 1 measure',
 
   options: {
     theme: {
@@ -188,10 +192,10 @@ looker.plugins.visualizations.add({
       '  --mrk-s4: #3987e5; --mrk-i4: #0b0b0b;' +
       '  --mrk-s5: #256abf; --mrk-i5: #ffffff;' +
       '  --mrk-s6: #184f95; --mrk-i6: #ffffff; }' +
-      '.mrk-caption { padding: 0 1px 6px; font-size: 11px; color: var(--mrk-muted);' +
+      '.mrk-caption { padding: 2px 6px 9px; font-size: 11px; color: var(--mrk-muted);' +
       '  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }' +
       '.mrk-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center;' +
-      '  padding: 0 1px 6px; font-size: 11px; color: var(--mrk-ink-2); overflow: hidden; }' +
+      '  padding: 2px 6px 9px; font-size: 11px; color: var(--mrk-ink-2); overflow: hidden; }' +
       '.mrk-key { display: flex; gap: 6px; align-items: center; min-width: 0; max-width: 230px; }' +
       '.mrk-key span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }' +
       '.mrk-swatch { width: 10px; height: 10px; border-radius: 2px; flex: 0 0 auto;' +
@@ -425,6 +429,12 @@ looker.plugins.visualizations.add({
       var words = String(text).split(/\s+/).filter(Boolean);
       if (!words.length || room < 8) return null;
 
+      // A canvas measurement and the same string rendered as SVG text disagree
+      // by a pixel or so, because the two resolve the system font stack
+      // separately. Measured text sitting exactly on its limit can then render
+      // a hair past the tile edge, so keep 2px in hand.
+      room = room - 2;
+
       var lines = [];
       var current = '';
       var tooWide = false;
@@ -518,7 +528,9 @@ looker.plugins.visualizations.add({
           y: Math.round(opts.top + layout.lineHeight * (i + 0.78)),
           'text-anchor': opts.anchor || 'middle'
         });
-        text.setAttribute('font-size', layout.size);
+        // An inline style beats the class's own font-size; the attribute
+        // does not, which silently undid every shrink.
+        text.style.fontSize = layout.size + 'px';
         if (opts.weight) text.setAttribute('font-weight', opts.weight);
         if (opts.opacity) text.setAttribute('opacity', opts.opacity);
         if (opts.fill) text.style.fill = opts.fill;
@@ -1147,13 +1159,20 @@ looker.plugins.visualizations.add({
           var size = boxWidth >= 14 ? 10 : 9;
           var rotated = fit(column.name, fontOf(size), nameHeight - 8);
           if (rotated) {
+            // Turned on its side, the glyphs sit either side of the baseline, so
+            // a name on the outermost column can cross the tile edge. Hold it
+            // inside the plot.
+            var turnX = Math.min(
+              Math.max(left + boxWidth / 2 + size * 0.36, plotLeft + size),
+              plotLeft + plotWidth - size * 0.4
+            );
             var turned = el('text', {
               class: 'mrk-colname',
-              transform: 'translate(' + (left + boxWidth / 2 + size * 0.36) + ',' +
+              transform: 'translate(' + turnX + ',' +
                 (plotTop + plotHeight + nameHeight - 4) + ') rotate(-90)',
               'text-anchor': 'start'
             });
-            turned.setAttribute('font-size', size);
+            turned.style.fontSize = size + 'px';
             turned.textContent = rotated;
             group.appendChild(turned);
           }
@@ -1226,7 +1245,7 @@ looker.plugins.visualizations.add({
             (plotTop + plotHeight / 2) + ') rotate(-90)',
           'text-anchor': 'middle'
         });
-        turnedTitle.setAttribute('font-size', yLaid.size);
+        turnedTitle.style.fontSize = yLaid.size + 'px';
         turnedTitle.textContent = yLaid.lines[0];
         svg.appendChild(turnedTitle);
       }

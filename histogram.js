@@ -14,14 +14,18 @@
 // shrink and thin out and are never clipped, every column answers on hover and
 // on keyboard focus, and the theme follows the tile.
 //
-// Build v1.0.0. The version is logged once on load, so the browser console says
+// Build v1.1.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('histogram build v1.0.0');
+if (window.console && console.log) console.log('histogram build v1.1.0');
 
 looker.plugins.visualizations.add({
   id: 'histogram',
   label: 'Histogram',
+
+  // Declared for the catalogue and the gallery. Looker ignores keys it
+  // does not know, so this costs nothing at render time.
+  data_shape: '1 measure (a dimension is optional)',
 
   options: {
     value_measure: {

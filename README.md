@@ -9,9 +9,17 @@ visualisation API. No build step, no bundler, no dependencies to load.
 
 **https://alexander-caldwell.github.io/visage/**
 
-Every chart rendered live from this repo, with its controls listed straight out
-of the file, and a switch to see all of them on a dark dashboard. Nothing to
-keep in step: the page loads the charts the same way Looker does.
+Every chart rendered live from this repo, tiled, searchable, with a page each
+where the controls are real: change one and the chart redraws exactly as it
+would in an Explore. Nothing to keep in step, because the page loads the charts
+the same way Looker does and reads their controls out of the files.
+
+## Documentation
+
+- [Hosting](docs/hosting.md) — registering a chart, `@1` against a pinned tag,
+  the one header a host must send, and how to release a change.
+- [Technical approach](docs/approach.md) — why the charts are built and served
+  this way, and what was tried and rejected.
 
 ## House rules
 
