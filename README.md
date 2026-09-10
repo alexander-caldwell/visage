@@ -80,6 +80,58 @@ values. Query shape: one dimension, two measures.
 Options: size by, colour by, show caption, show names, show second measure,
 prefix second measure with its name, gap between boxes.
 
+### `line_series.js`
+
+One line per series across an ordered dimension. Query shape: one dimension and
+one measure; a second dimension becomes one line per value.
+
+- The tooltip sits on a full-height band per x position, so the pointer never
+  has to land on a 2px stroke, and one readout lists every series.
+- X labels thin out until they fit; the first and last anchor inwards.
+- A marker closes each line, or every point when Show Point Markers is on.
+
+Options: theme, start scale at zero, show point markers, axis titles.
+
+### `grouped_column.js`
+
+One group per dimension value, one column per measure. Query shape: one
+dimension and one or more measures.
+
+- Columns cap at 24px and never fill their slot; tops rounded 4px, square at
+  the baseline.
+- The hit target is the whole group, so a narrow column is still easy to point
+  at.
+- Show Value on Each Column prints the figure on the cap where it fits.
+
+Options: theme, show value on each column, axis titles.
+
+### `stacked_area.js`
+
+One band per series, stacked, across an ordered dimension. Query shape: one
+dimension and one measure, with a second dimension for the bands.
+
+- Bands are a wash of their hue with a 2px line on top, so boundaries stay
+  visible.
+- Stack Mode switches between absolute values and share of total, where the
+  axis runs 0 to 100% and the tooltip gives both the figure and the share.
+- Bands stack by their own totals, so colour follows the series.
+
+Options: theme, stack mode, axis titles.
+
+### `scatter_plot.js`
+
+One dot per row, two measures placing it, a third sizing it. Query shape: one
+dimension and two measures.
+
+- One hue for every dot: a dozen unrelated points cannot be told apart by a
+  dozen cycled colours, so identity comes from the label beside the dot.
+- Labels skip where they would collide or leave the plot, and flip side when
+  the right edge is close.
+- Where a third measure sizes the dots, it drives area rather than radius.
+- Start Axes at Zero off spreads a tight cluster out.
+
+Options: theme, show point labels, start axes at zero, axis titles.
+
 ### `histogram.js`
 
 Buckets one measure across the rows of the query and draws how many rows land
@@ -232,11 +284,15 @@ Instance-wide, no LookML change. Admin > Platform > Visualizations > Add:
 
 | ID | Label | Main |
 |---|---|---|
-| `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.7.0/treemap_dual.js` |
-| `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.7.0/dumbbell.js` |
-| `marimekko` | Marimekko | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.7.0/marimekko.js` |
-| `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.7.0/histogram.js` |
-| `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.7.0/histogram.js` |
+| `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.8.0/treemap_dual.js` |
+| `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.8.0/dumbbell.js` |
+| `marimekko` | Marimekko | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.8.0/marimekko.js` |
+| `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.8.0/histogram.js` |
+| `line_series` | Line | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.8.0/line_series.js` |
+| `grouped_column` | Grouped Column | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.8.0/grouped_column.js` |
+| `stacked_area` | Stacked Area | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.8.0/stacked_area.js` |
+| `scatter_plot` | Scatter | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.8.0/scatter_plot.js` |
+| `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.8.0/histogram.js` |
 
 Or in a LookML project manifest:
 
