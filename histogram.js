@@ -26,21 +26,21 @@ looker.plugins.visualizations.add({
   options: {
     value_measure: {
       type: 'string',
-      label: 'Measure to bin',
+      label: 'Measure to Bin',
       display: 'select',
-      values: [{ 'First measure': '' }],
+      values: [{ 'First Measure': '' }],
       default: '',
       section: 'Data',
       order: 0
     },
     height_by: {
       type: 'string',
-      label: 'Bar height',
+      label: 'Bar Height',
       display: 'select',
       values: [
-        { 'Number of rows': 'count' },
-        { 'Share of rows (%)': 'share' },
-        { 'Sum of a measure': 'sum' }
+        { 'Number of Rows': 'count' },
+        { 'Share of Rows (%)': 'share' },
+        { 'Sum of a Measure': 'sum' }
       ],
       default: 'count',
       section: 'Data',
@@ -48,21 +48,21 @@ looker.plugins.visualizations.add({
     },
     sum_measure: {
       type: 'string',
-      label: 'Measure to sum (bar height "Sum of a measure")',
+      label: 'Measure to Sum (Bar Height "Sum of a Measure")',
       display: 'select',
-      values: [{ 'Last measure': '' }],
+      values: [{ 'Last Measure': '' }],
       default: '',
       section: 'Data',
       order: 2
     },
     outliers: {
       type: 'string',
-      label: 'Extreme values',
+      label: 'Extreme Values',
       display: 'select',
       values: [
-        { 'Keep all': 'include' },
-        { 'Pull into range (1st-99th percentile)': 'clip' },
-        { 'Leave out (beyond 1.5 x IQR)': 'exclude' }
+        { 'Keep All': 'include' },
+        { 'Pull Into Range (1st-99th Percentile)': 'clip' },
+        { 'Leave Out (Beyond 1.5 x IQR)': 'exclude' }
       ],
       default: 'include',
       section: 'Data',
@@ -71,12 +71,12 @@ looker.plugins.visualizations.add({
 
     bin_mode: {
       type: 'string',
-      label: 'Bin width',
+      label: 'Bin Width',
       display: 'select',
       values: [
         { 'Automatic': 'auto' },
-        { 'Fixed number of bins': 'count' },
-        { 'Fixed bin width': 'width' }
+        { 'Fixed Number of Bins': 'count' },
+        { 'Fixed Bin Width': 'width' }
       ],
       default: 'auto',
       section: 'Bins',
@@ -84,21 +84,21 @@ looker.plugins.visualizations.add({
     },
     bin_count: {
       type: 'number',
-      label: 'Number of bins (mode "Fixed number of bins")',
+      label: 'Number of Bins (Mode "Fixed Number of Bins")',
       default: 10,
       section: 'Bins',
       order: 1
     },
     bin_width: {
       type: 'number',
-      label: 'Bin width (mode "Fixed bin width", 0 = automatic)',
+      label: 'Bin Width (Mode "Fixed Bin Width", 0 = Automatic)',
       default: 0,
       section: 'Bins',
       order: 2
     },
     bin_start: {
       type: 'string',
-      label: 'First bin starts at (blank = lowest value)',
+      label: 'First Bin Starts at (Blank = Lowest Value)',
       default: '',
       section: 'Bins',
       order: 3
@@ -115,7 +115,7 @@ looker.plugins.visualizations.add({
     },
     bar_colour: {
       type: 'array',
-      label: 'Bar colour',
+      label: 'Bar Colour',
       display: 'color',
       default: ['#3b6ea5'],
       section: 'Style',
@@ -123,30 +123,53 @@ looker.plugins.visualizations.add({
     },
     shade_bars: {
       type: 'string',
-      label: 'Bar shading',
+      label: 'Bar Shading',
       display: 'select',
-      values: [{ 'One colour': 'flat' }, { 'Darker with height': 'by_height' }],
+      values: [{ 'One Colour': 'flat' }, { 'Darker With Height': 'by_height' }],
       default: 'flat',
       section: 'Style',
       order: 2
     },
     show_values: {
       type: 'boolean',
-      label: 'Show value on each bar',
+      label: 'Show Value on Each Bar',
       default: true,
       section: 'Style',
       order: 3
     },
     show_axis: {
       type: 'boolean',
-      label: 'Show axes',
+      label: 'Show Axes',
       default: true,
       section: 'Style',
       order: 4
     },
+    show_axis_titles: {
+      type: 'boolean',
+      label: 'Show Axis Titles',
+      default: true,
+      section: 'Style',
+      order: 20
+    },
+    x_axis_label: {
+      type: 'string',
+      label: 'X Axis Title',
+      placeholder: 'Field name',
+      default: '',
+      section: 'Style',
+      order: 21
+    },
+    y_axis_label: {
+      type: 'string',
+      label: 'Y Axis Title',
+      placeholder: 'Field name',
+      default: '',
+      section: 'Style',
+      order: 22
+    },
     show_caption: {
       type: 'boolean',
-      label: 'Show caption',
+      label: 'Show Caption',
       default: true,
       section: 'Style',
       order: 5
@@ -154,21 +177,21 @@ looker.plugins.visualizations.add({
 
     show_mean: {
       type: 'boolean',
-      label: 'Mean line',
+      label: 'Mean Line',
       default: false,
       section: 'Statistics',
       order: 0
     },
     show_median: {
       type: 'boolean',
-      label: 'Median line',
+      label: 'Median Line',
       default: false,
       section: 'Statistics',
       order: 1
     },
     percentile: {
       type: 'number',
-      label: 'Percentile line (0 = off)',
+      label: 'Percentile Line (0 = Off)',
       default: 0,
       section: 'Statistics',
       order: 2
@@ -233,6 +256,7 @@ looker.plugins.visualizations.add({
       '  --hg-axis: #3d3d3a; --hg-marker: #e8e7e1;' +
       '  --hg-hairline: rgba(255,255,255,0.10); }' +
       '.histogram-root text { font-size: 12px; fill: var(--hg-ink); }' +
+      '.histogram-root .hg-axis-title { font-size: 11px; fill: var(--hg-muted); }' +
       '.histogram-root .hg-tick { fill: var(--hg-ink-2);' +
       '  font-variant-numeric: tabular-nums; }' +
       '.histogram-root .hg-value { fill: var(--hg-ink-2);' +
@@ -703,6 +727,24 @@ looker.plugins.visualizations.add({
     }
 
     var showAxis = config.show_axis !== false && width >= 108 && height >= 100;
+
+    // An empty option means "use the field's own name", so the chart is
+    // labelled without the user doing anything, and can be overridden or
+    // switched off.
+    function axisTitle(option, auto) {
+      if (config.show_axis_titles === false) return '';
+      var given = (config[option] || '').trim();
+      return given || auto || '';
+    }
+
+    var xTitle = showAxis ? axisTitle('x_axis_label', valueField.label_short) : '';
+    var yTitle = showAxis ? axisTitle('y_axis_label',
+      heightBy === 'count' ? 'Rows'
+        : heightBy === 'share' ? 'Share of Rows'
+        : (sumField ? sumField.label_short : 'Value')) : '';
+
+    var xTitleBand = xTitle ? 16 : 0;
+    var yTitleBand = yTitle ? 15 : 0;
     var tickTarget = height < 200 ? 3 : 4;
     var yStep = niceStep(peak / tickTarget);
     if (heightBy === 'count' && yStep < 1) yStep = 1;
@@ -718,12 +760,12 @@ looker.plugins.visualizations.add({
     }
 
     var tickFont = fontOf(11);
-    var leftPad = 6;
+    var leftPad = 6 + yTitleBand;
     if (showAxis) {
       var widest = yTicks.reduce(function (m, v) {
         return Math.max(m, textWidth(yTickLabel(v), tickFont));
       }, 0);
-      leftPad = Math.min(Math.ceil(widest) + 10, Math.floor(width * 0.3));
+      leftPad = Math.min(Math.ceil(widest) + 10 + yTitleBand, Math.floor(width * 0.34));
     }
 
     // --- Vertical space ----------------------------------------------------
@@ -804,9 +846,9 @@ looker.plugins.visualizations.add({
       }
     }
 
-    var bottomPad = 6;
-    if (edgeMode === 'flat') bottomPad = 20;
-    else if (edgeMode === 'side') bottomPad = Math.ceil(widestEdge) + 12;
+    var bottomPad = 6 + xTitleBand;
+    if (edgeMode === 'flat') bottomPad = 20 + xTitleBand;
+    else if (edgeMode === 'side') bottomPad = Math.ceil(widestEdge) + 12 + xTitleBand;
 
     var axisY = height - captionSpace - bottomPad;
     var plotTop = topPad;
@@ -1137,6 +1179,39 @@ looker.plugins.visualizations.add({
         capText.style.fontSize = (laidCaption.size) + 'px';
         capText.textContent = laidCaption.text;
         svg.appendChild(capText);
+      }
+    }
+
+    // Axis titles: the x title under the tick labels, the y title turned up the
+    // left edge. Both are dropped rather than clipped, and both use the muted
+    // text token, never a series colour.
+    if (xTitle) {
+      var xLaid = fitText(xTitle, plotWidth, [11, 10, 9]);
+      if (xLaid) {
+        var xLabel = el('text', {
+          class: 'hg-axis-title',
+          x: plotLeft + plotWidth / 2,
+          y: height - captionSpace - 4,
+          'text-anchor': 'middle'
+        });
+        xLabel.style.fontSize = xLaid.size + 'px';
+        xLabel.textContent = xLaid.text;
+        svg.appendChild(xLabel);
+      }
+    }
+
+    if (yTitle) {
+      var yLaid = fitText(yTitle, plotHeight, [11, 10, 9]);
+      if (yLaid) {
+        var yLabel = el('text', {
+          class: 'hg-axis-title',
+          transform: 'translate(' + (yTitleBand - 3) + ',' +
+            (plotTop + plotHeight / 2) + ') rotate(-90)',
+          'text-anchor': 'middle'
+        });
+        yLabel.style.fontSize = yLaid.size + 'px';
+        yLabel.textContent = yLaid.text;
+        svg.appendChild(yLabel);
       }
     }
 

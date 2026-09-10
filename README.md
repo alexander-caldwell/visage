@@ -33,6 +33,11 @@ Drawing is wrapped so any error appears in Looker's own error box.
 dashboard stays light for a viewer whose machine is in dark mode. Dark mode has
 its own colour steps, not a flipped copy.
 
+**Axes and labels.** Any chart with an axis exposes Show Axis Titles, X Axis
+Title and Y Axis Title. Leaving a title blank uses the field's own name, so a
+chart arrives labelled; type your own wording to override it, or switch titles
+off. Option labels in the Looker config panel are Title Case.
+
 **Colour.** Follows the value or the entity, never the row's position, so
 filtering never repaints the rows that remain. Sequential is one hue light to
 dark; categorical is eight hues in fixed order, never cycled.
@@ -116,6 +121,19 @@ Options: measure to bin, bar height, measure to sum, extreme values, bin width
 mode, number of bins, bin width, first bin start, theme, bar colour, bar
 shading, show values, show axes, show caption, mean line, median line,
 percentile line.
+
+### `histogram.js`
+
+Distribution of one measure: rows are binned by value and each bar's height is
+the number of rows, their share, or the sum of a second measure. Query shape:
+at least one measure; a dimension is optional.
+
+- Bin width automatic, a fixed number of bins, or a fixed width, with a
+  configurable first bin.
+- Extreme values kept, pulled into the 1st to 99th percentile range, or left out
+  beyond 1.5 times the interquartile range, and the caption says which.
+- Optional mean, median and percentile lines.
+- Axis titles on both axes, defaulting to the measure's own name.
 
 ### `marimekko.js`
 
@@ -214,9 +232,10 @@ Instance-wide, no LookML change. Admin > Platform > Visualizations > Add:
 
 | ID | Label | Main |
 |---|---|---|
-| `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.5.0/treemap_dual.js` |
-| `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.5.0/dumbbell.js` |
-| `marimekko` | Marimekko | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.5.0/marimekko.js` |
+| `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.6.0/treemap_dual.js` |
+| `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.6.0/dumbbell.js` |
+| `marimekko` | Marimekko | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.6.0/marimekko.js` |
+| `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.6.0/histogram.js` |
 | `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.6.0/histogram.js` |
 
 Or in a LookML project manifest:

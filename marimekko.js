@@ -17,10 +17,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.2.0. The version is logged once on load, so the browser console says
+// Build v1.3.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('marimekko build v1.2.0');
+if (window.console && console.log) console.log('marimekko build v1.3.0');
 
 looker.plugins.visualizations.add({
   id: 'marimekko',
@@ -41,9 +41,9 @@ looker.plugins.visualizations.add({
       label: 'Layout',
       display: 'select',
       values: [
-        { 'Choose from the query': 'auto' },
-        { 'Width and height from two measures': 'variwide' },
-        { 'Split columns by a second dimension': 'mosaic' }
+        { 'Choose From the Query': 'auto' },
+        { 'Width and Height From Two Measures': 'variwide' },
+        { 'Split Columns by a Second Dimension': 'mosaic' }
       ],
       default: 'auto',
       section: 'Data',
@@ -51,12 +51,12 @@ looker.plugins.visualizations.add({
     },
     width_from: {
       type: 'string',
-      label: 'Column width from',
+      label: 'Column Width From',
       display: 'select',
       values: [
-        { 'Whichever reads better': 'auto' },
-        { 'First measure': 'first' },
-        { 'Second measure': 'second' }
+        { 'Whichever Reads Better': 'auto' },
+        { 'First Measure': 'first' },
+        { 'Second Measure': 'second' }
       ],
       default: 'auto',
       section: 'Data',
@@ -64,42 +64,65 @@ looker.plugins.visualizations.add({
     },
     max_columns: {
       type: 'number',
-      label: 'Columns before the rest are grouped',
+      label: 'Columns Before the Rest Are Grouped',
       default: 8,
       section: 'Data',
       order: 3
     },
     shade_columns: {
       type: 'boolean',
-      label: 'Shade columns by height',
+      label: 'Shade Columns by Height',
       default: false,
       section: 'Style',
       order: 1
     },
     show_values: {
       type: 'boolean',
-      label: 'Show figures in columns',
+      label: 'Show Figures in Columns',
       default: true,
       section: 'Style',
       order: 1
     },
     show_caption: {
       type: 'boolean',
-      label: 'Show caption',
+      label: 'Show Caption',
       default: true,
       section: 'Style',
       order: 2
     },
     show_axis: {
       type: 'boolean',
-      label: 'Show scale',
+      label: 'Show Scale',
       default: true,
       section: 'Style',
       order: 3
     },
+    show_axis_titles: {
+      type: 'boolean',
+      label: 'Show Axis Titles',
+      default: true,
+      section: 'Style',
+      order: 20
+    },
+    x_axis_label: {
+      type: 'string',
+      label: 'X Axis Title',
+      placeholder: 'Field name',
+      default: '',
+      section: 'Style',
+      order: 21
+    },
+    y_axis_label: {
+      type: 'string',
+      label: 'Y Axis Title',
+      placeholder: 'Field name',
+      default: '',
+      section: 'Style',
+      order: 22
+    },
     show_column_labels: {
       type: 'boolean',
-      label: 'Show column names',
+      label: 'Show Column Names',
       default: true,
       section: 'Style',
       order: 4
@@ -183,6 +206,7 @@ looker.plugins.visualizations.add({
       '.mrk-tick { font-size: 11px; fill: var(--mrk-muted); font-variant-numeric: tabular-nums; }' +
       '.mrk-grid-line { stroke: var(--mrk-grid); stroke-width: 1; }' +
       '.mrk-note { font-size: 10px; fill: var(--mrk-muted); }' +
+      '.mrk-axis-title { font-size: 11px; fill: var(--mrk-muted); }' +
       '.mrk-empty { font-size: 12px; fill: var(--mrk-muted); }' +
       '.mrk-tip { position: absolute; z-index: 5; pointer-events: none; opacity: 0;' +
       '  transition: opacity 90ms ease-out; max-width: 280px;' +
@@ -726,8 +750,26 @@ looker.plugins.visualizations.add({
       }
     }
 
+    // An empty option means "use the field's own name", so the chart is
+    // labelled without the user doing anything, and can be overridden or
+    // switched off.
+    function axisTitle(option, auto) {
+      if (config.show_axis_titles === false) return '';
+      var given = (config[option] || '').trim();
+      return given || auto || '';
+    }
+
+    var xTitle = axisTitle('x_axis_label', mode === 'variwide'
+      ? 'Share of ' + widthField.label_short
+      : 'Share of ' + measureField.label_short + ' by ' + dims[0].label_short);
+    var yTitle = config.show_axis ? axisTitle('y_axis_label', mode === 'variwide'
+      ? heightField.label_short + ' per ' + widthField.label_short.replace(/s$/, '')
+      : 'Share of ' + measureField.label_short) : '';
+    var xTitleBand = xTitle ? 16 : 0;
+    var yTitleBand = yTitle ? 15 : 0;
+
     var noteHeight = (skipped || grouped) ? 15 : 0;
-    var axisWidth = config.show_axis ? 46 : 2;
+    var axisWidth = (config.show_axis ? 46 : 2) + yTitleBand;
 
     var plotLeft = axisWidth;
     var plotWidth = Math.max(20, width - plotLeft - 6);
@@ -770,7 +812,8 @@ looker.plugins.visualizations.add({
       }
     }
 
-    var plotHeight = Math.max(20, height - captionHeight - legendHeight - noteHeight - nameHeight - plotTop);
+    var plotHeight = Math.max(20, height - captionHeight - legendHeight - noteHeight -
+      nameHeight - xTitleBand - plotTop);
 
     var maxRate = 0;
     if (mode === 'variwide') {
@@ -781,7 +824,7 @@ looker.plugins.visualizations.add({
     var svg = el('svg', {
       class: 'mrk-plot',
       width: width,
-      height: plotHeight + nameHeight + noteHeight + plotTop
+      height: plotHeight + nameHeight + xTitleBand + noteHeight + plotTop
     });
 
     // Scale and gridlines behind everything, hairline and recessive.
@@ -1151,10 +1194,42 @@ looker.plugins.visualizations.add({
       if (grouped) parts.push(grouped + ' smallest grouped');
       if (skipped) parts.push(skipped + (skipped === 1 ? ' row' : ' rows') + ' with no positive value not shown');
       var note = el('text', {
-        class: 'mrk-note', x: plotLeft, y: plotTop + plotHeight + nameHeight + noteHeight - 3
+        class: 'mrk-note', x: plotLeft,
+        y: plotTop + plotHeight + nameHeight + xTitleBand + noteHeight - 3
       });
       note.textContent = parts.join('; ');
       svg.appendChild(note);
+    }
+
+    // Axis titles: x under the column names, y turned up the left edge. Dropped
+    // rather than clipped, and in the muted text token, never a series colour.
+    if (xTitle) {
+      var xLaid = layoutLabel(xTitle, {
+        width: plotWidth, height: xTitleBand, sizes: [11, 10, 9], maxLines: 1
+      });
+      if (xLaid) {
+        drawLabel(svg, xLaid, {
+          cls: 'mrk-axis-title', x: plotLeft + plotWidth / 2,
+          top: plotTop + plotHeight + nameHeight, anchor: 'middle'
+        });
+      }
+    }
+
+    if (yTitle) {
+      var yLaid = layoutLabel(yTitle, {
+        width: plotHeight, height: yTitleBand, sizes: [11, 10, 9], maxLines: 1
+      });
+      if (yLaid) {
+        var turnedTitle = el('text', {
+          class: 'mrk-axis-title',
+          transform: 'translate(' + (yTitleBand - 4) + ',' +
+            (plotTop + plotHeight / 2) + ') rotate(-90)',
+          'text-anchor': 'middle'
+        });
+        turnedTitle.setAttribute('font-size', yLaid.size);
+        turnedTitle.textContent = yLaid.lines[0];
+        svg.appendChild(turnedTitle);
+      }
     }
 
     root.appendChild(svg);

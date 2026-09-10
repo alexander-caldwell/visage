@@ -7,10 +7,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.2.0. The version is logged once on load, so the browser console says
+// Build v1.3.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('dumbbell build v1.2.0');
+if (window.console && console.log) console.log('dumbbell build v1.3.0');
 
 looker.plugins.visualizations.add({
   id: 'dumbbell',
@@ -28,13 +28,13 @@ looker.plugins.visualizations.add({
     },
     sort_by: {
       type: 'string',
-      label: 'Sort rows by',
+      label: 'Sort Rows By',
       display: 'select',
       values: [
-        { 'First measure': 'first' },
-        { 'Second measure': 'second' },
-        { 'Size of gap': 'gap' },
-        { 'Query order': 'query' }
+        { 'First Measure': 'first' },
+        { 'Second Measure': 'second' },
+        { 'Size of Gap': 'gap' },
+        { 'Query Order': 'query' }
       ],
       default: 'first',
       section: 'Data',
@@ -42,28 +42,51 @@ looker.plugins.visualizations.add({
     },
     zero_baseline: {
       type: 'boolean',
-      label: 'Start scale at zero',
+      label: 'Start Scale at Zero',
       default: true,
       section: 'Data',
       order: 2
     },
+    show_axis_titles: {
+      type: 'boolean',
+      label: 'Show Axis Titles',
+      default: true,
+      section: 'Style',
+      order: 20
+    },
+    x_axis_label: {
+      type: 'string',
+      label: 'X Axis Title',
+      placeholder: 'Field name',
+      default: '',
+      section: 'Style',
+      order: 21
+    },
+    y_axis_label: {
+      type: 'string',
+      label: 'Y Axis Title',
+      placeholder: 'Field name',
+      default: '',
+      section: 'Style',
+      order: 22
+    },
     label_width: {
       type: 'number',
-      label: 'Row label width (px)',
+      label: 'Row Label Width (px)',
       default: 140,
       section: 'Style',
       order: 1
     },
     show_gap: {
       type: 'boolean',
-      label: 'Label the largest gap',
+      label: 'Label the Largest Gap',
       default: true,
       section: 'Style',
       order: 2
     },
     show_axis: {
       type: 'boolean',
-      label: 'Show scale',
+      label: 'Show Scale',
       default: true,
       section: 'Style',
       order: 3
@@ -122,6 +145,7 @@ looker.plugins.visualizations.add({
       '.dmb-grid-line { stroke: var(--dmb-grid); stroke-width: 1; }' +
       '.dmb-gap { font-size: 11px; fill: var(--dmb-ink-2); }' +
       '.dmb-note { font-size: 10px; fill: var(--dmb-muted); }' +
+      '.dmb-axis-title { font-size: 11px; fill: var(--dmb-muted); }' +
       '.dmb-warn { font-size: 11px; color: var(--dmb-muted); font-style: italic;' +
       '  overflow: hidden; text-overflow: ellipsis; min-width: 0; }' +
       '.dmb-empty { font-size: 12px; fill: var(--dmb-muted); }' +
@@ -562,15 +586,30 @@ looker.plugins.visualizations.add({
       legendHeight = legend.offsetHeight || 22;
     }
 
+    // An empty option means "use the field's own name", so the chart is
+    // labelled without the user doing anything, and can be overridden or
+    // switched off.
+    function axisTitle(option, auto) {
+      if (config.show_axis_titles === false) return '';
+      var given = (config[option] || '').trim();
+      return given || auto || '';
+    }
+
+    var xTitle = config.show_axis ? axisTitle('x_axis_label',
+      fieldA.label_short + ' / ' + fieldB.label_short) : '';
+    var yTitle = axisTitle('y_axis_label', dims[0].label_short);
+    var xTitleBand = xTitle ? 16 : 0;
+    var yTitleBand = yTitle ? 15 : 0;
+
     var noteHeight = skipped ? 15 : 0;
-    var axisHeight = config.show_axis ? 20 : 4;
+    var axisHeight = (config.show_axis ? 20 : 4) + xTitleBand;
     var plotHeight = Math.max(20, height - legendHeight - noteHeight - axisHeight);
 
     var labelRoom = Math.min(Number(config.label_width) || 140, Math.floor(width * 0.42));
     if (!isFinite(labelRoom) || labelRoom < 0) labelRoom = 140;
 
     var padRight = 12;
-    var plotLeft = labelRoom + 12;
+    var plotLeft = yTitleBand + labelRoom + 12;
     var plotWidth = Math.max(20, width - plotLeft - padRight);
 
     var values = [];
@@ -744,12 +783,12 @@ looker.plugins.visualizations.add({
       });
       if (nameLayout) {
         drawLabel(group, nameLayout, {
-          cls: 'dmb-label', x: labelRoom, top: midY - nameLayout.height / 2, anchor: 'end'
+          cls: 'dmb-label', x: yTitleBand + labelRoom, top: midY - nameLayout.height / 2, anchor: 'end'
         });
       } else {
         var label = fitRowLabel(d.name, fonts.label, labelRoom);
         if (label) {
-          var text = el('text', { class: 'dmb-label', x: labelRoom, y: midY + 4 });
+          var text = el('text', { class: 'dmb-label', x: yTitleBand + labelRoom, y: midY + 4 });
           text.textContent = label;
           group.appendChild(text);
         }
@@ -855,6 +894,36 @@ looker.plugins.visualizations.add({
       });
       note.textContent = skipped + (skipped === 1 ? ' row' : ' rows') + ' not shown: no values';
       svg.appendChild(note);
+    }
+
+    // Axis titles: x under the tick labels, y turned up the left edge. Dropped
+    // rather than clipped, and in the muted text token, never a series colour.
+    if (xTitle) {
+      var xLaid = layoutLabel(xTitle, {
+        width: plotWidth, height: xTitleBand, sizes: [11, 10, 9], maxLines: 1
+      });
+      if (xLaid) {
+        drawLabel(svg, xLaid, {
+          cls: 'dmb-axis-title', x: plotLeft + plotWidth / 2,
+          top: plotHeight + axisHeight - xTitleBand - 2, anchor: 'middle'
+        });
+      }
+    }
+
+    if (yTitle) {
+      var yLaid = layoutLabel(yTitle, {
+        width: plotHeight, height: yTitleBand, sizes: [11, 10, 9], maxLines: 1
+      });
+      if (yLaid) {
+        var turned = el('text', {
+          class: 'dmb-axis-title',
+          transform: 'translate(' + (yTitleBand - 4) + ',' + (plotHeight / 2) + ') rotate(-90)',
+          'text-anchor': 'middle'
+        });
+        turned.setAttribute('font-size', yLaid.size);
+        turned.textContent = yLaid.lines[0];
+        svg.appendChild(turned);
+      }
     }
 
     root.appendChild(svg);

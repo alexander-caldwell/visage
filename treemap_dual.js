@@ -28,53 +28,53 @@ looker.plugins.visualizations.add({
     },
     size_by: {
       type: 'string',
-      label: 'Size by',
+      label: 'Size By',
       display: 'select',
-      values: [{ 'First measure': 'first' }, { 'Second measure': 'second' }],
+      values: [{ 'First Measure': 'first' }, { 'Second Measure': 'second' }],
       default: 'first',
       section: 'Data',
       order: 1
     },
     colour_by: {
       type: 'string',
-      label: 'Colour by',
+      label: 'Colour By',
       display: 'select',
-      values: [{ 'Second measure': 'measure' }, { 'One flat colour': 'flat' }],
+      values: [{ 'Second Measure': 'measure' }, { 'One Flat Colour': 'flat' }],
       default: 'measure',
       section: 'Style',
       order: 1
     },
     show_legend: {
       type: 'boolean',
-      label: 'Show caption',
+      label: 'Show Caption',
       default: true,
       section: 'Style',
       order: 2
     },
     show_labels: {
       type: 'boolean',
-      label: 'Show names',
+      label: 'Show Names',
       default: true,
       section: 'Style',
       order: 3
     },
     show_secondary: {
       type: 'boolean',
-      label: 'Show second measure',
+      label: 'Show Second Measure',
       default: true,
       section: 'Style',
       order: 4
     },
     secondary_prefix: {
       type: 'boolean',
-      label: 'Prefix second measure with its name',
+      label: 'Prefix Second Measure With Its Name',
       default: false,
       section: 'Style',
       order: 5
     },
     box_padding: {
       type: 'number',
-      label: 'Gap between boxes (px)',
+      label: 'Gap Between Boxes (px)',
       default: 2,
       section: 'Style',
       order: 6
