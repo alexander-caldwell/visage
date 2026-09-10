@@ -27,10 +27,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.10.0. The version is logged once on load, so the browser console says
+// Build v1.11.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('marimekko build v1.10.0');
+if (window.console && console.log) console.log('marimekko build v1.11.0');
 
 looker.plugins.visualizations.add({
   id: 'marimekko',
@@ -165,52 +165,52 @@ looker.plugins.visualizations.add({
     var style = document.createElement('style');
     style.textContent =
       '.mrk-root {' +
-      '  --mrk-surface: #fcfcfb;' +
-      '  --mrk-ink: #0b0b0b;' +
-      '  --mrk-ink-2: #52514e;' +
-      '  --mrk-muted: #898781;' +
-      '  --mrk-grid: #e1e0d9;' +
+      '  --mrk-surface: #f7f7fa;' +
+      '  --mrk-ink: #151d2d;' +
+      '  --mrk-ink-2: #475569;' +
+      '  --mrk-muted: #94a3b8;' +
+      '  --mrk-grid: #e5e7eb;' +
       '  --mrk-hairline: rgba(11,11,11,0.10);' +
-      '  --mrk-c0: #2a78d6; --mrk-k0: #0b0b0b;' +
-      '  --mrk-c1: #eb6834; --mrk-k1: #0b0b0b;' +
-      '  --mrk-c2: #1baf7a; --mrk-k2: #0b0b0b;' +
-      '  --mrk-c3: #eda100; --mrk-k3: #0b0b0b;' +
-      '  --mrk-c4: #e87ba4; --mrk-k4: #0b0b0b;' +
+      '  --mrk-c0: #525aff; --mrk-k0: #151d2d;' +
+      '  --mrk-c1: #eb6834; --mrk-k1: #151d2d;' +
+      '  --mrk-c2: #1baf7a; --mrk-k2: #151d2d;' +
+      '  --mrk-c3: #eda100; --mrk-k3: #151d2d;' +
+      '  --mrk-c4: #e87ba4; --mrk-k4: #151d2d;' +
       '  --mrk-c5: #008300; --mrk-k5: #ffffff;' +
-      '  --mrk-c6: #4a3aa7; --mrk-k6: #ffffff;' +
-      '  --mrk-c7: #e34948; --mrk-k7: #ffffff;' +
-      '  --mrk-other: #b9b7ae; --mrk-other-ink: #0b0b0b;' +
-      '  --mrk-s0: #cde2fb; --mrk-i0: #0b0b0b;' +
-      '  --mrk-s1: #9ec5f4; --mrk-i1: #0b0b0b;' +
-      '  --mrk-s2: #6da7ec; --mrk-i2: #0b0b0b;' +
-      '  --mrk-s3: #3987e5; --mrk-i3: #0b0b0b;' +
-      '  --mrk-s4: #256abf; --mrk-i4: #ffffff;' +
-      '  --mrk-s5: #184f95; --mrk-i5: #ffffff;' +
-      '  --mrk-s6: #0d366b; --mrk-i6: #ffffff;' +
+      '  --mrk-c6: #ad93f1; --mrk-k6: #ffffff;' +
+      '  --mrk-c7: #e34948; --mrk-k7: #151d2d;' +
+      '  --mrk-other: #aab1c2; --mrk-other-ink: #151d2d;' +
+      '  --mrk-s0: #95acff; --mrk-i0: #151d2d;' +
+      '  --mrk-s1: #788cff; --mrk-i1: #151d2d;' +
+      '  --mrk-s2: #606dff; --mrk-i2: #151d2d;' +
+      '  --mrk-s3: #4c52f4; --mrk-i3: #ffffff;' +
+      '  --mrk-s4: #3b3dcb; --mrk-i4: #ffffff;' +
+      '  --mrk-s5: #2c2e9b; --mrk-i5: #ffffff;' +
+      '  --mrk-s6: #1e2368; --mrk-i6: #ffffff;' +
       '  position: relative; width: 100%; height: 100%; overflow: hidden;' +
       '  background: var(--mrk-surface);' +
       '  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;' +
       '  -webkit-font-smoothing: antialiased;' +
       '}' +
-      '.mrk-root.mrk-dark { --mrk-surface: #1a1a19; --mrk-ink: #ffffff;' +
-      '  --mrk-ink-2: #c3c2b7; --mrk-muted: #898781; --mrk-grid: #2c2c2a;' +
+      '.mrk-root.mrk-dark { --mrk-surface: #12121c; --mrk-ink: #ffffff;' +
+      '  --mrk-ink-2: #cbd5e1; --mrk-muted: #94a3b8; --mrk-grid: #252a3a;' +
       '  --mrk-hairline: rgba(255,255,255,0.10);' +
-      '  --mrk-c0: #3987e5; --mrk-k0: #0b0b0b;' +
+      '  --mrk-c0: #7078ff; --mrk-k0: #151d2d;' +
       '  --mrk-c1: #d95926; --mrk-k1: #ffffff;' +
-      '  --mrk-c2: #199e70; --mrk-k2: #0b0b0b;' +
-      '  --mrk-c3: #c98500; --mrk-k3: #0b0b0b;' +
+      '  --mrk-c2: #199e70; --mrk-k2: #151d2d;' +
+      '  --mrk-c3: #c98500; --mrk-k3: #151d2d;' +
       '  --mrk-c4: #d55181; --mrk-k4: #ffffff;' +
       '  --mrk-c5: #008300; --mrk-k5: #ffffff;' +
-      '  --mrk-c6: #9085e9; --mrk-k6: #0b0b0b;' +
-      '  --mrk-c7: #e66767; --mrk-k7: #0b0b0b;' +
-      '  --mrk-other: #4a4a46; --mrk-other-ink: #ffffff;' +
-      '  --mrk-s0: #b7d3f6; --mrk-i0: #0b0b0b;' +
-      '  --mrk-s1: #9ec5f4; --mrk-i1: #0b0b0b;' +
-      '  --mrk-s2: #86b6ef; --mrk-i2: #0b0b0b;' +
-      '  --mrk-s3: #5598e7; --mrk-i3: #0b0b0b;' +
-      '  --mrk-s4: #3987e5; --mrk-i4: #0b0b0b;' +
-      '  --mrk-s5: #256abf; --mrk-i5: #ffffff;' +
-      '  --mrk-s6: #184f95; --mrk-i6: #ffffff; }' +
+      '  --mrk-c6: #8f7ce8; --mrk-k6: #151d2d;' +
+      '  --mrk-c7: #e66767; --mrk-k7: #151d2d;' +
+      '  --mrk-other: #3a4054; --mrk-other-ink: #ffffff;' +
+      '  --mrk-s0: #c1d3ff; --mrk-i0: #151d2d;' +
+      '  --mrk-s1: #a5b9ff; --mrk-i1: #151d2d;' +
+      '  --mrk-s2: #8ba0ff; --mrk-i2: #151d2d;' +
+      '  --mrk-s3: #7286fb; --mrk-i3: #151d2d;' +
+      '  --mrk-s4: #7078ff; --mrk-i4: #151d2d;' +
+      '  --mrk-s5: #474ee0; --mrk-i5: #ffffff;' +
+      '  --mrk-s6: #372ad2; --mrk-i6: #ffffff; }' +
       '.mrk-caption { padding: 2px 6px 9px; font-size: 11px; color: var(--mrk-muted);' +
       '  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }' +
       '.mrk-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center;' +

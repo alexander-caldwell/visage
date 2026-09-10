@@ -3,10 +3,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.2.0. The version is logged once on load, so the browser console says
+// Build v1.3.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('scatter_plot build v1.2.0');
+if (window.console && console.log) console.log('scatter_plot build v1.3.0');
 
 looker.plugins.visualizations.add({
   id: 'scatter_plot',
@@ -78,23 +78,23 @@ looker.plugins.visualizations.add({
     var style = document.createElement('style');
     style.textContent =
       '.sc-root {' +
-      '  --sc-surface: #fcfcfb; --sc-ink: #0b0b0b; --sc-ink-2: #52514e;' +
-      '  --sc-muted: #898781; --sc-grid: #e1e0d9; --sc-axis: #c3c2b7;' +
+      '  --sc-surface: #f7f7fa; --sc-ink: #151d2d; --sc-ink-2: #475569;' +
+      '  --sc-muted: #94a3b8; --sc-grid: #e5e7eb; --sc-axis: #cbd5e1;' +
       '  --sc-hairline: rgba(11,11,11,0.10);' +
-      '  --sc-c0: #2a78d6; --sc-c1: #eb6834; --sc-c2: #1baf7a;' +
+      '  --sc-c0: #525aff; --sc-c1: #eb6834; --sc-c2: #1baf7a;' +
       '  --sc-c3: #eda100; --sc-c4: #e87ba4; --sc-c5: #008300;' +
-      '  --sc-c6: #4a3aa7; --sc-c7: #e34948; --sc-other: #b9b7ae;' +
+      '  --sc-c6: #ad93f1; --sc-c7: #e34948; --sc-other: #aab1c2;' +
       '  position: relative; width: 100%; height: 100%; overflow: hidden;' +
       '  background: var(--sc-surface);' +
       '  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;' +
       '  -webkit-font-smoothing: antialiased;' +
       '}' +
-      '.sc-root.sc-dark { --sc-surface: #1a1a19; --sc-ink: #ffffff;' +
-      '  --sc-ink-2: #c3c2b7; --sc-muted: #898781; --sc-grid: #2c2c2a;' +
-      '  --sc-axis: #383835; --sc-hairline: rgba(255,255,255,0.10);' +
-      '  --sc-c0: #3987e5; --sc-c1: #d95926; --sc-c2: #199e70;' +
+      '.sc-root.sc-dark { --sc-surface: #12121c; --sc-ink: #ffffff;' +
+      '  --sc-ink-2: #cbd5e1; --sc-muted: #94a3b8; --sc-grid: #252a3a;' +
+      '  --sc-axis: #31384a; --sc-hairline: rgba(255,255,255,0.10);' +
+      '  --sc-c0: #7078ff; --sc-c1: #d95926; --sc-c2: #199e70;' +
       '  --sc-c3: #c98500; --sc-c4: #d55181; --sc-c5: #008300;' +
-      '  --sc-c6: #9085e9; --sc-c7: #e66767; --sc-other: #4a4a46; }' +
+      '  --sc-c6: #8f7ce8; --sc-c7: #e66767; --sc-other: #3a4054; }' +
       '.sc-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center;' +
       '  padding: 2px 6px 9px; font-size: 11px; color: var(--sc-ink-2); overflow: hidden; }' +
       '.sc-key { display: flex; gap: 6px; align-items: center; min-width: 0; max-width: 220px; }' +

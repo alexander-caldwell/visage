@@ -3,10 +3,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.2.0. The version is logged once on load, so the browser console says
+// Build v1.3.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('line_series build v1.2.0');
+if (window.console && console.log) console.log('line_series build v1.3.0');
 
 looker.plugins.visualizations.add({
   id: 'line_series',
@@ -78,23 +78,23 @@ looker.plugins.visualizations.add({
     var style = document.createElement('style');
     style.textContent =
       '.ln-root {' +
-      '  --ln-surface: #fcfcfb; --ln-ink: #0b0b0b; --ln-ink-2: #52514e;' +
-      '  --ln-muted: #898781; --ln-grid: #e1e0d9; --ln-axis: #c3c2b7;' +
+      '  --ln-surface: #f7f7fa; --ln-ink: #151d2d; --ln-ink-2: #475569;' +
+      '  --ln-muted: #94a3b8; --ln-grid: #e5e7eb; --ln-axis: #cbd5e1;' +
       '  --ln-hairline: rgba(11,11,11,0.10);' +
-      '  --ln-c0: #2a78d6; --ln-c1: #eb6834; --ln-c2: #1baf7a;' +
+      '  --ln-c0: #525aff; --ln-c1: #eb6834; --ln-c2: #1baf7a;' +
       '  --ln-c3: #eda100; --ln-c4: #e87ba4; --ln-c5: #008300;' +
-      '  --ln-c6: #4a3aa7; --ln-c7: #e34948; --ln-other: #b9b7ae;' +
+      '  --ln-c6: #ad93f1; --ln-c7: #e34948; --ln-other: #aab1c2;' +
       '  position: relative; width: 100%; height: 100%; overflow: hidden;' +
       '  background: var(--ln-surface);' +
       '  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;' +
       '  -webkit-font-smoothing: antialiased;' +
       '}' +
-      '.ln-root.ln-dark { --ln-surface: #1a1a19; --ln-ink: #ffffff;' +
-      '  --ln-ink-2: #c3c2b7; --ln-muted: #898781; --ln-grid: #2c2c2a;' +
-      '  --ln-axis: #383835; --ln-hairline: rgba(255,255,255,0.10);' +
-      '  --ln-c0: #3987e5; --ln-c1: #d95926; --ln-c2: #199e70;' +
+      '.ln-root.ln-dark { --ln-surface: #12121c; --ln-ink: #ffffff;' +
+      '  --ln-ink-2: #cbd5e1; --ln-muted: #94a3b8; --ln-grid: #252a3a;' +
+      '  --ln-axis: #31384a; --ln-hairline: rgba(255,255,255,0.10);' +
+      '  --ln-c0: #7078ff; --ln-c1: #d95926; --ln-c2: #199e70;' +
       '  --ln-c3: #c98500; --ln-c4: #d55181; --ln-c5: #008300;' +
-      '  --ln-c6: #9085e9; --ln-c7: #e66767; --ln-other: #4a4a46; }' +
+      '  --ln-c6: #8f7ce8; --ln-c7: #e66767; --ln-other: #3a4054; }' +
       '.ln-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center;' +
       '  padding: 2px 6px 9px; font-size: 11px; color: var(--ln-ink-2); overflow: hidden; }' +
       '.ln-key { display: flex; gap: 6px; align-items: center; min-width: 0; max-width: 220px; }' +

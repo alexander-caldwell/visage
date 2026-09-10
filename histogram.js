@@ -14,10 +14,10 @@
 // shrink and thin out and are never clipped, every column answers on hover and
 // on keyboard focus, and the theme follows the tile.
 //
-// Build v1.2.0. The version is logged once on load, so the browser console says
+// Build v1.3.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('histogram build v1.2.0');
+if (window.console && console.log) console.log('histogram build v1.3.0');
 
 looker.plugins.visualizations.add({
   id: 'histogram',
@@ -129,7 +129,7 @@ looker.plugins.visualizations.add({
       type: 'array',
       label: 'Bar Colour',
       display: 'color',
-      default: ['#3b6ea5'],
+      default: ['#525aff'],
       section: 'Style',
       order: 1
     },
@@ -250,22 +250,22 @@ looker.plugins.visualizations.add({
     var style = document.createElement('style');
     style.textContent =
       '.histogram-root {' +
-      '  --hg-surface: #fcfcfb;' +
-      '  --hg-ink: #0b0b0b;' +
-      '  --hg-ink-2: #52514e;' +
-      '  --hg-muted: #898781;' +
+      '  --hg-surface: #f7f7fa;' +
+      '  --hg-ink: #151d2d;' +
+      '  --hg-ink-2: #475569;' +
+      '  --hg-muted: #94a3b8;' +
       '  --hg-grid: #e7e8ea;' +
       '  --hg-axis: #c8c9cc;' +
-      '  --hg-marker: #2f3437;' +
+      '  --hg-marker: #151d2d;' +
       '  --hg-hairline: rgba(11,11,11,0.10);' +
       '  position: relative; width: 100%; height: 100%; overflow: hidden;' +
       '  background: var(--hg-surface);' +
       '  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;' +
       '  -webkit-font-smoothing: antialiased;' +
       '}' +
-      '.histogram-root.hg-dark { --hg-surface: #1a1a19; --hg-ink: #ffffff;' +
-      '  --hg-ink-2: #c3c2b7; --hg-muted: #898781; --hg-grid: #2c2c2a;' +
-      '  --hg-axis: #3d3d3a; --hg-marker: #e8e7e1;' +
+      '.histogram-root.hg-dark { --hg-surface: #12121c; --hg-ink: #ffffff;' +
+      '  --hg-ink-2: #cbd5e1; --hg-muted: #94a3b8; --hg-grid: #252a3a;' +
+      '  --hg-axis: #3d3d3a; --hg-marker: #e8e9f2;' +
       '  --hg-hairline: rgba(255,255,255,0.10); }' +
       '.histogram-root text { font-size: 12px; fill: var(--hg-ink); }' +
       '.histogram-root .hg-axis-title { font-size: 11px; fill: var(--hg-muted); }' +
@@ -541,10 +541,10 @@ looker.plugins.visualizations.add({
       var l = luminance(rgb);
       var withWhite = 1.05 / (l + 0.05);
       var withInk = (l + 0.05) / 0.09;
-      return withWhite >= withInk ? '#ffffff' : '#0b0b0b';
+      return withWhite >= withInk ? '#ffffff' : '#151d2d';
     }
 
-    var baseRgb = toRgb((config.bar_colour && config.bar_colour[0]) || '#3b6ea5');
+    var baseRgb = toRgb((config.bar_colour && config.bar_colour[0]) || '#525aff');
     // Dark tiles get their own steps. The darkest end of a light scale
     // disappears against a dark surface, so the ramp is built from the surface
     // outwards in each theme rather than flipped.

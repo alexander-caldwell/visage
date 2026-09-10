@@ -3,10 +3,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.3.0. The version is logged once on load, so the browser console says
+// Build v1.4.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('grouped_column build v1.3.0');
+if (window.console && console.log) console.log('grouped_column build v1.4.0');
 
 looker.plugins.visualizations.add({
   id: 'grouped_column',
@@ -71,23 +71,23 @@ looker.plugins.visualizations.add({
     var style = document.createElement('style');
     style.textContent =
       '.cl-root {' +
-      '  --cl-surface: #fcfcfb; --cl-ink: #0b0b0b; --cl-ink-2: #52514e;' +
-      '  --cl-muted: #898781; --cl-grid: #e1e0d9; --cl-axis: #c3c2b7;' +
+      '  --cl-surface: #f7f7fa; --cl-ink: #151d2d; --cl-ink-2: #475569;' +
+      '  --cl-muted: #94a3b8; --cl-grid: #e5e7eb; --cl-axis: #cbd5e1;' +
       '  --cl-hairline: rgba(11,11,11,0.10);' +
-      '  --cl-c0: #2a78d6; --cl-c1: #eb6834; --cl-c2: #1baf7a;' +
+      '  --cl-c0: #525aff; --cl-c1: #eb6834; --cl-c2: #1baf7a;' +
       '  --cl-c3: #eda100; --cl-c4: #e87ba4; --cl-c5: #008300;' +
-      '  --cl-c6: #4a3aa7; --cl-c7: #e34948; --cl-other: #b9b7ae;' +
+      '  --cl-c6: #ad93f1; --cl-c7: #e34948; --cl-other: #aab1c2;' +
       '  position: relative; width: 100%; height: 100%; overflow: hidden;' +
       '  background: var(--cl-surface);' +
       '  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;' +
       '  -webkit-font-smoothing: antialiased;' +
       '}' +
-      '.cl-root.cl-dark { --cl-surface: #1a1a19; --cl-ink: #ffffff;' +
-      '  --cl-ink-2: #c3c2b7; --cl-muted: #898781; --cl-grid: #2c2c2a;' +
-      '  --cl-axis: #383835; --cl-hairline: rgba(255,255,255,0.10);' +
-      '  --cl-c0: #3987e5; --cl-c1: #d95926; --cl-c2: #199e70;' +
+      '.cl-root.cl-dark { --cl-surface: #12121c; --cl-ink: #ffffff;' +
+      '  --cl-ink-2: #cbd5e1; --cl-muted: #94a3b8; --cl-grid: #252a3a;' +
+      '  --cl-axis: #31384a; --cl-hairline: rgba(255,255,255,0.10);' +
+      '  --cl-c0: #7078ff; --cl-c1: #d95926; --cl-c2: #199e70;' +
       '  --cl-c3: #c98500; --cl-c4: #d55181; --cl-c5: #008300;' +
-      '  --cl-c6: #9085e9; --cl-c7: #e66767; --cl-other: #4a4a46; }' +
+      '  --cl-c6: #8f7ce8; --cl-c7: #e66767; --cl-other: #3a4054; }' +
       '.cl-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center;' +
       '  padding: 2px 6px 9px; font-size: 11px; color: var(--cl-ink-2); overflow: hidden; }' +
       '.cl-key { display: flex; gap: 6px; align-items: center; min-width: 0; max-width: 220px; }' +

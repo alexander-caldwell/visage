@@ -79,7 +79,7 @@
         var r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         r.setAttribute('width', 60);
         r.setAttribute('height', 20);
-        r.setAttribute('fill', '#3b6ea5');
+        r.setAttribute('fill', '#525aff');
         svg.appendChild(r);
         var svgLabel = document.createElement('b');
         svgLabel.textContent = 'SVG test (a blue bar should appear below):';

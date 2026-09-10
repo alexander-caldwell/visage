@@ -7,10 +7,10 @@
 // no innerHTML, errors surface through addError, labels wrap and shrink, every
 // row answers on hover and on keyboard focus, and the theme follows the tile.
 //
-// Build v2.5.0. The version is logged once on load, so the browser console says
+// Build v2.6.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('bullet_bar build v2.5.0');
+if (window.console && console.log) console.log('bullet_bar build v2.6.0');
 
 looker.plugins.visualizations.add({
   id: 'bullet_bar',
@@ -39,7 +39,7 @@ looker.plugins.visualizations.add({
       type: 'array',
       label: 'Bar Colour',
       display: 'color',
-      default: ['#3b6ea5'],
+      default: ['#525aff'],
       section: 'Style',
       order: 1
     },
@@ -47,7 +47,7 @@ looker.plugins.visualizations.add({
       type: 'array',
       label: 'Colour When Over Target',
       display: 'color',
-      default: ['#b5533c'],
+      default: ['#eb6834'],
       section: 'Style',
       order: 2
     },
@@ -87,21 +87,21 @@ looker.plugins.visualizations.add({
     var style = document.createElement('style');
     style.textContent =
       '.bullet-bar-root {' +
-      '  --bb-surface: #fcfcfb;' +
-      '  --bb-ink: #0b0b0b;' +
-      '  --bb-ink-2: #52514e;' +
-      '  --bb-muted: #898781;' +
-      '  --bb-track: #eef0f2;' +
-      '  --bb-marker: #2f3437;' +
+      '  --bb-surface: #f7f7fa;' +
+      '  --bb-ink: #151d2d;' +
+      '  --bb-ink-2: #475569;' +
+      '  --bb-muted: #94a3b8;' +
+      '  --bb-track: #eff0ff;' +
+      '  --bb-marker: #151d2d;' +
       '  --bb-hairline: rgba(11,11,11,0.10);' +
       '  position: relative; width: 100%; height: 100%; overflow: hidden;' +
       '  background: var(--bb-surface);' +
       '  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;' +
       '  -webkit-font-smoothing: antialiased;' +
       '}' +
-      '.bullet-bar-root.bb-dark { --bb-surface: #1a1a19; --bb-ink: #ffffff;' +
-      '  --bb-ink-2: #c3c2b7; --bb-muted: #898781; --bb-track: #2c2c2a;' +
-      '  --bb-marker: #e8e7e1; --bb-hairline: rgba(255,255,255,0.10); }' +
+      '.bullet-bar-root.bb-dark { --bb-surface: #12121c; --bb-ink: #ffffff;' +
+      '  --bb-ink-2: #cbd5e1; --bb-muted: #94a3b8; --bb-track: #252a3a;' +
+      '  --bb-marker: #e8e9f2; --bb-hairline: rgba(255,255,255,0.10); }' +
       '.bullet-bar-root text { font-size: 12px; fill: var(--bb-ink); }' +
       '.bullet-bar-root .bb-label { text-anchor: end; }' +
       '.bullet-bar-root .bb-value { text-anchor: start; fill: var(--bb-ink-2);' +
@@ -496,8 +496,8 @@ looker.plugins.visualizations.add({
       tip.removeAttribute('data-shown');
     }
 
-    var barColour = (config.bar_colour && config.bar_colour[0]) || '#3b6ea5';
-    var overColour = (config.over_colour && config.over_colour[0]) || '#b5533c';
+    var barColour = (config.bar_colour && config.bar_colour[0]) || '#525aff';
+    var overColour = (config.over_colour && config.over_colour[0]) || '#eb6834';
 
     data.forEach(function (row, i) {
       var y = padTop + i * rowHeight;

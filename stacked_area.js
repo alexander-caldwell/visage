@@ -3,10 +3,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.2.0. The version is logged once on load, so the browser console says
+// Build v1.3.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('stacked_area build v1.2.0');
+if (window.console && console.log) console.log('stacked_area build v1.3.0');
 
 looker.plugins.visualizations.add({
   id: 'stacked_area',
@@ -73,23 +73,23 @@ looker.plugins.visualizations.add({
     var style = document.createElement('style');
     style.textContent =
       '.ar-root {' +
-      '  --ar-surface: #fcfcfb; --ar-ink: #0b0b0b; --ar-ink-2: #52514e;' +
-      '  --ar-muted: #898781; --ar-grid: #e1e0d9; --ar-axis: #c3c2b7;' +
+      '  --ar-surface: #f7f7fa; --ar-ink: #151d2d; --ar-ink-2: #475569;' +
+      '  --ar-muted: #94a3b8; --ar-grid: #e5e7eb; --ar-axis: #cbd5e1;' +
       '  --ar-hairline: rgba(11,11,11,0.10);' +
-      '  --ar-c0: #2a78d6; --ar-c1: #eb6834; --ar-c2: #1baf7a;' +
+      '  --ar-c0: #525aff; --ar-c1: #eb6834; --ar-c2: #1baf7a;' +
       '  --ar-c3: #eda100; --ar-c4: #e87ba4; --ar-c5: #008300;' +
-      '  --ar-c6: #4a3aa7; --ar-c7: #e34948; --ar-other: #b9b7ae;' +
+      '  --ar-c6: #ad93f1; --ar-c7: #e34948; --ar-other: #aab1c2;' +
       '  position: relative; width: 100%; height: 100%; overflow: hidden;' +
       '  background: var(--ar-surface);' +
       '  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;' +
       '  -webkit-font-smoothing: antialiased;' +
       '}' +
-      '.ar-root.ar-dark { --ar-surface: #1a1a19; --ar-ink: #ffffff;' +
-      '  --ar-ink-2: #c3c2b7; --ar-muted: #898781; --ar-grid: #2c2c2a;' +
-      '  --ar-axis: #383835; --ar-hairline: rgba(255,255,255,0.10);' +
-      '  --ar-c0: #3987e5; --ar-c1: #d95926; --ar-c2: #199e70;' +
+      '.ar-root.ar-dark { --ar-surface: #12121c; --ar-ink: #ffffff;' +
+      '  --ar-ink-2: #cbd5e1; --ar-muted: #94a3b8; --ar-grid: #252a3a;' +
+      '  --ar-axis: #31384a; --ar-hairline: rgba(255,255,255,0.10);' +
+      '  --ar-c0: #7078ff; --ar-c1: #d95926; --ar-c2: #199e70;' +
       '  --ar-c3: #c98500; --ar-c4: #d55181; --ar-c5: #008300;' +
-      '  --ar-c6: #9085e9; --ar-c7: #e66767; --ar-other: #4a4a46; }' +
+      '  --ar-c6: #8f7ce8; --ar-c7: #e66767; --ar-other: #3a4054; }' +
       '.ar-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center;' +
       '  padding: 2px 6px 9px; font-size: 11px; color: var(--ar-ink-2); overflow: hidden; }' +
       '.ar-key { display: flex; gap: 6px; align-items: center; min-width: 0; max-width: 220px; }' +

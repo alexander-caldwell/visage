@@ -7,10 +7,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.7.0. The version is logged once on load, so the browser console says
+// Build v1.8.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('dumbbell build v1.7.0');
+if (window.console && console.log) console.log('dumbbell build v1.8.0');
 
 looker.plugins.visualizations.add({
   id: 'dumbbell',
@@ -83,7 +83,7 @@ looker.plugins.visualizations.add({
       type: 'array',
       label: 'First Measure Colour',
       display: 'color',
-      default: ['#2a78d6'],
+      default: ['#525aff'],
       section: 'Style',
       order: 6
     },
@@ -147,24 +147,24 @@ looker.plugins.visualizations.add({
     var style = document.createElement('style');
     style.textContent =
       '.dmb-root {' +
-      '  --dmb-surface: #fcfcfb;' +
-      '  --dmb-ink: #0b0b0b;' +
-      '  --dmb-ink-2: #52514e;' +
-      '  --dmb-muted: #898781;' +
-      '  --dmb-grid: #e1e0d9;' +
-      '  --dmb-connector: #c3c2b7;' +
+      '  --dmb-surface: #f7f7fa;' +
+      '  --dmb-ink: #151d2d;' +
+      '  --dmb-ink-2: #475569;' +
+      '  --dmb-muted: #94a3b8;' +
+      '  --dmb-grid: #e5e7eb;' +
+      '  --dmb-connector: #cbd5e1;' +
       '  --dmb-hairline: rgba(11,11,11,0.10);' +
-      '  --dmb-a: #2a78d6;' +
+      '  --dmb-a: #525aff;' +
       '  --dmb-b: #eb6834;' +
       '  position: relative; width: 100%; height: 100%; overflow: hidden;' +
       '  background: var(--dmb-surface);' +
       '  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;' +
       '  -webkit-font-smoothing: antialiased;' +
       '}' +
-      '.dmb-root.dmb-dark { --dmb-surface: #1a1a19; --dmb-ink: #ffffff; --dmb-ink-2: #c3c2b7;' +
-      '    --dmb-muted: #898781; --dmb-grid: #2c2c2a; --dmb-connector: #383835;' +
+      '.dmb-root.dmb-dark { --dmb-surface: #12121c; --dmb-ink: #ffffff; --dmb-ink-2: #cbd5e1;' +
+      '    --dmb-muted: #94a3b8; --dmb-grid: #252a3a; --dmb-connector: #31384a;' +
       '    --dmb-hairline: rgba(255,255,255,0.10);' +
-      '    --dmb-a: #3987e5; --dmb-b: #d95926; }' +
+      '    --dmb-a: #7078ff; --dmb-b: #d95926; }' +
       '.dmb-legend { display: flex; gap: 14px; align-items: center; padding: 2px 6px 9px;' +
       '  font-size: 11px; color: var(--dmb-ink-2); white-space: nowrap; overflow: hidden; }' +
       '.dmb-key { display: flex; gap: 6px; align-items: center; min-width: 0; }' +

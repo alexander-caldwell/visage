@@ -7,10 +7,10 @@
 // Self-contained: the squarify layout is inlined, so there are no dependencies
 // to declare in the manifest and nothing to load from a CDN at render time.
 //
-// Build v1.8.0. The version is logged once on load, so the browser console says
+// Build v1.9.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('treemap_dual build v1.8.0');
+if (window.console && console.log) console.log('treemap_dual build v1.9.0');
 
 looker.plugins.visualizations.add({
   id: 'treemap_dual',
@@ -117,36 +117,36 @@ looker.plugins.visualizations.add({
     // and every pairing clears 5:1.
     style.textContent =
       '.tmd-root {' +
-      '  --tmd-surface: #fcfcfb;' +
-      '  --tmd-ink: #0b0b0b;' +
-      '  --tmd-ink-2: #52514e;' +
-      '  --tmd-muted: #898781;' +
+      '  --tmd-surface: #f7f7fa;' +
+      '  --tmd-ink: #151d2d;' +
+      '  --tmd-ink-2: #475569;' +
+      '  --tmd-muted: #94a3b8;' +
       '  --tmd-hairline: rgba(11,11,11,0.10);' +
-      '  --tmd-s0: #cde2fb; --tmd-i0: #0b0b0b;' +
-      '  --tmd-s1: #9ec5f4; --tmd-i1: #0b0b0b;' +
-      '  --tmd-s2: #6da7ec; --tmd-i2: #0b0b0b;' +
-      '  --tmd-s3: #3987e5; --tmd-i3: #0b0b0b;' +
-      '  --tmd-s4: #256abf; --tmd-i4: #ffffff;' +
-      '  --tmd-s5: #184f95; --tmd-i5: #ffffff;' +
-      '  --tmd-s6: #0d366b; --tmd-i6: #ffffff;' +
-      '  --tmd-flat: #2a78d6; --tmd-flat-ink: #ffffff;' +
-      '  --tmd-null: #e6e5df; --tmd-null-ink: #0b0b0b;' +
+      '  --tmd-s0: #95acff; --tmd-i0: #151d2d;' +
+      '  --tmd-s1: #788cff; --tmd-i1: #151d2d;' +
+      '  --tmd-s2: #606dff; --tmd-i2: #151d2d;' +
+      '  --tmd-s3: #4c52f4; --tmd-i3: #ffffff;' +
+      '  --tmd-s4: #3b3dcb; --tmd-i4: #ffffff;' +
+      '  --tmd-s5: #2c2e9b; --tmd-i5: #ffffff;' +
+      '  --tmd-s6: #1e2368; --tmd-i6: #ffffff;' +
+      '  --tmd-flat: #525aff; --tmd-flat-ink: #ffffff;' +
+      '  --tmd-null: #e8e9f2; --tmd-null-ink: #151d2d;' +
       '  position: relative; width: 100%; height: 100%; overflow: hidden;' +
       '  background: var(--tmd-surface);' +
       '  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;' +
       '  -webkit-font-smoothing: antialiased;' +
       '}' +
-      '.tmd-root.tmd-dark { --tmd-surface: #1a1a19; --tmd-ink: #ffffff; --tmd-ink-2: #c3c2b7;' +
-      '    --tmd-muted: #898781; --tmd-hairline: rgba(255,255,255,0.10);' +
-      '    --tmd-s0: #b7d3f6; --tmd-i0: #0b0b0b;' +
-      '    --tmd-s1: #9ec5f4; --tmd-i1: #0b0b0b;' +
-      '    --tmd-s2: #86b6ef; --tmd-i2: #0b0b0b;' +
-      '    --tmd-s3: #5598e7; --tmd-i3: #0b0b0b;' +
-      '    --tmd-s4: #3987e5; --tmd-i4: #0b0b0b;' +
-      '    --tmd-s5: #256abf; --tmd-i5: #ffffff;' +
-      '    --tmd-s6: #184f95; --tmd-i6: #ffffff;' +
-      '    --tmd-flat: #3987e5; --tmd-flat-ink: #0b0b0b;' +
-      '    --tmd-null: #3a3a37; --tmd-null-ink: #ffffff; }' +
+      '.tmd-root.tmd-dark { --tmd-surface: #12121c; --tmd-ink: #ffffff; --tmd-ink-2: #cbd5e1;' +
+      '    --tmd-muted: #94a3b8; --tmd-hairline: rgba(255,255,255,0.10);' +
+      '    --tmd-s0: #c1d3ff; --tmd-i0: #151d2d;' +
+      '    --tmd-s1: #a5b9ff; --tmd-i1: #151d2d;' +
+      '    --tmd-s2: #8ba0ff; --tmd-i2: #151d2d;' +
+      '    --tmd-s3: #7286fb; --tmd-i3: #151d2d;' +
+      '    --tmd-s4: #7078ff; --tmd-i4: #151d2d;' +
+      '    --tmd-s5: #474ee0; --tmd-i5: #ffffff;' +
+      '    --tmd-s6: #372ad2; --tmd-i6: #ffffff;' +
+      '    --tmd-flat: #7078ff; --tmd-flat-ink: #151d2d;' +
+      '    --tmd-null: #2b3040; --tmd-null-ink: #ffffff; }' +
       '.tmd-caption { display: flex; gap: 14px; align-items: center; padding: 2px 6px 9px;' +
       '  font-size: 11px; color: var(--tmd-muted); white-space: nowrap; overflow: hidden; }' +
       '.tmd-caption-item { display: flex; gap: 6px; align-items: center; min-width: 0; }' +

@@ -1,24 +1,29 @@
+/* Rittman Analytics palette, taken from the brand site: indigo #525aff on a
+   cool off-white, with navy ink. The dark set is stepped for a near-black
+   ground rather than inverted. */
 :root {
-  --ground: #f4f6f9;
+  --ground: #f7f7fa;
   --panel: #ffffff;
-  --ink: #101418;
-  --ink-2: #454e5b;
-  --muted: #6d7684;
-  --rule: #d9dee6;
-  --accent: #2a78d6;
-  --danger: #b5533c;
+  --ink: #151d2d;
+  --ink-2: #475569;
+  --muted: #94a3b8;
+  --rule: #e5e7eb;
+  --accent: #525aff;
+  --accent-wash: #eff0ff;
+  --danger: #eb6834;
   --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 :root[data-theme="dark"] {
-  --ground: #14161a;
-  --panel: #1b1e24;
-  --ink: #f1f3f6;
-  --ink-2: #c2c8d2;
-  --muted: #8d95a2;
-  --rule: #2b3039;
-  --accent: #6aa6ec;
-  --danger: #e08a72;
+  --ground: #12121c;
+  --panel: #151d2d;
+  --ink: #f7f7fa;
+  --ink-2: #cbd5e1;
+  --muted: #94a3b8;
+  --rule: #252a3a;
+  --accent: #8b93ff;
+  --accent-wash: #1d2140;
+  --danger: #ff9a75;
 }
 * { box-sizing: border-box; }
 
@@ -67,6 +72,7 @@ summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outli
 .panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 2px; background: var(--rule); border: 1px solid var(--rule); }
 .panels > div { background: var(--panel); padding: 16px 18px; }
+.panels > div:first-child { background: var(--accent-wash); }
 .panels h2 { font-family: var(--mono); font-size: 11px; letter-spacing: 0.07em;
   text-transform: uppercase; color: var(--muted); margin: 0 0 8px; font-weight: 500; }
 .panels p { margin: 0 0 8px; font-size: 14px; color: var(--ink-2); }
