@@ -2,7 +2,7 @@ import { bindTheme } from './theme.js';
 
 // The markdown files are the source of truth; this page is a wrapper so they
 // read in the site's own type rather than GitHub's.
-const DOCS = { hosting: 'hosting.md', approach: 'approach.md', roadmap: 'roadmap.md' };
+const DOCS = { hosting: 'hosting.md', approach: 'approach.md' };
 
 const slug = new URLSearchParams(location.search).get('doc') || 'hosting';
 const file = DOCS[slug] || DOCS.hosting;

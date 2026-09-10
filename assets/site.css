@@ -36,6 +36,16 @@ code { font-family: var(--mono); font-size: 0.9em; color: var(--ink-2); word-bre
 .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.09em;
   text-transform: uppercase; color: var(--accent); margin: 0;
   display: flex; align-items: center; gap: 8px; }
+
+/* The name is the title. The strapline sits under it, at a size that reads as
+   a subtitle rather than competing with it. */
+.wordmark { display: flex; align-items: center; gap: clamp(10px, 1.6vw, 20px); }
+.wordmark h1 { font-size: clamp(56px, 11vw, 128px); line-height: 0.92;
+  letter-spacing: -0.045em; margin: 0; }
+.wordmark .mark { width: clamp(40px, 8vw, 92px); height: clamp(40px, 8vw, 92px); }
+.subtitle { font-size: clamp(21px, 2.6vw, 32px); font-weight: 500; line-height: 1.2;
+  letter-spacing: -0.02em; color: var(--ink); margin: 14px 0 0; text-wrap: balance; }
+
 .mark { width: 22px; height: 22px; display: block; flex: 0 0 auto; }
 .mark .eye { fill: var(--ground); }
 .mark .face { fill: var(--accent); }
