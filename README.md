@@ -20,6 +20,8 @@ the same way Looker does and reads their controls out of the files.
   the one header a host must send, and how to release a change.
 - [Technical approach](docs/approach.md) — why the charts are built and served
   this way, and what was tried and rejected.
+- [The suite by family](docs/roadmap.md) — how the suite is organised, what each
+  family's controls should be, and what is not built yet.
 
 ## House rules
 
