@@ -1,9 +1,17 @@
-# visigoth
+# Visage
 
 Custom visualisations for Looker, hosted for registration by URL.
 
 Each file is a single plain JavaScript file written against the Looker
 visualisation API. No build step, no bundler, no dependencies to load.
+
+## Gallery
+
+**https://alexander-caldwell.github.io/visage/**
+
+Every chart rendered live from this repo, with its controls listed straight out
+of the file, and a switch to see all of them on a dark dashboard. Nothing to
+keep in step: the page loads the charts the same way Looker does.
 
 ## House rules
 
@@ -272,7 +280,7 @@ count, field names, and the first row's values. It also draws one small blue
 rectangle to confirm inline SVG works.
 
 Register it as ID `diagnostic`, label `Diagnostic`, main
-`https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.1.1/diagnostic.js`.
+`https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.1.1/diagnostic.js`.
 
 If a tile stays blank with this selected, the file is not being loaded at all,
 and the problem is the registration, the URL, or the instance's policy, not the
@@ -284,15 +292,15 @@ Instance-wide, no LookML change. Admin > Platform > Visualizations > Add:
 
 | ID | Label | Main |
 |---|---|---|
-| `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.8.0/treemap_dual.js` |
-| `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.8.0/dumbbell.js` |
-| `marimekko` | Marimekko | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.8.0/marimekko.js` |
-| `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.8.0/histogram.js` |
-| `line_series` | Line | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.8.0/line_series.js` |
-| `grouped_column` | Grouped Column | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.8.0/grouped_column.js` |
-| `stacked_area` | Stacked Area | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.8.0/stacked_area.js` |
-| `scatter_plot` | Scatter | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.8.0/scatter_plot.js` |
-| `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.8.0/histogram.js` |
+| `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.8.0/treemap_dual.js` |
+| `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.8.0/dumbbell.js` |
+| `marimekko` | Marimekko | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.8.0/marimekko.js` |
+| `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.8.0/histogram.js` |
+| `line_series` | Line | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.8.0/line_series.js` |
+| `grouped_column` | Grouped Column | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.8.0/grouped_column.js` |
+| `stacked_area` | Stacked Area | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.8.0/stacked_area.js` |
+| `scatter_plot` | Scatter | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.8.0/scatter_plot.js` |
+| `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.8.0/histogram.js` |
 
 Or in a LookML project manifest:
 
@@ -300,7 +308,7 @@ Or in a LookML project manifest:
 visualization: {
   id: "treemap_dual"
   label: "Treemap (Dual Value)"
-  url: "https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.1.1/treemap_dual.js"
+  url: "https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.1.1/treemap_dual.js"
   sri_hash: "sha384-Ym0QIBQmJ2VkEZzLfCCqEb2qifL2B5YKWYX7wIZeJxYqno/IoYSWtiI0XVx35FfS"
 }
 ```
@@ -310,7 +318,7 @@ appears in an Explore. Instance-wide registration takes effect immediately.
 
 ## Serve from jsDelivr, not GitHub Pages
 
-Use `https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@<tag>/<file>.js`.
+Use `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@<tag>/<file>.js`.
 
 GitHub Pages does not work for this. Chrome refuses the file with
 `net::ERR_BLOCKED_BY_ORB` and the tile stays blank with no Looker error,
@@ -319,8 +327,14 @@ Looker page will not accept a cross-origin script without one. jsDelivr sends
 `cross-origin-resource-policy: cross-origin`, as does cdnjs, which is why
 Looker can already load d3 and Highcharts from there.
 
-Use a **tagged** URL. jsDelivr serves it as immutable and caches it for a year,
-so what Looker runs never changes underneath you.
+Use **`@1`** for a registration you do not want to revisit. It tracks the newest
+1.x release, so a fix reaches Looker without anyone editing the entry. The cost
+is lag: the CDN caches which release `@1` points at for about 12 hours, and
+browsers hold the file for up to 7 days.
+
+Use an **exact tag** such as `@v1.8.0` when the file must never change under
+you, or while iterating and you need the change now. jsDelivr treats a pinned
+tag as immutable and caches it for a year.
 
 A branch URL such as `@main` is a fixed URL, but it is not usable for iteration.
 jsDelivr caches which commit a branch points at for about 12 hours, and its
@@ -342,7 +356,7 @@ git commit -am "..." && git tag -a v1.1.2 -m "..." && git push origin main && gi
 4. Confirm the CDN serves the new file, byte for byte:
 
 ```
-curl -s https://cdn.jsdelivr.net/gh/alexander-caldwell/visigoth@v1.1.2/treemap_dual.js | shasum -a 256
+curl -s https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.1.2/treemap_dual.js | shasum -a 256
 shasum -a 256 treemap_dual.js
 ```
 
