@@ -1,5 +1,9 @@
 // Marimekko, in both of its usual senses.
 //
+// "Measure To Use" means different things in the two layouts: in a variwide it
+// picks which of the two measures sets the column widths, and in a mosaic it
+// picks the single measure the whole chart is built from.
+//
 // A Marimekko proper (also a mosaic plot, or a mekko) takes two dimensions and
 // one measure: columns of variable width, each split by the second dimension,
 // so every cell's area is its share of the grand total. That is the "mosaic"
@@ -27,10 +31,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.11.0. The version is logged once on load, so the browser console says
+// Build v1.12.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('marimekko build v1.11.0');
+if (window.console && console.log) console.log('marimekko build v1.12.0');
 
 looker.plugins.visualizations.add({
   id: 'marimekko',
@@ -70,9 +74,7 @@ looker.plugins.visualizations.add({
     },
     width_from: {
       type: 'string',
-      label: 'Column Width From',
-      applies_when: { option: 'mode', value: ['auto', 'variwide'],
-        reason: 'the layout is Variwide, or chosen from the query' },
+      label: 'Measure To Use',
       display: 'select',
       values: [
         { 'Whichever Reads Better': 'auto' },
@@ -628,7 +630,13 @@ looker.plugins.visualizations.add({
       columns.sort(function (a, b) { return b.weight - a.weight; });
     } else {
       var stackName = dims[1].name;
-      measureField = meas[0];
+
+      // A mosaic is built from one measure, and with two in the query the
+      // reader gets to say which. This was hardcoded to the first, so the
+      // "Measure To Use" control did nothing in this layout.
+      measureField = (config.width_from === 'second' && meas.length > 1)
+        ? meas[1]
+        : meas[0];
       var byColumn = {};
       var order = [];
       var stackTotals = {};
