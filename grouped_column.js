@@ -3,10 +3,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.4.0. The version is logged once on load, so the browser console says
+// Build v1.6.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('grouped_column build v1.4.0');
+if (window.console && console.log) console.log('grouped_column build v1.6.0');
 
 looker.plugins.visualizations.add({
   id: 'grouped_column',
@@ -37,6 +37,14 @@ looker.plugins.visualizations.add({
       default: false,
       section: 'Style',
       order: 1
+    },
+    series_colours: {
+      type: 'array',
+      label: 'Series Colours',
+      display: 'colors',
+      default: ['#525aff', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#ad93f1', '#e34948'],
+      section: 'Style',
+      order: 5
     },
     show_axis_titles: {
       type: 'boolean',
@@ -126,19 +134,33 @@ looker.plugins.visualizations.add({
   },
 
   _hostIsDark: function (element) {
-    var node = element;
-    while (node && node !== document.documentElement) {
-      var colour = window.getComputedStyle(node).backgroundColor;
-      var parts = /rgba?\(([^)]+)\)/.exec(colour);
-      if (parts) {
-        var channels = parts[1].split(',').map(function (v) { return parseFloat(v); });
-        var alpha = channels.length > 3 ? channels[3] : 1;
-        if (alpha > 0.1) {
-          return (0.299 * channels[0] + 0.587 * channels[1] + 0.114 * channels[2]) / 255 < 0.5;
-        }
-      }
-      node = node.parentElement;
+    function brightnessOf(colour) {
+      var parts = /rgba?\(([^)]+)\)/.exec(colour || '');
+      if (!parts) return null;
+      var channels = parts[1].split(',').map(function (v) { return parseFloat(v); });
+      var alpha = channels.length > 3 ? channels[3] : 1;
+      if (alpha <= 0.1) return null;
+      return (0.299 * channels[0] + 0.587 * channels[1] + 0.114 * channels[2]) / 255;
     }
+
+    // Walk up to and including <html>. Stopping short of it was the bug: Looker
+    // paints its dashboard background high up, and with every element between
+    // the tile and there transparent, the chart fell through to the browser's
+    // own preference and so followed the laptop rather than the dashboard.
+    var node = element;
+    while (node) {
+      var background = brightnessOf(window.getComputedStyle(node).backgroundColor);
+      if (background !== null) return background < 0.5;
+      if (node === document.documentElement) break;
+      node = node.parentElement || document.documentElement;
+    }
+
+    // Nothing painted a background. The text colour the host hands the tile is
+    // a better second signal than the operating system: light text means a dark
+    // surface behind it.
+    var inherited = brightnessOf(window.getComputedStyle(element).color);
+    if (inherited !== null) return inherited > 0.6;
+
     return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
   },
 
@@ -278,6 +300,14 @@ looker.plugins.visualizations.add({
       return given || auto || '';
     }
 
+
+    // A colour option overrides the theme token; left at its default the token
+    // wins, so an untouched chart still answers to a dark dashboard.
+    function seriesColour(index) {
+      var chosen = config.series_colours && config.series_colours[index];
+      return chosen || 'var(--cl-c' + (index % 8) + ')';
+    }
+
     function drawMessage(msg) {
       var svg = el('svg', { class: 'cl-plot', width: width, height: height });
       var text = el('text', {
@@ -368,7 +398,7 @@ looker.plugins.visualizations.add({
         var swatch = document.createElement('div');
         swatch.className = 'cl-swatch';
         swatch.style.borderRadius = '2px';
-        swatch.style.background = 'var(--cl-c' + i + ')';
+        swatch.style.background = seriesColour(i);
         var text = document.createElement('span');
         text.textContent = field.label_short;
         key.appendChild(swatch);
@@ -442,7 +472,7 @@ looker.plugins.visualizations.add({
           ' Q' + (x + barWidth) + ' ' + y + ' ' + (x + barWidth) + ' ' + (y + r) +
           ' L' + (x + barWidth) + ' ' + (y + barHeight) + ' Z';
         var bar = el('path', { class: 'cl-mark', d: d });
-        bar.style.fill = 'var(--cl-c' + si + ')';
+        bar.style.fill = seriesColour(si);
         svg.appendChild(bar);
 
         // The value on the cap, only where it fits the column's own width and

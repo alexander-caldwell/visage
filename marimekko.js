@@ -31,10 +31,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.12.0. The version is logged once on load, so the browser console says
+// Build v1.14.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('marimekko build v1.12.0');
+if (window.console && console.log) console.log('marimekko build v1.14.0');
 
 looker.plugins.visualizations.add({
   id: 'marimekko',
@@ -121,6 +121,22 @@ looker.plugins.visualizations.add({
       default: true,
       section: 'Style',
       order: 3
+    },
+    main_colour: {
+      type: 'array',
+      label: 'Main Colour',
+      display: 'color',
+      default: ['#525aff'],
+      section: 'Style',
+      order: 5
+    },
+    series_colours: {
+      type: 'array',
+      label: 'Series Colours',
+      display: 'colors',
+      default: ['#525aff', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#ad93f1', '#e34948'],
+      section: 'Style',
+      order: 6
     },
     show_axis_titles: {
       type: 'boolean',
@@ -260,20 +276,33 @@ looker.plugins.visualizations.add({
   // background colour of the first ancestor that paints one, and fall back to
   // the OS preference only when nothing does.
   _hostIsDark: function (element) {
-    var node = element;
-    while (node && node !== document.documentElement) {
-      var colour = window.getComputedStyle(node).backgroundColor;
-      var parts = /rgba?\(([^)]+)\)/.exec(colour);
-      if (parts) {
-        var channels = parts[1].split(',').map(function (v) { return parseFloat(v); });
-        var alpha = channels.length > 3 ? channels[3] : 1;
-        if (alpha > 0.1) {
-          var brightness = (0.299 * channels[0] + 0.587 * channels[1] + 0.114 * channels[2]) / 255;
-          return brightness < 0.5;
-        }
-      }
-      node = node.parentElement;
+    function brightnessOf(colour) {
+      var parts = /rgba?\(([^)]+)\)/.exec(colour || '');
+      if (!parts) return null;
+      var channels = parts[1].split(',').map(function (v) { return parseFloat(v); });
+      var alpha = channels.length > 3 ? channels[3] : 1;
+      if (alpha <= 0.1) return null;
+      return (0.299 * channels[0] + 0.587 * channels[1] + 0.114 * channels[2]) / 255;
     }
+
+    // Walk up to and including <html>. Stopping short of it was the bug: Looker
+    // paints its dashboard background high up, and with every element between
+    // the tile and there transparent, the chart fell through to the browser's
+    // own preference and so followed the laptop rather than the dashboard.
+    var node = element;
+    while (node) {
+      var background = brightnessOf(window.getComputedStyle(node).backgroundColor);
+      if (background !== null) return background < 0.5;
+      if (node === document.documentElement) break;
+      node = node.parentElement || document.documentElement;
+    }
+
+    // Nothing painted a background. The text colour the host hands the tile is
+    // a better second signal than the operating system: light text means a dark
+    // surface behind it.
+    var inherited = brightnessOf(window.getComputedStyle(element).color);
+    if (inherited !== null) return inherited > 0.6;
+
     return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
   },
 
@@ -387,6 +416,21 @@ looker.plugins.visualizations.add({
       if (!cell) return '';
       if (cell.rendered != null) return String(cell.rendered);
       return cell.value != null ? String(cell.value) : '';
+    }
+
+    // A hue chosen in the config has no matching ink token, so its contrast is
+    // measured here the same way the palette's own pairs were.
+    function inkFor(fill) {
+      var hex = String(fill || '').trim().replace('#', '');
+      if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+      if (!/^[0-9a-fA-F]{6}$/.test(hex)) return 'var(--mrk-k0)';
+      var channels = [0, 2, 4].map(function (i) {
+        return parseInt(hex.slice(i, i + 2), 16) / 255;
+      }).map(function (v) {
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      });
+      var luminance = 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+      return (luminance + 0.05) / 0.05 >= 1.05 / (luminance + 0.05) ? '#151d2d' : '#ffffff';
     }
 
     function drawMessage(msg) {
@@ -765,7 +809,8 @@ looker.plugins.visualizations.add({
           item.className = 'mrk-key';
           var swatch = document.createElement('div');
           swatch.className = 'mrk-swatch';
-          swatch.style.background = 'var(--mrk-c' + i + ')';
+          swatch.style.background = (config.series_colours && config.series_colours[i])
+            || 'var(--mrk-c' + i + ')';
           var name = document.createElement('span');
           name.textContent = key;
           item.appendChild(swatch);
@@ -967,8 +1012,9 @@ looker.plugins.visualizations.add({
         var colHeight = Math.max(1, Math.round((column.rate / maxRate) * plotHeight));
         var top = plotTop + plotHeight - colHeight;
 
-        var fill = 'var(--mrk-c0)';
-        var ink = 'var(--mrk-k0)';
+        var chosenMain = config.main_colour && config.main_colour[0];
+        var fill = chosenMain || 'var(--mrk-c0)';
+        var ink = chosenMain ? inkFor(chosenMain) : 'var(--mrk-k0)';
         if (column.isOther) {
           fill = 'var(--mrk-other)';
           ink = 'var(--mrk-other-ink)';
@@ -1048,8 +1094,11 @@ looker.plugins.visualizations.add({
           var segHeight = Math.max(1, (segment.value / columnTotal) * usableHeight);
           var slot = nested ? columnSlot : slotFor[segment.name];
           if (column.isOther) slot = null;
-          var fill = slot === null ? 'var(--mrk-other)' : 'var(--mrk-c' + slot + ')';
-          var ink = slot === null ? 'var(--mrk-other-ink)' : 'var(--mrk-k' + slot + ')';
+          var chosen = slot === null ? null
+            : (config.series_colours && config.series_colours[slot]);
+          var fill = chosen || (slot === null ? 'var(--mrk-other)' : 'var(--mrk-c' + slot + ')');
+          var ink = chosen ? inkFor(chosen)
+            : (slot === null ? 'var(--mrk-other-ink)' : 'var(--mrk-k' + slot + ')');
 
           var cell = el('rect', {
             class: 'mrk-cell', x: left, y: Math.round(y),

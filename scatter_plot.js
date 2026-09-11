@@ -3,10 +3,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.3.0. The version is logged once on load, so the browser console says
+// Build v1.5.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('scatter_plot build v1.3.0');
+if (window.console && console.log) console.log('scatter_plot build v1.5.0');
 
 looker.plugins.visualizations.add({
   id: 'scatter_plot',
@@ -44,6 +44,14 @@ looker.plugins.visualizations.add({
       default: true,
       section: 'Data',
       order: 1
+    },
+    main_colour: {
+      type: 'array',
+      label: 'Main Colour',
+      display: 'color',
+      default: ['#525aff'],
+      section: 'Style',
+      order: 5
     },
     show_axis_titles: {
       type: 'boolean',
@@ -133,19 +141,33 @@ looker.plugins.visualizations.add({
   },
 
   _hostIsDark: function (element) {
-    var node = element;
-    while (node && node !== document.documentElement) {
-      var colour = window.getComputedStyle(node).backgroundColor;
-      var parts = /rgba?\(([^)]+)\)/.exec(colour);
-      if (parts) {
-        var channels = parts[1].split(',').map(function (v) { return parseFloat(v); });
-        var alpha = channels.length > 3 ? channels[3] : 1;
-        if (alpha > 0.1) {
-          return (0.299 * channels[0] + 0.587 * channels[1] + 0.114 * channels[2]) / 255 < 0.5;
-        }
-      }
-      node = node.parentElement;
+    function brightnessOf(colour) {
+      var parts = /rgba?\(([^)]+)\)/.exec(colour || '');
+      if (!parts) return null;
+      var channels = parts[1].split(',').map(function (v) { return parseFloat(v); });
+      var alpha = channels.length > 3 ? channels[3] : 1;
+      if (alpha <= 0.1) return null;
+      return (0.299 * channels[0] + 0.587 * channels[1] + 0.114 * channels[2]) / 255;
     }
+
+    // Walk up to and including <html>. Stopping short of it was the bug: Looker
+    // paints its dashboard background high up, and with every element between
+    // the tile and there transparent, the chart fell through to the browser's
+    // own preference and so followed the laptop rather than the dashboard.
+    var node = element;
+    while (node) {
+      var background = brightnessOf(window.getComputedStyle(node).backgroundColor);
+      if (background !== null) return background < 0.5;
+      if (node === document.documentElement) break;
+      node = node.parentElement || document.documentElement;
+    }
+
+    // Nothing painted a background. The text colour the host hands the tile is
+    // a better second signal than the operating system: light text means a dark
+    // surface behind it.
+    var inherited = brightnessOf(window.getComputedStyle(element).color);
+    if (inherited !== null) return inherited > 0.6;
+
     return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
   },
 
@@ -284,6 +306,11 @@ looker.plugins.visualizations.add({
       var given = (config[option] || '').trim();
       return given || auto || '';
     }
+
+
+    // The main colour overrides the token, but only when the user has moved it
+    // off the default, so the theme still drives an untouched chart.
+    var mainColour = (config.main_colour && config.main_colour[0]) || 'var(--sc-c0)';
 
     function drawMessage(msg) {
       var svg = el('svg', { class: 'sc-plot', width: width, height: height });
@@ -458,7 +485,7 @@ looker.plugins.visualizations.add({
       // One hue for every dot. Twelve unrelated points cannot be told apart by
       // twelve cycled colours, so identity comes from the label beside the dot
       // and from the tooltip, not from hue.
-      var colour = 'var(--sc-c0)';
+      var colour = mainColour;
 
       // A 2px ring in the surface colour keeps overlapping dots legible.
       var dot = el('circle', {

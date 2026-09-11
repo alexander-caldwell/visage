@@ -7,10 +7,10 @@
 // Self-contained: the squarify layout is inlined, so there are no dependencies
 // to declare in the manifest and nothing to load from a CDN at render time.
 //
-// Build v1.9.0. The version is logged once on load, so the browser console says
+// Build v1.11.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('treemap_dual build v1.9.0');
+if (window.console && console.log) console.log('treemap_dual build v1.11.0');
 
 looker.plugins.visualizations.add({
   id: 'treemap_dual',
@@ -52,6 +52,14 @@ looker.plugins.visualizations.add({
       default: 'measure',
       section: 'Style',
       order: 1
+    },
+    main_colour: {
+      type: 'array',
+      label: 'Main Colour',
+      display: 'color',
+      default: ['#525aff'],
+      section: 'Style',
+      order: 5
     },
     show_legend: {
       type: 'boolean',
@@ -192,20 +200,33 @@ looker.plugins.visualizations.add({
   // background colour of the first ancestor that paints one, and fall back to
   // the OS preference only when nothing does.
   _hostIsDark: function (element) {
-    var node = element;
-    while (node && node !== document.documentElement) {
-      var colour = window.getComputedStyle(node).backgroundColor;
-      var parts = /rgba?\(([^)]+)\)/.exec(colour);
-      if (parts) {
-        var channels = parts[1].split(',').map(function (v) { return parseFloat(v); });
-        var alpha = channels.length > 3 ? channels[3] : 1;
-        if (alpha > 0.1) {
-          var brightness = (0.299 * channels[0] + 0.587 * channels[1] + 0.114 * channels[2]) / 255;
-          return brightness < 0.5;
-        }
-      }
-      node = node.parentElement;
+    function brightnessOf(colour) {
+      var parts = /rgba?\(([^)]+)\)/.exec(colour || '');
+      if (!parts) return null;
+      var channels = parts[1].split(',').map(function (v) { return parseFloat(v); });
+      var alpha = channels.length > 3 ? channels[3] : 1;
+      if (alpha <= 0.1) return null;
+      return (0.299 * channels[0] + 0.587 * channels[1] + 0.114 * channels[2]) / 255;
     }
+
+    // Walk up to and including <html>. Stopping short of it was the bug: Looker
+    // paints its dashboard background high up, and with every element between
+    // the tile and there transparent, the chart fell through to the browser's
+    // own preference and so followed the laptop rather than the dashboard.
+    var node = element;
+    while (node) {
+      var background = brightnessOf(window.getComputedStyle(node).backgroundColor);
+      if (background !== null) return background < 0.5;
+      if (node === document.documentElement) break;
+      node = node.parentElement || document.documentElement;
+    }
+
+    // Nothing painted a background. The text colour the host hands the tile is
+    // a better second signal than the operating system: light text means a dark
+    // surface behind it.
+    var inherited = brightnessOf(window.getComputedStyle(element).color);
+    if (inherited !== null) return inherited > 0.6;
+
     return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
   },
 
@@ -547,11 +568,36 @@ looker.plugins.visualizations.add({
     var otherMin = others.length ? Math.min.apply(null, others) : null;
     var otherMax = others.length ? Math.max.apply(null, others) : null;
 
+    // A hue chosen in the config has no matching ink token, so the contrast is
+    // measured here the same way the palette's own pairs were.
+    function inkFor(fill) {
+      var hex = String(fill || '').trim().replace('#', '');
+      if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+      if (!/^[0-9a-fA-F]{6}$/.test(hex)) return 'var(--tmd-flat-ink)';
+      var channels = [0, 2, 4].map(function (i) {
+        return parseInt(hex.slice(i, i + 2), 16) / 255;
+      }).map(function (v) {
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      });
+      var luminance = 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+      var onInk = (luminance + 0.05) / 0.05;
+      var onWhite = 1.05 / (luminance + 0.05);
+      return onInk >= onWhite ? '#151d2d' : '#ffffff';
+    }
+
     // Returns the pair of tokens for a row: the fill, and the text colour that
     // reads on it. Labels sit inside a coloured fill, which is the one place
     // text takes its colour from the data.
     function tokensFor(d) {
-      if (!colourByMeasure) return { fill: 'var(--tmd-flat)', ink: 'var(--tmd-flat-ink)' };
+      // The main colour applies where colour is not carrying a measure. Its ink
+      // is left to the token, since a user-chosen hue could be any lightness:
+      // the label is placed outside a box it cannot sit inside.
+      if (!colourByMeasure) {
+        var flat = (config.main_colour && config.main_colour[0]);
+        return flat
+          ? { fill: flat, ink: inkFor(flat) }
+          : { fill: 'var(--tmd-flat)', ink: 'var(--tmd-flat-ink)' };
+      }
       if (d.other === null) return { fill: 'var(--tmd-null)', ink: 'var(--tmd-null-ink)' };
 
       var step;

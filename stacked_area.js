@@ -3,10 +3,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.3.0. The version is logged once on load, so the browser console says
+// Build v1.5.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('stacked_area build v1.3.0');
+if (window.console && console.log) console.log('stacked_area build v1.5.0');
 
 looker.plugins.visualizations.add({
   id: 'stacked_area',
@@ -39,6 +39,14 @@ looker.plugins.visualizations.add({
       default: 'absolute',
       section: 'Data',
       order: 1
+    },
+    series_colours: {
+      type: 'array',
+      label: 'Series Colours',
+      display: 'colors',
+      default: ['#525aff', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#ad93f1', '#e34948'],
+      section: 'Style',
+      order: 5
     },
     show_axis_titles: {
       type: 'boolean',
@@ -128,19 +136,33 @@ looker.plugins.visualizations.add({
   },
 
   _hostIsDark: function (element) {
-    var node = element;
-    while (node && node !== document.documentElement) {
-      var colour = window.getComputedStyle(node).backgroundColor;
-      var parts = /rgba?\(([^)]+)\)/.exec(colour);
-      if (parts) {
-        var channels = parts[1].split(',').map(function (v) { return parseFloat(v); });
-        var alpha = channels.length > 3 ? channels[3] : 1;
-        if (alpha > 0.1) {
-          return (0.299 * channels[0] + 0.587 * channels[1] + 0.114 * channels[2]) / 255 < 0.5;
-        }
-      }
-      node = node.parentElement;
+    function brightnessOf(colour) {
+      var parts = /rgba?\(([^)]+)\)/.exec(colour || '');
+      if (!parts) return null;
+      var channels = parts[1].split(',').map(function (v) { return parseFloat(v); });
+      var alpha = channels.length > 3 ? channels[3] : 1;
+      if (alpha <= 0.1) return null;
+      return (0.299 * channels[0] + 0.587 * channels[1] + 0.114 * channels[2]) / 255;
     }
+
+    // Walk up to and including <html>. Stopping short of it was the bug: Looker
+    // paints its dashboard background high up, and with every element between
+    // the tile and there transparent, the chart fell through to the browser's
+    // own preference and so followed the laptop rather than the dashboard.
+    var node = element;
+    while (node) {
+      var background = brightnessOf(window.getComputedStyle(node).backgroundColor);
+      if (background !== null) return background < 0.5;
+      if (node === document.documentElement) break;
+      node = node.parentElement || document.documentElement;
+    }
+
+    // Nothing painted a background. The text colour the host hands the tile is
+    // a better second signal than the operating system: light text means a dark
+    // surface behind it.
+    var inherited = brightnessOf(window.getComputedStyle(element).color);
+    if (inherited !== null) return inherited > 0.6;
+
     return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
   },
 
@@ -280,6 +302,14 @@ looker.plugins.visualizations.add({
       return given || auto || '';
     }
 
+
+    // A colour option overrides the theme token; left at its default the token
+    // wins, so an untouched chart still answers to a dark dashboard.
+    function seriesColour(index) {
+      var chosen = config.series_colours && config.series_colours[index];
+      return chosen || 'var(--ar-c' + (index % 8) + ')';
+    }
+
     function drawMessage(msg) {
       var svg = el('svg', { class: 'ar-plot', width: width, height: height });
       var text = el('text', {
@@ -384,7 +414,7 @@ looker.plugins.visualizations.add({
         var swatch = document.createElement('div');
         swatch.className = 'ar-swatch';
         swatch.style.borderRadius = '2px';
-        swatch.style.background = 'var(--ar-c' + i + ')';
+        swatch.style.background = seriesColour(i);
         var text = document.createElement('span');
         text.textContent = name;
         key.appendChild(swatch);
@@ -446,7 +476,7 @@ looker.plugins.visualizations.add({
     // than as blocks of saturated colour.
     var running = xKeys.map(function () { return 0; });
     names.forEach(function (name, s) {
-      var colour = s < 8 ? 'var(--ar-c' + s + ')' : 'var(--ar-other)';
+      var colour = s < 8 ? seriesColour(s) : 'var(--ar-other)';
       var upper = [];
       var lower = [];
       xKeys.forEach(function (key, i) {
