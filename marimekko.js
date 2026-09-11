@@ -41,7 +41,7 @@ looker.plugins.visualizations.add({
   data_shape: '2 dimensions + 1 measure (mosaic), or 1 dimension + 2 measures (variwide)',
   good_for: [
     'Share of share: how big each group is, and what it is made of',
-    'Two levels of a hierarchy at once, such as client then engagement',
+    'Two levels of a hierarchy at once, such as region then product',
     'Spotting a group whose size and composition disagree'
   ],
 

@@ -1,6 +1,8 @@
 # Visage
 
-Custom visualisations for Looker, hosted for registration by URL.
+Custom visualisations for Looker, hosted for registration by URL. Some draw what
+Looker's built-in options cannot; others are everyday charts, included so a
+dashboard can use one consistent set rather than mixing sources.
 
 Each file is a single plain JavaScript file written against the Looker
 visualisation API. No build step, no bundler, no dependencies to load.
@@ -209,20 +211,19 @@ Column widths carry one measure and heights carry another, so each column's
 area is a third quantity you can compare by eye. Two query shapes, picked
 automatically.
 
-**One dimension, two measures.** Width is each row's share of one measure,
-height is the other measure divided by the first, so area is the second
-measure. Clients by hours and revenue: width is share of hours, height is
-revenue per hour, area is revenue. A wide short column is a lot of hours at a
-low rate; a narrow tall one is a small job at a high rate. The chart picks which
-measure sets the width so the height reads as a number above 1, rather than as
-"0.008 hours per pound"; override with "Column width from".
+**One dimension, two measures.** A variwide, which is a different chart that
+shares the name. Width is each row's share of one measure, height is the other
+measure divided by the first, so a column's area is the second measure: a wide
+short column is a lot of the first measure at a low rate, a narrow tall one the
+opposite. The chart picks which measure sets the width so the height reads as a
+number above 1 rather than a fraction; override with "Column width from".
 
 **Two dimensions, one measure.** Width is each column's share of the measure,
 each column is full height and split by the second dimension, so every cell's
 area is its share of the grand total.
 
 - When the second dimension nests inside the first, so every engagement belongs
-  to one client, colour follows the column instead of the second dimension.
+  to one column, colour follows the column instead of the second dimension.
   Colouring by a second dimension that is never shared between columns puts most
   of the chart in a grey "Other" and says nothing.
 - When the second dimension is shared across columns, such as a status, colour
@@ -252,9 +253,9 @@ Two measures per row on one shared scale, joined by a connector. Reads as
 dimension, two measures, the same shape as the treemap.
 
 **Both measures share one scale, so they must be the same kind of quantity**:
-hours logged against hours budgeted, revenue this year against last year, NPS
-before against after. Two measures of different magnitude (revenue against an
-NPS score) put one dot against zero on every row and say nothing. The chart
+actual against budget, this year against last, a score before against after.
+Two measures of different magnitude, a currency against a rating for instance,
+put one dot against zero on every row and say nothing. The chart
 detects that, prints a note beside the legend, and still draws. For two
 unrelated measures use the treemap instead, where area carries one and colour
 the other.

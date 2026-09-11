@@ -108,33 +108,44 @@ const DURATIONS = (() => {
 // Descriptions say what the chart does with the data, in the chart's own terms.
 export const CHARTS = [
   { id: 'treemap_dual', name: 'Treemap', data: REVENUE_AND_MARGIN,
-    blurb: 'Every client as a box: bigger box, more revenue. A second measure ' +
-      'is optional and colours the boxes, so size and rate read at once.' },
+    blurb: 'Nested rectangles, each sized by a measure, so the area shows how ' +
+      'a total divides across the values of a dimension. An optional ' +
+      'second measure sets the colour, putting amount and rate in one ' +
+      'picture.' },
   { id: 'marimekko', name: 'Marimekko', data: REVENUE_AND_HOURS,
-    blurb: 'Two layouts under one name. Shown here as a variwide: width is ' +
-      'share of hours, height is revenue per hour, so a column’s area is its ' +
-      'revenue. Give it two dimensions instead and it draws a true mosaic.' },
+    blurb: 'Columns of variable width. Given two dimensions and a measure it ' +
+      'draws a mosaic proper, where each cell\'s area is its share of the ' +
+      'total. Given one dimension and two measures it draws a variwide: ' +
+      'width from one measure, height from the other divided by it, so ' +
+      'area is the second measure.' },
   { id: 'dumbbell', name: 'Dumbbell', data: HOURS_VS_BUDGET,
-    blurb: 'Hours logged and hours budgeted on one row, joined by a line. The ' +
-      'line length is the overrun, and the widest gap is labelled.' },
+    blurb: 'Two measures per row on one shared scale, joined by a line. The ' +
+      'line\'s length is the gap between them, which is the thing a pair ' +
+      'of bars makes you calculate.' },
   { id: 'histogram', name: 'Histogram', data: DURATIONS,
-    blurb: 'How one measure is spread: rows binned by value, with optional mean, ' +
-      'median and percentile lines, and a choice of how to treat outliers.' },
+    blurb: 'The distribution of one measure: rows grouped into bins by value, ' +
+      'with the bar height as a count, a share, or the sum of another ' +
+      'measure. Optional mean, median and percentile lines.' },
   { id: 'line_series', name: 'Line', data: MONTHS,
-    blurb: 'One line per client across twelve months. Hovering a month gives ' +
-      'every series at once, rather than making you land on a 2px line.' },
+    blurb: 'A measure across an ordered dimension, one line per series. Built ' +
+      'for trend and turning points, where the shape matters more than ' +
+      'any single value.' },
   { id: 'stacked_area', name: 'Stacked Area', data: MONTHS,
-    blurb: 'The same months stacked, so the total and the mix read together. ' +
+    blurb: 'A measure across an ordered dimension, stacked by a second ' +
+      'dimension, so the total and its composition read together. ' +
       'Switches to share of total, where the axis runs 0 to 100%.' },
   { id: 'grouped_column', name: 'Grouped Column', data: HOURS_VS_BUDGET,
-    blurb: 'A column per measure, grouped by client. Columns cap at 24px so a ' +
-      'short query does not produce comically fat bars.' },
+    blurb: 'One group per value of a dimension, one column per measure, on a ' +
+      'shared scale from zero. The plain comparison, for when exact ' +
+      'values matter more than shape.' },
   { id: 'scatter_plot', name: 'Scatter', data: HOURS_VS_BUDGET,
-    blurb: 'Two measures placing each client, one across and one up. Labels sit ' +
-      'beside the dots and step aside when they would collide.' },
+    blurb: 'One mark per row, placed by two measures, for whether they move ' +
+      'together and which rows sit apart from the rest. A third measure ' +
+      'can set the mark size.' },
   { id: 'bullet_bar', name: 'Bullet Bar', data: HOURS_VS_BUDGET,
-    blurb: 'A bar per client against a target marker, turning red past the ' +
-      'target. The compact way to show actual against plan down a list.' }
+    blurb: 'A bar per row against a target marker, turning to the second ' +
+      'colour past the target. The compact form of actual-against-plan ' +
+      'down a list.' }
 ];
 
 export const chartById = (id) => CHARTS.find((c) => c.id === id);
