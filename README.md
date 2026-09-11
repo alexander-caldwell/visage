@@ -282,6 +282,20 @@ the other.
 Options: sort rows by, start scale at zero, row label width, label the largest
 gap, show scale.
 
+### `bullet_bar.js`
+
+A bar per row against a target marker, turning to the second colour past the
+target. Query shape: one dimension and two measures, the first the actual and
+the second the target.
+
+- The compact form of actual-against-plan down a list, where a gauge per metric
+  would not fit.
+- Row names wrap and shrink before they are given up.
+- Clicking a row opens Looker's drill menu where the row has drill links.
+
+Options: theme, bar colour, colour when over target, show target marker, show
+values, label column width.
+
 ### `diagnostic.js`
 
 Paints, as plain text, what Looker hands the visualisation: element size, row
