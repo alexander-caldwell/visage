@@ -391,5 +391,5 @@ where Looker serves it same-origin and there is no URL to maintain.
 
 ## Source
 
-Written and screenshot-tested with the Vizigoth harness, which renders a chart
+Written and screenshot-tested with the Visage harness, which renders a chart
 headlessly against captured Looker data before it reaches an instance.
