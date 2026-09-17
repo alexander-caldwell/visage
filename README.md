@@ -29,8 +29,8 @@ Every chart here follows the same rules, because each was learned from a chart
 that failed in a real Looker instance.
 
 **Labels.** Wrap, then shrink (12, 11, 10, 9px), then truncate, then drop, in
-that order. Words are never split down the middle: "Liberis" as "Lib" and
-"eris" reads as two words. When a cut is unavoidable it comes out of the middle
+that order. Words are never split down the middle: "Visage" as "Vis" and
+"age" reads as two words. When a cut is unavoidable it comes out of the middle
 so the tail survives, because Looker values are often distinguished only by
 their end ("... Phase 2" against "... Phase 3"). A column too narrow for flat
 text gets its name turned on its side. Text is measured with the real font
