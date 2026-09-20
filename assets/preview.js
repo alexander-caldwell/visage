@@ -22,6 +22,9 @@ const REVENUE = field('finance.revenue_gbp', 'Revenue', 'sum', '£#,##0');
 const DELIVERED = field('delivery.hours', 'Hours', 'sum', '#,##0');
 const MARGIN = field('finance.margin_pct', 'Margin %', 'number', '0.0%');
 const RESOLUTION = field('support.resolution_hours', 'Resolution Hours', 'number', '#,##0.0');
+const ORDER = field('orders.order_id', 'Order', 'string');
+const CHANNEL = field('orders.channel', 'Channel', 'string');
+const ORDER_VALUE = field('orders.order_value_gbp', 'Order Value', 'sum', '£#,##0.00');
 
 // Hours logged against hours budgeted: two measures of the same kind, which is
 // what a dumbbell, a bullet bar and a grouped column all want.
@@ -105,6 +108,38 @@ const DURATIONS = (() => {
   };
 })();
 
+// Orders by channel: a right-skewed measure with enough rows in each group for
+// a density to mean anything. None of the sets above have more than twelve.
+const ORDERS = (() => {
+  let seed = 20260920;
+  const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+  const gauss = () => Math.sqrt(-2 * Math.log(rnd() || 1e-9)) * Math.cos(2 * Math.PI * rnd());
+  const channels = [
+    { name: 'Paid Social', mu: 3.25, sigma: 0.42 },
+    { name: 'Organic Search', mu: 3.85, sigma: 0.55 },
+    // Two humps: ordinary orders, and the promotional bundles above them.
+    { name: 'Email Marketing', mu: 3.90, sigma: 0.40, bundle: 0.3 },
+    { name: 'Direct', mu: 4.40, sigma: 0.62 }
+  ];
+  const rows = [];
+  let id = 100237;
+  channels.forEach((c) => {
+    for (let i = 0; i < 60; i++) {
+      let v = c.bundle && rnd() < c.bundle
+        ? Math.max(90, 168 + gauss() * 26)
+        : Math.exp(c.mu + c.sigma * gauss());
+      v = Math.round(Math.min(520, Math.max(6, v)) * 100) / 100;
+      id += 1 + Math.floor(rnd() * 9);
+      rows.push({
+        'orders.order_id': cell('SO-' + id, 'SO-' + id),
+        'orders.channel': cell(c.name, c.name),
+        'orders.order_value_gbp': cell(v, '£' + v.toFixed(2))
+      });
+    }
+  });
+  return { fields: { dimension_like: [ORDER, CHANNEL], measure_like: [ORDER_VALUE] }, rows };
+})();
+
 // Descriptions say what the chart does with the data, in the chart's own terms.
 export const CHARTS = [
   { id: 'treemap_dual', name: 'Treemap', data: REVENUE_AND_MARGIN,
@@ -126,6 +161,13 @@ export const CHARTS = [
     blurb: 'The distribution of one measure: rows grouped into bins by value, ' +
       'with the bar height as a count, a share, or the sum of another ' +
       'measure. Optional mean, median and percentile lines.' },
+  { id: 'violin', name: 'Violin', data: ORDERS,
+    blurb: 'The distribution of one measure as a smoothed density mirrored ' +
+      'about its own centre line, one violin per value of a second ' +
+      'dimension. Shows where the bulk of the rows sit, how far the tail ' +
+      'runs, and whether a group has more than one cluster in it, none of ' +
+      'which an average reports. Quartile box, median, mean and percentile ' +
+      'lines optional, and every row can be drawn as a dot over the curve.' },
   { id: 'line_series', name: 'Line', data: MONTHS,
     blurb: 'A measure across an ordered dimension, one line per series. Built ' +
       'for trend and turning points, where the shape matters more than ' +

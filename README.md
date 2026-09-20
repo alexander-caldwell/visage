@@ -185,6 +185,7 @@ change. Here it is a visualisation option.
 - A caption names what the bars and the lines mean, gives the row count, the
   range and the bin width, and says when there are too few values for a
   histogram to mean anything.
+- Axis titles on both axes, defaulting to the field's own name.
 - Theme follows the tile, with its own colour steps in dark mode.
 
 Options: measure to bin, bar height, measure to sum, extreme values, bin width
@@ -192,18 +193,63 @@ mode, number of bins, bin width, first bin start, theme, bar colour, bar
 shading, show values, show axes, show caption, mean line, median line,
 percentile line.
 
-### `histogram.js`
+### `violin.js`
 
-Distribution of one measure: rows are binned by value and each bar's height is
-the number of rows, their share, or the sum of a second measure. Query shape:
-at least one measure; a dimension is optional.
+The distribution of one measure, drawn as a smoothed density mirrored about its
+own centre line, with one violin per group. Query shape: one dimension, one
+measure, and optionally a second dimension that splits the rows into groups.
 
-- Bin width automatic, a fixed number of bins, or a fixed width, with a
-  configurable first bin.
+Where the histogram answers "what does this measure look like", the violin
+answers "and how does that differ between these groups". It needs one row per
+observation rather than a pre-aggregated total, so it wants a query that returns
+the detail rather than the summary.
+
+- Which dimension makes the groups is worked out from the data: the one with
+  fewer distinct values. Neither "the first" nor "the last" is right, because a
+  query of client by engagement puts the grouping dimension first and a query of
+  month by client puts it last. Overridable, including to a single violin of
+  everything.
+- The density is a Gaussian kernel with Silverman's rule for the bandwidth, and
+  a smoothing control that widens or narrows it.
+- The curve is drawn only between the lowest and highest value in the query. A
+  kernel estimate normally runs on past both ends, which would put a tail where
+  there is no data and take a duration violin below zero. The ends are blunt
+  instead, which is the shape saying the data stops here.
+- Violins are all one width, or scaled by how many rows are in each, so area
+  carries group size.
+- A group whose values are nearly identical has no shape to show. Below six
+  pixels of height it becomes a single flat mark rather than a hairline that
+  reads as an empty slot.
 - Extreme values kept, pulled into the 1st to 99th percentile range, or left out
-  beyond 1.5 times the interquartile range, and the caption says which.
-- Optional mean, median and percentile lines.
-- Axis titles on both axes, defaulting to the measure's own name.
+  beyond 1.5 times the interquartile range, and the caption says how many moved.
+- Optional quartile box, median, mean and percentile lines, each taking ink or
+  white by measured contrast against the fill.
+- Every row can be drawn as a dot over the curve, which is what to do when the
+  groups are small: a density curve over thirty values implies a smoothness the
+  data does not have, and the dots show how much of the shape is real. Each dot
+  is nudged sideways within the width of the body at its own value, so none land
+  outside the outline, and the nudge comes from the row's own name rather than
+  its position, so filtering never reshuffles them.
+- Every violin prints its median and its row count, and the value axis carries
+  absolute figures, so the size of a group never needs a hover to find.
+- Group names wrap, then shrink, then turn on their side, then cut from the
+  middle keeping the tail, then drop into the tooltip. Nothing is clipped.
+- Every violin answers on hover and on keyboard focus with its row count, its
+  lowest and highest value, both quartiles, its median and its mean. Enter or
+  Space opens the drill menu for the rows in that group.
+- A caption names what the width and each line mean, gives the row count, the
+  group count and the range, and says when a group has too few rows for a
+  density curve to be honest.
+- One hue for every violin. The groups are already told apart by their position
+  and their name, so a colour each would carry nothing, and colour keyed to sort
+  position repaints the chart whenever a group is filtered out.
+- Axis titles on both axes, defaulting to the field's own name.
+- Theme follows the tile, with its own colour steps in dark mode.
+
+Options: measure to plot, grouping dimension, violin order, extreme values,
+smoothing, violin width, fewest rows a violin needs, theme, violin colour, show
+median and row count, show axes, show caption, axis titles, quartile box, median
+line, mean line, percentile line, show every row as a dot.
 
 ### `marimekko.js`
 
