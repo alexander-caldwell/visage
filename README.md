@@ -100,55 +100,73 @@ prefix second measure with its name, gap between boxes.
 
 ### `line_series.js`
 
-One line per series across an ordered dimension. Query shape: one dimension and
-one measure; a second dimension becomes one line per value.
+One line per series across an ordered dimension, and the whole area family as a
+fill mode. Query shape: one dimension and one measure; a second dimension
+becomes one line per value.
 
+- **Fill** is Lines Only, Area Under Each Line, Stacked Bands, or Stacked to
+  100%. The stacked modes replace the separate `stacked_area.js`, retired at
+  v2.0.0.
+- **Missing Periods** leaves a gap, treats the period as zero, or joins across
+  it. A gap breaks the line rather than pretending the value was never missing.
+  Stacking forces zero, because a band with a hole in it already reads as zero.
+- **Rolling Average over N Periods** smooths the plotted line; the tooltip keeps
+  the actual figure beside the mean.
 - The tooltip sits on a full-height band per x position, so the pointer never
   has to land on a 2px stroke, and one readout lists every series.
 - X labels thin out until they fit; the first and last anchor inwards.
-- A marker closes each line, or every point when Show Point Markers is on.
+- Drawing more than one area over another hides what is behind, so the chart
+  says so on the tile rather than leaving the reader to work it out.
 
-Options: theme, start scale at zero, show point markers, axis titles.
+Options: fill, start scale at zero, missing periods, rolling average, theme,
+show point markers, series colours, legend, axis titles.
 
 ### `grouped_column.js`
 
-One group per dimension value, one column per measure. Query shape: one
-dimension and one or more measures.
+One group per dimension value, one column per measure, with orientation,
+stacking and mark style as modes. Query shape: one dimension and one or more
+measures.
 
-- Columns cap at 24px and never fill their slot; tops rounded 4px, square at
-  the baseline.
-- The hit target is the whole group, so a narrow column is still easy to point
-  at.
-- Show Value on Each Column prints the figure on the cap where it fits.
+- **Orientation** is Columns or Bars. Bars exist because long category names
+  read straight across.
+- **Stacking** is Side by Side, Stacked, or Stacked to 100%. Negative values are
+  left out of a stack and said so, rather than quietly cancelling part of a bar.
+- **Mark Style** is Bars or Lollipop, a thin stem and a dot, which reads better
+  when the set is sparse.
+- A column too narrow for its name flat gets the name turned on its side. Where
+  a name still has to be cut, the cut comes out of the middle and the tail is
+  kept, because Looker values are often distinguished only by their end.
+- Stacked segments take ink or white by measured contrast against their own
+  fill, and a label that would land on another is dropped, with the tooltip
+  carrying it.
+- Measures more than 25x apart on one shared scale make the smaller ones read
+  flat, so the chart says so.
 
-Options: theme, show value on each column, axis titles.
-
-### `stacked_area.js`
-
-One band per series, stacked, across an ordered dimension. Query shape: one
-dimension and one measure, with a second dimension for the bands.
-
-- Bands are a wash of their hue with a 2px line on top, so boundaries stay
-  visible.
-- Stack Mode switches between absolute values and share of total, where the
-  axis runs 0 to 100% and the tooltip gives both the figure and the share.
-- Bands stack by their own totals, so colour follows the series.
-
-Options: theme, stack mode, axis titles.
+Options: orientation, stacking, mark style, sort, start scale at zero, theme,
+show value on each mark, series colours, legend, axis titles.
 
 ### `scatter_plot.js`
 
-One dot per row, two measures placing it, a third sizing it. Query shape: one
-dimension and two measures.
+One dot per row, two measures placing it, a third sizing it, with quadrant and
+trend lines as modes. Query shape: one dimension and two measures.
 
+- **Measure That Sizes the Points** picks the size measure rather than taking
+  whatever the third measure happens to be. Area carries the value, not radius,
+  so twice the number is twice the ink, and a legend states the scale at both
+  ends using the values Looker rendered.
+- **Quadrant Lines** split the plot on the mean, the median, or a chosen value.
+  Each line labels itself where it sits.
+- **Trend Line** is least squares, fitted in the space the axis is drawn in, so
+  it is straight on the chart the reader is looking at.
+- **Logarithmic Scale** ticks in whole powers of ten. Rows at or below zero
+  cannot be placed on it, so they are left out and counted on the tile.
 - One hue for every dot: a dozen unrelated points cannot be told apart by a
   dozen cycled colours, so identity comes from the label beside the dot.
 - Labels skip where they would collide or leave the plot, and flip side when
   the right edge is close.
-- Where a third measure sizes the dots, it drives area rather than radius.
-- Start Axes at Zero off spreads a tight cluster out.
 
-Options: theme, show point labels, start axes at zero, axis titles.
+Options: size measure, start scale at zero, log scale, trend line, quadrant
+lines and midpoint, theme, point colour, point labels, legend, axis titles.
 
 ### `histogram.js`
 
@@ -361,15 +379,26 @@ Instance-wide, no LookML change. Admin > Platform > Visualizations > Add:
 
 | ID | Label | Main |
 |---|---|---|
-| `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.8.0/treemap_dual.js` |
-| `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.8.0/dumbbell.js` |
-| `marimekko` | Marimekko | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.8.0/marimekko.js` |
-| `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.8.0/histogram.js` |
-| `line_series` | Line | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.8.0/line_series.js` |
-| `grouped_column` | Grouped Column | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.8.0/grouped_column.js` |
-| `stacked_area` | Stacked Area | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.8.0/stacked_area.js` |
-| `scatter_plot` | Scatter | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.8.0/scatter_plot.js` |
-| `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.8.0/histogram.js` |
+| `treemap_dual` | Treemap (Dual Value) | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/treemap_dual.js` |
+| `marimekko` | Marimekko | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/marimekko.js` |
+| `grouped_column` | Column | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/grouped_column.js` |
+| `bullet_bar` | Bullet Bar | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/bullet_bar.js` |
+| `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/dumbbell.js` |
+| `line_series` | Line | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/line_series.js` |
+| `scatter_plot` | Scatter | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/scatter_plot.js` |
+| `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/histogram.js` |
+| `violin` | Violin | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/violin.js` |
+| `diagnostic` | Diagnostic | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/diagnostic.js` |
+
+`@2` tracks the newest 2.x release, so a registration picks up fixes without
+anyone revisiting it. It caches which release that is for around 12 hours, so
+give someone a pinned tag while they are watching a fix land.
+
+**If you registered against `@1`, nothing has broken and nothing has changed.**
+`@1` still resolves to v1.17.0 and serves the old set, `stacked_area.js`
+included. Repoint to `@2` to pick up the column, line and scatter modes; that
+is the moment a `stacked_area` tile stops resolving, so repoint those at
+`line_series` with Fill set to Stacked Bands at the same time.
 
 Or in a LookML project manifest:
 

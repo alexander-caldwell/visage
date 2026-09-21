@@ -171,19 +171,17 @@ export const CHARTS = [
   { id: 'line_series', name: 'Line', data: MONTHS,
     blurb: 'A measure across an ordered dimension, one line per series. Built ' +
       'for trend and turning points, where the shape matters more than ' +
-      'any single value.' },
-  { id: 'stacked_area', name: 'Stacked Area', data: MONTHS,
-    blurb: 'A measure across an ordered dimension, stacked by a second ' +
-      'dimension, so the total and its composition read together. ' +
-      'Switches to share of total, where the axis runs 0 to 100%.' },
-  { id: 'grouped_column', name: 'Grouped Column', data: HOURS_VS_BUDGET,
+      'any single value. Fills to an area, stacks into bands, or runs to ' +
+      '100%, and can smooth to a rolling average.' },
+  { id: 'grouped_column', name: 'Column', data: HOURS_VS_BUDGET,
     blurb: 'One group per value of a dimension, one column per measure, on a ' +
-      'shared scale from zero. The plain comparison, for when exact ' +
-      'values matter more than shape.' },
+      'shared scale. Turns on its side for long category names, stacks ' +
+      'to a total or to 100%, and draws as bars or as a lollipop.' },
   { id: 'scatter_plot', name: 'Scatter', data: HOURS_VS_BUDGET,
     blurb: 'One mark per row, placed by two measures, for whether they move ' +
       'together and which rows sit apart from the rest. A third measure ' +
-      'can set the mark size.' },
+      'can set the mark size, with a legend for the scale, and reference ' +
+      'lines can split the plot into quadrants.' },
   { id: 'bullet_bar', name: 'Bullet Bar', data: HOURS_VS_BUDGET,
     blurb: 'A bar per row against a target marker, turning to the second ' +
       'colour past the target. The compact form of actual-against-plan ' +

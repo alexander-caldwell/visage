@@ -31,10 +31,20 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.14.0. The version is logged once on load, so the browser console says
+// Build v1.14.1. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('marimekko build v1.14.0');
+if (window.console && console.log) console.log('marimekko build v1.14.1');
+
+/* visage:manifest
+{ "id": "marimekko", "family": "part_to_whole",
+  "shapes": ["2d1m", "1d2m"],
+  "checks": [
+    { "fixture": "months" },
+    { "fixture": "ra_client_engagements" },
+    { "fixture": "treemap", "config": {"mode": "variwide"}, "name": "treemap [variwide]" }
+  ] }
+*/
 
 looker.plugins.visualizations.add({
   id: 'marimekko',
@@ -1288,12 +1298,20 @@ looker.plugins.visualizations.add({
       var parts = [];
       if (grouped) parts.push(grouped + ' smallest grouped');
       if (skipped) parts.push(skipped + (skipped === 1 ? ' row' : ' rows') + ' with no positive value not shown');
-      var note = el('text', {
-        class: 'mrk-note', x: plotLeft,
-        y: plotTop + plotHeight + nameHeight + xTitleBand + noteHeight - 3
-      });
-      note.textContent = parts.join('; ');
-      svg.appendChild(note);
+
+      // The note is a label like any other: measured against the room it has,
+      // shortened, and dropped rather than run off the edge of the tile. On a
+      // narrow tile it was the one text node that skipped this.
+      var noteFont = '10px system-ui, -apple-system, "Segoe UI", sans-serif';
+      var noteText = fit(parts.join('; '), noteFont, Math.max(0, width - plotLeft - 4));
+      if (noteText) {
+        var note = el('text', {
+          class: 'mrk-note', x: plotLeft,
+          y: plotTop + plotHeight + nameHeight + xTitleBand + noteHeight - 3
+        });
+        note.textContent = noteText;
+        svg.appendChild(note);
+      }
     }
 
     // Axis titles: x under the column names, y turned up the left edge. Dropped
