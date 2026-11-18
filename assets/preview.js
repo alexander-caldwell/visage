@@ -190,25 +190,30 @@ const DAILY_ORDERS = (() => {
 // Descriptions say what the chart does with the data, in the chart's own terms.
 export const CHARTS = [
   { id: 'treemap_dual', family: 'part_to_whole', name: 'Treemap', data: REVENUE_AND_MARGIN,
+    caption: 'See how a total divides into parts using sized rectangles.',
     blurb: 'Nested rectangles, each sized by a measure, so the area shows how ' +
       'a total divides across the values of a dimension. An optional ' +
       'second measure sets the colour, putting amount and rate in one ' +
       'picture.' },
   { id: 'marimekko', family: 'part_to_whole', name: 'Marimekko', data: REVENUE_AND_HOURS,
+    caption: 'Show how two dimensions divide a total, or compare measures with variable-width columns.',
     blurb: 'Columns of variable width. Given two dimensions and a measure it ' +
       'draws a mosaic proper, where each cell\'s area is its share of the ' +
       'total. Given one dimension and two measures it draws a variwide: ' +
       'width from one measure, height from the other divided by it, so ' +
       'area is the second measure.' },
   { id: 'dumbbell', family: 'comparison', name: 'Dumbbell', data: HOURS_VS_BUDGET,
+    caption: 'Compare two measures per row and see the gap between them.',
     blurb: 'Two measures per row on one shared scale, joined by a line. The ' +
       'line\'s length is the gap between them, which is the thing a pair ' +
       'of bars makes you calculate.' },
   { id: 'histogram', family: 'distribution', name: 'Histogram', data: DURATIONS,
+    caption: 'Group values into bins to see the shape of a distribution.',
     blurb: 'The distribution of one measure: rows grouped into bins by value, ' +
       'with the bar height as a count, a share, or the sum of another ' +
       'measure. Optional mean, median and percentile lines.' },
   { id: 'violin', family: 'distribution', name: 'Violin', data: ORDERS,
+    caption: 'Compare the shape and spread of a measure across groups.',
     blurb: 'The distribution of one measure as a smoothed density mirrored ' +
       'about its own centre line, one violin per value of a second ' +
       'dimension. Shows where the bulk of the rows sit, how far the tail ' +
@@ -216,62 +221,76 @@ export const CHARTS = [
       'which an average reports. Quartile box, median, mean and percentile ' +
       'lines optional, and every row can be drawn as a dot over the curve.' },
   { id: 'line_series', family: 'time', name: 'Line', data: MONTHS,
+    caption: 'See trends over time as lines or filled areas.',
     blurb: 'A measure across an ordered dimension, one line per series. Built ' +
       'for trend and turning points, where the shape matters more than ' +
       'any single value. Fills to an area, stacks into bands, or runs to ' +
       '100%, and can smooth to a rolling average.' },
   { id: 'grouped_column', family: 'comparison', name: 'Column', data: HOURS_VS_BUDGET,
+    caption: 'Compare measures across categories using columns, bars or lollipops.',
     blurb: 'One group per value of a dimension, one column per measure, on a ' +
       'shared scale. Turns on its side for long category names, stacks ' +
       'to a total or to 100%, and draws as bars or as a lollipop.' },
   { id: 'scatter_plot', family: 'relationship', name: 'Scatter', data: HOURS_VS_BUDGET,
+    caption: 'Plot two measures to see relationships and outliers.',
     blurb: 'One mark per row, placed by two measures, for whether they move ' +
       'together and which rows sit apart from the rest. A third measure ' +
       'can set the mark size, with a legend for the scale, and reference ' +
       'lines can split the plot into quadrants.' },
   { id: 'bullet_bar', family: 'comparison', name: 'Bullet Bar', data: HOURS_VS_BUDGET,
+    caption: 'Compare each measure with a target marker.',
     blurb: 'A bar per row against a target marker, turning to the second ' +
       'colour past the target. The compact form of actual-against-plan ' +
       'down a list.' },
   { id: 'kpi_tile', family: 'single_value', name: 'KPI Tile', data: REVENUE_BY_MONTH,
+    caption: 'Show a headline measure and how it changed.',
     blurb: 'One measure as a headline number, with its change against a ' +
       'second measure or the previous period, marked by whether the change ' +
       'is good. A date dimension adds a sparkline of the measure over time.' },
   { id: 'progress_bar', family: 'single_value', name: 'Progress Bar', data: HOURS_VS_BUDGET,
+    caption: 'Show how far a measure has progressed towards a target.',
     blurb: 'A measure against a target, as a bar filling toward it, with the ' +
       'value and its share of the target stated. One bar for a single ' +
       'figure, or one per row down the tile, each measured against its own ' +
       'target. Past the target the bar fills and says so.' },
   { id: 'box_plot', family: 'distribution', name: 'Box Plot', data: ORDERS,
+    caption: 'Summarise each group with quartiles, whiskers and outliers.',
     blurb: 'The distribution of one measure as a box per group: the middle ' +
       'half of the rows, the median, whiskers to the furthest row inside ' +
       '1.5 times the interquartile range, and each row beyond drawn on its ' +
       'own. A group too small for a box is drawn as its rows.' },
   { id: 'strip', family: 'distribution', name: 'Strip / Beeswarm', data: ORDERS,
+    caption: 'Show individual values as a beeswarm or jittered dots.',
     blurb: 'One dot per row, positioned by a measure and optionally split ' +
       'into groups. Pack the dots into a beeswarm or spread them with ' +
       'jitter to see individual values, clusters and gaps.' },
   { id: 'pie', family: 'part_to_whole', name: 'Pie / Donut', data: REVENUE_AND_MARGIN,
+    caption: 'Show each part’s share as a slice of a pie or donut.',
     blurb: 'One slice per value of a dimension, sized by its share of the ' +
       'measure total. Small slices can be grouped into Other. The donut ' +
       'option puts the total in the centre.' },
   { id: 'waffle', family: 'part_to_whole', name: 'Waffle', data: REVENUE_AND_MARGIN,
+    caption: 'Show shares of a whole as a grid of 100 squares.',
     blurb: 'A grid of 100 squares showing the share of each value of a ' +
       'dimension. A query with two measures and no dimension can show ' +
       'one measure as a share of the other.' },
   { id: 'funnel', family: 'part_to_whole', name: 'Funnel', data: FUNNEL_STAGES,
+    caption: 'Track volume and drop-off through ordered stages.',
     blurb: 'One centred bar per stage in query order. A measure gives each ' +
       'stage its width, with conversion and drop-off shown between ' +
       'consecutive stages.' },
   { id: 'table', family: 'grid', name: 'Table', data: REVENUE_AND_MARGIN,
+    caption: 'Read exact values, with optional in-cell bars or colour scales.',
     blurb: 'One column per field, with values formatted by Looker. Measure ' +
       'columns can add colour scales or bars, and headers and dimensions ' +
       'stay visible as the rows and measures scroll.' },
   { id: 'heatmap', family: 'grid', name: 'Heatmap', data: MONTHS,
+    caption: 'Find patterns across two dimensions with a colour-coded matrix.',
     blurb: 'Two dimensions form the rows and columns. A measure gives each ' +
       'cell its value and colour, so patterns and outliers are visible ' +
       'across the matrix.' },
   { id: 'calendar_heatmap', family: 'grid', name: 'Calendar Heatmap', data: DAILY_ORDERS,
+    caption: 'See daily values and weekly patterns on a calendar.',
     blurb: 'One measure per day, laid out in weeks across and weekdays ' +
       'down. Each calendar year gets a band so weekly patterns and ' +
       'seasonal changes can be compared.' }
@@ -325,7 +344,7 @@ const loaded = new Map();
 let queue = Promise.resolve();
 
 export function loadChart(id) {
-  queue = queue.then(async () => {
+  const next = queue.then(async () => {
     if (loaded.has(id)) return loaded.get(id);
     await new Promise((resolve, reject) => {
       const script = document.createElement('script');
@@ -339,7 +358,8 @@ export function loadChart(id) {
     pending = null;
     return loaded.get(id);
   });
-  return queue;
+  queue = next.catch(() => {});
+  return next;
 }
 
 export function defaultConfig(vis) {

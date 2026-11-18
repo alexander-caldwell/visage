@@ -52,8 +52,7 @@ code { font-family: var(--mono); font-size: 0.9em; color: var(--ink-2); word-bre
   letter-spacing: -0.02em; color: var(--ink); margin: 14px 0 0; text-wrap: balance; }
 
 .mark { width: 22px; height: 22px; display: block; flex: 0 0 auto; }
-.mark .eye { fill: var(--ground); }
-.mark .face { fill: var(--accent); }
+.crumb .mark { display: inline-block; vertical-align: -5px; margin-right: 6px; }
 h1 { font-size: clamp(44px, 7.5vw, 88px); line-height: 1.02; font-weight: 600;
   letter-spacing: -0.035em; margin: 8px 0 0; text-wrap: balance; }
 .standfirst { margin: 18px 0 0; font-size: 18px; color: var(--ink-2); max-width: 60ch; }
@@ -93,10 +92,23 @@ summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outli
 @media (max-width: 1000px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 660px) { .grid { grid-template-columns: 1fr; } }
 
-.family { display: flex; flex-direction: column; gap: 14px; margin-top: 12px; }
+#families { display: grid; gap: 16px; }
+.family { border-top: 1px solid var(--rule); }
 .family[hidden] { display: none; }
+.family summary {
+  display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12px;
+  list-style: none; cursor: pointer; padding: 11px 0;
+}
+.family summary::-webkit-details-marker { display: none; }
+.family summary::before {
+  content: ""; width: 8px; height: 8px; margin: 0 4px;
+  border: solid var(--accent); border-width: 0 2px 2px 0; transform: rotate(-45deg);
+}
+.family[open] summary::before { transform: rotate(45deg); }
+.family summary:hover h2 { color: var(--accent); }
 .family h2 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
-.family .question { margin: -10px 0 0; font-size: 14px; color: var(--muted); }
+.family .question { display: block; font-size: 14px; color: var(--ink-2); }
+.family .grid { margin: 3px 0 8px; }
 
 .card {
   display: flex; flex-direction: column; background: var(--panel);

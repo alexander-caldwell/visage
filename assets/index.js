@@ -1,14 +1,13 @@
-import { CHARTS, renderInto, shortShape } from './preview.js';
+import { CHARTS, loadChart, renderInto, shortShape } from './preview.js';
 import { bindTheme, bindResize } from './theme.js';
 
 const families = document.getElementById('families');
 const search = document.getElementById('search');
 const result = document.getElementById('result');
 
-// The families from docs/roadmap.md, in its order. Each answers one question a
-// reader arrives with. A family with no charts yet is left off the page.
+// The families from docs/roadmap.md, in its order.
 const FAMILIES = [
-  ['comparison', 'Comparison', 'How do these categories differ?'],
+  ['comparison', 'Comparison', 'How do these categories differ?', 'compare'],
   ['distribution', 'Distribution', 'How is this measure spread?'],
   ['part_to_whole', 'Part to Whole', 'What is this total made of?'],
   ['time', 'Time', 'What happened over this period?'],
@@ -18,26 +17,35 @@ const FAMILIES = [
   ['single_value', 'Single Value', 'What is this number, and is it good?']
 ];
 
-const sections = FAMILIES
+function words(text) {
+  return text.toLowerCase().match(/[a-z0-9]+/g) || [];
+}
+
+const sections = new Map(FAMILIES
   .filter(([key]) => CHARTS.some((chart) => chart.family === key))
-  .map(([key, label, question]) => {
-    const section = document.createElement('section');
+  .map(([key, label, question, alias = '']) => {
+    const section = document.createElement('details');
     section.className = 'family';
+    section.open = true;
+    const summary = document.createElement('summary');
+    const title = document.createElement('div');
     const heading = document.createElement('h2');
     heading.textContent = label;
-    const ask = document.createElement('p');
+    const ask = document.createElement('span');
     ask.className = 'question';
     ask.textContent = question;
     const grid = document.createElement('div');
     grid.className = 'grid';
-    section.append(heading, ask, grid);
-    families.appendChild(section);
-    return { key, section, grid };
-  });
 
-// One card per chart, built once. Re-rendering redraws the chart into the tile
-// it already has, rather than rebuilding the page.
+    title.append(heading, ask);
+    summary.appendChild(title);
+    section.append(summary, grid);
+    families.appendChild(section);
+    return [key, { section, grid, searchText: [key, label, alias].join(' ') }];
+  }));
+
 const cards = CHARTS.map((chart) => {
+  const family = sections.get(chart.family);
   const card = document.createElement('a');
   card.className = 'card';
   card.href = 'chart.html?id=' + encodeURIComponent(chart.id);
@@ -55,80 +63,75 @@ const cards = CHARTS.map((chart) => {
   shape.className = 'shape';
   shape.textContent = 'needs: …';
 
-  const blurb = document.createElement('p');
-  blurb.textContent = chart.blurb;
+  const caption = document.createElement('p');
+  caption.textContent = chart.caption;
 
-  // Use cases come from the chart file. They make the card searchable by intent
-  // as well as by name.
-  const uses = document.createElement('ul');
-  uses.className = 'uses';
-
-  body.append(name, shape, blurb, uses);
+  body.append(name, shape, caption);
   card.append(tile, body);
-  sections.find((s) => s.key === chart.family).grid.appendChild(card);
+  family.grid.appendChild(card);
 
-  return { chart, card, tile, shape, blurb, uses };
+  const searchText = [chart.name, chart.id, family.searchText, chart.caption, chart.blurb].join(' ');
+  return { chart, family, card, tile, shape, searchText, tokens: words(searchText) };
 });
 
 let rendering = false;
+let redraw = false;
 
-// A resize part-way through a pass would otherwise interleave two sets of
-// renders into the same tiles.
 async function renderAll() {
-  if (rendering) return;
+  if (rendering) {
+    redraw = true;
+    return;
+  }
   rendering = true;
   try {
-    for (const item of cards) {
-      if (item.card.hidden) continue;
-      try {
-        const vis = await renderInto(item.tile, item.chart);
-        item.shape.textContent = 'needs: ' + (shortShape(vis.data_shape) || 'see the chart page');
-        item.shape.title = vis.data_shape || '';
-
-        if (vis.good_for && vis.good_for.length && !item.uses.childElementCount) {
-          vis.good_for.slice(0, 2).forEach((use) => {
-            const line = document.createElement('li');
-            line.textContent = use;
-            item.uses.appendChild(line);
-          });
-          item.searchText = [item.chart.name, item.chart.id, item.chart.blurb,
-            vis.data_shape, vis.good_for.join(' ')].join(' ').toLowerCase();
+    do {
+      redraw = false;
+      for (const item of cards) {
+        if (!item.ready || item.card.hidden || !item.family.section.open) continue;
+        try {
+          await renderInto(item.tile, item.chart);
+        } catch (err) {
+          item.tile.classList.add('failed');
+          item.tile.textContent = err.message;
         }
-      } catch (err) {
-        item.tile.classList.add('failed');
-        item.tile.textContent = err.message;
       }
-    }
+    } while (redraw);
   } finally {
     rendering = false;
   }
 }
 
+let browseState = null;
+
 function filter() {
-  const term = search.value.trim().toLowerCase();
+  const terms = words(search.value);
+  const searching = terms.length > 0;
+  if (searching && !browseState) {
+    browseState = new Map([...sections.values()].map(({ section }) => [section, section.open]));
+  }
+
   let shown = 0;
-
-  cards.forEach((item) => {
-    // What a chart is good for is part of the haystack, so searching "target",
-    // "outliers" or "over time" finds the right chart.
-    const haystack = item.searchText || [
-      item.chart.name, item.chart.id, item.chart.blurb, item.shape.textContent
-    ].join(' ').toLowerCase();
-    const match = !term || haystack.includes(term);
+  const matchingSections = new Set();
+  for (const item of cards) {
+    const match = terms.every((term) => item.tokens.some((token) =>
+      /^\d+$/.test(term) ? token === term : token.startsWith(term)));
     item.card.hidden = !match;
-    if (match) shown++;
-  });
+    if (match) {
+      shown++;
+      matchingSections.add(item.family.section);
+    }
+  }
 
-  sections.forEach((s) => {
-    s.section.hidden = ![...s.grid.children].some((card) => !card.hidden);
-  });
+  for (const { section } of sections.values()) {
+    section.hidden = !matchingSections.has(section);
+    if (searching && !section.hidden) section.open = true;
+    if (!searching && browseState) section.open = browseState.get(section);
+  }
 
-  result.textContent = term
+  if (!searching) browseState = null;
+  result.textContent = searching
     ? shown + (shown === 1 ? ' chart matches' : ' charts match')
     : '';
-
-  // A card hidden during the first pass has an empty tile, so draw what is now
-  // visible.
   renderAll();
 }
 
@@ -136,22 +139,26 @@ search.addEventListener('input', filter);
 bindTheme(renderAll);
 bindResize(renderAll);
 
-// A chart sizes itself to its tile when it draws. Cards render one after
-// another, so the page grows, a scrollbar appears, and every tile narrows by a
-// few pixels after the earlier charts have already drawn: their labels then sit
-// a hair outside the tile. Watch each tile and redraw the ones that moved.
+for (const { section } of sections.values()) {
+  section.addEventListener('toggle', () => {
+    if (section.open && !section.hidden) renderAll();
+  });
+}
+
+// A change in card width can happen independently of a window resize.
 if (window.ResizeObserver) {
   const widths = new WeakMap();
   let settle = null;
 
   const observer = new ResizeObserver((entries) => {
     let moved = false;
-    entries.forEach((entry) => {
-      const width = Math.round(entry.contentRect.width);
-      const previous = widths.get(entry.target);
+    for (const { target, contentRect } of entries) {
+      const width = Math.round(contentRect.width);
+      if (!width) continue;
+      const previous = widths.get(target);
       if (previous !== undefined && Math.abs(previous - width) > 2) moved = true;
-      widths.set(entry.target, width);
-    });
+      widths.set(target, width);
+    }
     if (!moved) return;
     clearTimeout(settle);
     settle = setTimeout(renderAll, 200);
@@ -160,4 +167,18 @@ if (window.ResizeObserver) {
   cards.forEach((item) => observer.observe(item.tile));
 }
 
-renderAll();
+// Index chart metadata even if its section is closed or hidden by a search.
+await Promise.all(cards.map(async (item) => {
+  try {
+    const vis = await loadChart(item.chart.id);
+    item.shape.textContent = 'needs: ' + (shortShape(vis.data_shape) || 'see the chart page');
+    item.shape.title = vis.data_shape || '';
+    item.tokens = words([item.searchText, vis.data_shape, (vis.good_for || []).join(' ')].join(' '));
+    item.ready = true;
+  } catch (err) {
+    item.shape.textContent = 'needs: see the chart page';
+    item.tile.classList.add('failed');
+    item.tile.textContent = err.message;
+  }
+}));
+filter();
