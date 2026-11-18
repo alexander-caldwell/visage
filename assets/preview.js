@@ -142,47 +142,47 @@ const ORDERS = (() => {
 
 // Descriptions say what the chart does with the data, in the chart's own terms.
 export const CHARTS = [
-  { id: 'treemap_dual', name: 'Treemap', data: REVENUE_AND_MARGIN,
+  { id: 'treemap_dual', family: 'part_to_whole', name: 'Treemap', data: REVENUE_AND_MARGIN,
     blurb: 'Nested rectangles, each sized by a measure, so the area shows how ' +
       'a total divides across the values of a dimension. An optional ' +
       'second measure sets the colour, putting amount and rate in one ' +
       'picture.' },
-  { id: 'marimekko', name: 'Marimekko', data: REVENUE_AND_HOURS,
+  { id: 'marimekko', family: 'part_to_whole', name: 'Marimekko', data: REVENUE_AND_HOURS,
     blurb: 'Columns of variable width. Given two dimensions and a measure it ' +
       'draws a mosaic proper, where each cell\'s area is its share of the ' +
       'total. Given one dimension and two measures it draws a variwide: ' +
       'width from one measure, height from the other divided by it, so ' +
       'area is the second measure.' },
-  { id: 'dumbbell', name: 'Dumbbell', data: HOURS_VS_BUDGET,
+  { id: 'dumbbell', family: 'comparison', name: 'Dumbbell', data: HOURS_VS_BUDGET,
     blurb: 'Two measures per row on one shared scale, joined by a line. The ' +
       'line\'s length is the gap between them, which is the thing a pair ' +
       'of bars makes you calculate.' },
-  { id: 'histogram', name: 'Histogram', data: DURATIONS,
+  { id: 'histogram', family: 'distribution', name: 'Histogram', data: DURATIONS,
     blurb: 'The distribution of one measure: rows grouped into bins by value, ' +
       'with the bar height as a count, a share, or the sum of another ' +
       'measure. Optional mean, median and percentile lines.' },
-  { id: 'violin', name: 'Violin', data: ORDERS,
+  { id: 'violin', family: 'distribution', name: 'Violin', data: ORDERS,
     blurb: 'The distribution of one measure as a smoothed density mirrored ' +
       'about its own centre line, one violin per value of a second ' +
       'dimension. Shows where the bulk of the rows sit, how far the tail ' +
       'runs, and whether a group has more than one cluster in it, none of ' +
       'which an average reports. Quartile box, median, mean and percentile ' +
       'lines optional, and every row can be drawn as a dot over the curve.' },
-  { id: 'line_series', name: 'Line', data: MONTHS,
+  { id: 'line_series', family: 'time', name: 'Line', data: MONTHS,
     blurb: 'A measure across an ordered dimension, one line per series. Built ' +
       'for trend and turning points, where the shape matters more than ' +
       'any single value. Fills to an area, stacks into bands, or runs to ' +
       '100%, and can smooth to a rolling average.' },
-  { id: 'grouped_column', name: 'Column', data: HOURS_VS_BUDGET,
+  { id: 'grouped_column', family: 'comparison', name: 'Column', data: HOURS_VS_BUDGET,
     blurb: 'One group per value of a dimension, one column per measure, on a ' +
       'shared scale. Turns on its side for long category names, stacks ' +
       'to a total or to 100%, and draws as bars or as a lollipop.' },
-  { id: 'scatter_plot', name: 'Scatter', data: HOURS_VS_BUDGET,
+  { id: 'scatter_plot', family: 'relationship', name: 'Scatter', data: HOURS_VS_BUDGET,
     blurb: 'One mark per row, placed by two measures, for whether they move ' +
       'together and which rows sit apart from the rest. A third measure ' +
       'can set the mark size, with a legend for the scale, and reference ' +
       'lines can split the plot into quadrants.' },
-  { id: 'bullet_bar', name: 'Bullet Bar', data: HOURS_VS_BUDGET,
+  { id: 'bullet_bar', family: 'comparison', name: 'Bullet Bar', data: HOURS_VS_BUDGET,
     blurb: 'A bar per row against a target marker, turning to the second ' +
       'colour past the target. The compact form of actual-against-plan ' +
       'down a list.' }

@@ -1,9 +1,39 @@
 import { CHARTS, renderInto, shortShape } from './preview.js';
 import { bindTheme, bindResize } from './theme.js';
 
-const grid = document.getElementById('grid');
+const families = document.getElementById('families');
 const search = document.getElementById('search');
 const result = document.getElementById('result');
+
+// The families from docs/roadmap.md, in its order. Each answers one question a
+// reader arrives with. A family with no charts yet is left off the page.
+const FAMILIES = [
+  ['comparison', 'Comparison', 'How do these categories differ?'],
+  ['distribution', 'Distribution', 'How is this measure spread?'],
+  ['part_to_whole', 'Part to Whole', 'What is this total made of?'],
+  ['time', 'Time', 'What happened over this period?'],
+  ['relationship', 'Relationship', 'Do these two measures move together?'],
+  ['flow', 'Flow', 'How does volume move between states?'],
+  ['grid', 'Grid', 'What are the actual numbers, cell by cell?'],
+  ['single_value', 'Single Value', 'What is this number, and is it good?']
+];
+
+const sections = FAMILIES
+  .filter(([key]) => CHARTS.some((chart) => chart.family === key))
+  .map(([key, label, question]) => {
+    const section = document.createElement('section');
+    section.className = 'family';
+    const heading = document.createElement('h2');
+    heading.textContent = label;
+    const ask = document.createElement('p');
+    ask.className = 'question';
+    ask.textContent = question;
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+    section.append(heading, ask, grid);
+    families.appendChild(section);
+    return { key, section, grid };
+  });
 
 // One card per chart, built once. Re-rendering redraws the chart into the tile
 // it already has, rather than rebuilding the page.
@@ -35,7 +65,7 @@ const cards = CHARTS.map((chart) => {
 
   body.append(name, shape, blurb, uses);
   card.append(tile, body);
-  grid.appendChild(card);
+  sections.find((s) => s.key === chart.family).grid.appendChild(card);
 
   return { chart, card, tile, shape, blurb, uses };
 });
@@ -87,6 +117,10 @@ function filter() {
     const match = !term || haystack.includes(term);
     item.card.hidden = !match;
     if (match) shown++;
+  });
+
+  sections.forEach((s) => {
+    s.section.hidden = ![...s.grid.children].some((card) => !card.hidden);
   });
 
   result.textContent = term
