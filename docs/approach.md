@@ -72,7 +72,7 @@ about the chart.
 | `raw.githack.com` | 403 |
 | jsDelivr `@main` plus purge | The purge endpoint reported success on both providers while the old file kept being served four minutes later. A branch-to-commit mapping is cached separately from the file, and purging the file does not clear it |
 | jsDelivr pinned tag | Works. Immutable, cached for a year, and needs re-registering in Looker on every release |
-| **jsDelivr `@1`** | **In use.** One stable URL that tracks 1.x. Accepts a 12-hour lag on the range cache and up to 7 days in a browser |
+| **jsDelivr major-version range (`@2`)** | **In use.** One stable URL that tracks the current major version (2.x). Moving to a new major is a deliberate re-registration. Accepts a 12-hour lag on the range cache and up to 7 days in a browser |
 | Cloudflare Pages or Worker | Better: stable URL, updates in under a minute, own headers. Needs an account and setup |
 | Cloud Run | The same, on Google Cloud. Needs a project and an owner |
 | LookML manifest `file:` | Best. Looker serves the file itself, so there is no URL, no CDN and no cache. Needs a pull request to the LookML project |

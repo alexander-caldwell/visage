@@ -13,25 +13,25 @@ Looker admin, Platform, Visualizations, Add Visualization.
 |---|---|
 | ID | the chart's own id, for example `treemap_dual` |
 | Label | anything your users will recognise |
-| Main | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@1/treemap_dual.js` |
+| Main | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/treemap_dual.js` |
 
 The ID must match the `id` inside the file. The chart appears in the Explore's
 visualisation picker immediately: instance-wide registration is stored in
 Looker, not in LookML, so nothing needs committing or deploying.
 
-## `@1` or a pinned tag
+## `@2` or a pinned tag
 
-`@1` tracks the newest 1.x release. A fix reaches every instance without anyone
+`@2` tracks the newest 2.x release. A fix reaches every instance without anyone
 editing a registration, which is why it is the default here.
 
 The cost is lag, and the numbers are measured rather than assumed:
 
-- The CDN caches which release `@1` points at for about **12 hours**.
+- The CDN caches which release `@2` points at for about **12 hours**.
 - Browsers are told to keep the file for up to **7 days**.
 
 So a release is not instant. While iterating on a chart, register the exact tag
 (`@v1.5.0`) and you see each change as you publish it. When the chart settles,
-move the registration back to `@1` and leave it alone.
+move the registration back to `@2` and leave it alone.
 
 A pinned tag is also right when a chart must never change under you: jsDelivr
 treats a tagged path as immutable.
@@ -76,7 +76,7 @@ curl -s https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@v1.6.0/treemap_dua
 shasum -a 256 treemap_dual.js
 ```
 
-5. Registrations on `@1` pick the release up within about 12 hours. To see it
+5. Registrations on `@2` pick the release up within about 12 hours. To see it
    now, register the pinned tag.
 
 ## Checking what an instance is running
@@ -123,7 +123,7 @@ curl -s <the tagged url> | openssl dgst -sha384 -binary | openssl base64 -A
 
 Prefix the result with `sha384-`. Looker then refuses the file if its content
 ever differs, which is what makes loading code from a third-party CDN
-reasonable. Use it with a pinned tag only: with `@1` the hash breaks on every
+reasonable. Use it with a pinned tag only: with `@2` the hash breaks on every
 release.
 
 ## Local development

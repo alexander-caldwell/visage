@@ -5,7 +5,7 @@
 const CHART_SOURCE = './';
 
 export const REGISTRATION_BASE =
-  'https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@1/';
+  'https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/';
 
 const field = (name, label, type, format) => ({
   name, label, label_short: label, type, value_format: format || null
@@ -94,6 +94,17 @@ const MONTHS = (() => {
   }
   return { fields: { dimension_like: [MONTH, CLIENT], measure_like: [REVENUE] }, rows };
 })();
+
+// One client's revenue by month: a date dimension and one measure, which is
+// what a KPI tile needs for its sparkline and its previous-period change.
+const REVENUE_BY_MONTH = {
+  fields: { dimension_like: [MONTH], measure_like: [REVENUE] },
+  rows: [42, 45, 48, 52, 56, 54, 58, 63, 66, 71, 74, 78].map((v, m) => ({
+    'finance.month': cell('2026-' + String(m + 1).padStart(2, '0'),
+      String(m + 1).padStart(2, '0') + '/26'),
+    'finance.revenue_gbp': cell(v * 1000, '£' + (v * 1000).toLocaleString())
+  }))
+};
 
 // One measure with a long tail, for a distribution.
 const DURATIONS = (() => {
@@ -185,7 +196,11 @@ export const CHARTS = [
   { id: 'bullet_bar', family: 'comparison', name: 'Bullet Bar', data: HOURS_VS_BUDGET,
     blurb: 'A bar per row against a target marker, turning to the second ' +
       'colour past the target. The compact form of actual-against-plan ' +
-      'down a list.' }
+      'down a list.' },
+  { id: 'kpi_tile', family: 'single_value', name: 'KPI Tile', data: REVENUE_BY_MONTH,
+    blurb: 'One measure as a headline number, with its change against a ' +
+      'second measure or the previous period, marked by whether the change ' +
+      'is good. A date dimension adds a sparkline of the measure over time.' }
 ];
 
 export const chartById = (id) => CHARTS.find((c) => c.id === id);

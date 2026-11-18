@@ -18,7 +18,7 @@ the same way Looker does and reads their controls out of the files.
 
 ## Documentation
 
-- [Hosting](docs/hosting.md) — registering a chart, `@1` against a pinned tag,
+- [Hosting](docs/hosting.md) — registering a chart, `@2` against a pinned tag,
   the one header a host must send, and how to release a change.
 - [Technical approach](docs/approach.md) — why the charts are built and served
   this way, and what was tried and rejected.
@@ -360,6 +360,34 @@ the second the target.
 Options: theme, bar colour, colour when over target, show target marker, show
 values, label column width.
 
+### `kpi_tile.js`
+
+One measure as a headline number. Query shape: one measure, optionally a second
+measure to compare against, and optionally a date dimension.
+
+- The number leads. It is Looker's own rendered value, shrunk to fit the width
+  and then shortened ("48k") rather than cut.
+- Compare To: a target (the second measure), the previous period (the row
+  before the latest one in date order), or Automatic, which picks the target
+  when there is a second measure and the previous period when there is a date.
+  The change is stated as an amount and a percentage.
+- Previous Period skips back over periods with no value and names the period it
+  used. A comparison of zero gives the amount and no percentage.
+- When there is nothing to compare against, the caption says so rather than
+  leaving a gap.
+- The change is marked up, down or flat, coloured by Good Direction: higher is
+  better, lower is better, or neither. The text stays in ink.
+- A date dimension adds a sparkline, with the headline period marked and the
+  first and last periods labelled. Any other dimension adds no line, because a
+  line across categories implies an order that is not there. On a short tile the
+  sparkline gives way to the number.
+- The number and every sparkline point answer on hover and on keyboard focus.
+  Enter or Space opens the drill menu.
+- Theme follows the tile, with its own colour steps in dark mode.
+
+Options: compare to, good direction, theme, main colour (the sparkline), show
+legend (the comparison caption), show axis titles, number label, sparkline title.
+
 ### `diagnostic.js`
 
 Paints, as plain text, what Looker hands the visualisation: element size, row
@@ -388,6 +416,7 @@ Instance-wide, no LookML change. Admin > Platform > Visualizations > Add:
 | `scatter_plot` | Scatter | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/scatter_plot.js` |
 | `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/histogram.js` |
 | `violin` | Violin | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/violin.js` |
+| `kpi_tile` | KPI Tile | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/kpi_tile.js` |
 | `diagnostic` | Diagnostic | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/diagnostic.js` |
 
 `@2` tracks the newest 2.x release, so a registration picks up fixes without
@@ -425,9 +454,9 @@ Looker page will not accept a cross-origin script without one. jsDelivr sends
 `cross-origin-resource-policy: cross-origin`, as does cdnjs, which is why
 Looker can already load d3 and Highcharts from there.
 
-Use **`@1`** for a registration you do not want to revisit. It tracks the newest
-1.x release, so a fix reaches Looker without anyone editing the entry. The cost
-is lag: the CDN caches which release `@1` points at for about 12 hours, and
+Use **`@2`** for a registration you do not want to revisit. It tracks the newest
+2.x release, so a fix reaches Looker without anyone editing the entry. The cost
+is lag: the CDN caches which release `@2` points at for about 12 hours, and
 browsers hold the file for up to 7 days.
 
 Use an **exact tag** such as `@v1.8.0` when the file must never change under
