@@ -443,6 +443,107 @@ whiskers reach, mean line, median line, percentile line, show every row as a
 dot, theme, box colour, show median and row count, show axes, show legend, show
 axis titles, axis titles.
 
+### `strip.js`
+
+One dot per row on a shared measure axis. Query shape: one measure, with an
+optional dimension to name rows and a second dimension to split them into
+groups.
+
+- Beeswarm packs neighbouring dots side by side. Jitter offsets dots by row
+  name. A dense group can fall back to jitter.
+- Each group shows its median and row count. Large results draw an even sample
+  of dots while summaries still use all rows.
+- Arrow keys move between groups and rows. Enter or Space drills.
+
+Options: measure to plot, grouping dimension, group order, extreme values,
+layout, mean and median lines, percentile line, theme, dot colour, summary,
+axes, legend and axis titles.
+
+### `pie.js`
+
+Slices show how one measure divides across the values of a dimension. Query
+shape: one dimension and one measure. A second measure can appear in tooltips.
+
+- Slices run clockwise from the largest. By default the five largest are shown
+  individually and the rest are grouped into Other.
+- The legend gives absolute values and shares. The donut option shows the
+  total in the centre.
+- The caption reports rows omitted for null or negative values.
+
+Options: group the tail, share or absolute labels, donut, label strategy, show
+values, series colours, legend and theme.
+
+### `waffle.js`
+
+A 10 by 10 grid with one square per percentage point. Query shape: one
+dimension and one measure, or no dimension and two measures (part and whole).
+
+- Category shares are rounded together so the grid always fills exactly 100
+  squares. Tiny shares remain in the legend even when they round to zero cells.
+- In part-and-whole mode the grid fills to the part's share and reports any
+  amount over the whole.
+
+Options: group the tail, share or absolute labels, label strategy, show values,
+series colours, legend and theme.
+
+### `funnel.js`
+
+Centred bars show volume through an ordered process. Query shape: one stage
+dimension and one count measure. Sort the query into process order. A second
+measure can appear in tooltips.
+
+- Each stage shows its count and share of the first stage. The gaps show
+  conversion and drop-off between adjacent stages.
+- Missing counts interrupt the conversion readout. Increases are reported and
+  drawn at their actual size.
+
+Options: number of stages shown, share or absolute labels, label strategy,
+show values, main colour, legend and theme.
+
+### `table.js`
+
+Looker-formatted figures, one column per field. Query shape: one or two
+dimensions and one or more measures in an unpivoted query.
+
+- Each measure column can show a value, a value with colour, or a value with
+  an in-cell bar.
+- Sort with a column header or the sort control. The header stays visible,
+  and dimension columns stay in place while measure columns scroll.
+- The totals option uses the totals from Looker when the query provides them.
+
+Options: per-measure display, sort, show totals, show values, colour scale,
+midpoint, reverse scale, main colour, legend, theme and axis titles.
+
+### `heatmap.js`
+
+A matrix of measure values and colours. Query shape: two dimensions and one
+measure, or one row dimension and one measure pivoted by a second dimension.
+
+- The first dimension gives the rows. The second dimension or pivot gives the
+  columns. Both axes can be sorted by name, total or query order.
+- Empty pairs in an unpivoted query get an outline, while null values and
+  zeroes have distinct treatments.
+- With a pivot, enable row totals and totals in Looker to show them here.
+  Arrow keys move between cells and Enter drills.
+
+Options: sequential or diverging scale, midpoint, reverse scale, row and
+column order, totals, show values, main colour, legend, theme and axis titles.
+
+### `calendar_heatmap.js`
+
+Daily measures arranged as weeks across and weekdays down. Query shape: one
+date dimension at day grain and one measure. Additional measures can appear
+in tooltips.
+
+- The three most recent calendar years can appear as separate bands aligned
+  by week. Weeks can start on Monday or Sunday.
+- Missing days within the result range, nulls and zeroes are shown distinctly.
+  Arrow keys move by day or week and Enter drills.
+- The totals option displays Looker's query total when it is available.
+
+Options: week start, year order, sequential or diverging scale, midpoint,
+reverse scale, totals, show values, main colour, legend, theme and axis titles.
+
 ### `diagnostic.js`
 
 Paints, as plain text, what Looker hands the visualisation: element size, row
@@ -474,6 +575,13 @@ Instance-wide, no LookML change. Admin > Platform > Visualizations > Add:
 | `kpi_tile` | KPI Tile | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/kpi_tile.js` |
 | `progress_bar` | Progress Bar | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/progress_bar.js` |
 | `box_plot` | Box Plot | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/box_plot.js` |
+| `strip` | Strip / Beeswarm | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/strip.js` |
+| `pie` | Pie / Donut | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/pie.js` |
+| `waffle` | Waffle | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/waffle.js` |
+| `funnel` | Funnel | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/funnel.js` |
+| `table` | Table | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/table.js` |
+| `heatmap` | Heatmap | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/heatmap.js` |
+| `calendar_heatmap` | Calendar Heatmap | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/calendar_heatmap.js` |
 | `diagnostic` | Diagnostic | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/diagnostic.js` |
 
 `@2` tracks the newest 2.x release, so a registration picks up fixes without

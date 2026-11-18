@@ -151,6 +151,42 @@ const ORDERS = (() => {
   return { fields: { dimension_like: [ORDER, CHANNEL], measure_like: [ORDER_VALUE] }, rows };
 })();
 
+// A funnel needs stages in process order.
+const FUNNEL_STAGES = (() => {
+  const stage = field('orders.stage', 'Stage', 'string');
+  const count = field('orders.count', 'Orders', 'count', '#,##0');
+  return {
+    fields: { dimension_like: [stage], measure_like: [count] },
+    rows: [
+      ['Cart Created', 4800], ['Checkout Started', 3200],
+      ['Payment Submitted', 2100], ['Order Placed', 1850]
+    ].map(([name, value]) => ({
+      [stage.name]: cell(name, name),
+      [count.name]: cell(value, value.toLocaleString())
+    }))
+  };
+})();
+
+// A calendar heatmap needs daily values, with both weekly and seasonal variation.
+const DAILY_ORDERS = (() => {
+  const day = field('orders.date', 'Date', 'date_date');
+  const count = field('orders.count', 'Orders', 'count', '#,##0');
+  const rows = [];
+  for (let i = 0; i < 365; i++) {
+    const date = new Date(Date.UTC(2026, 0, i + 1));
+    const dayOfWeek = date.getUTCDay();
+    const weekdayBoost = dayOfWeek >= 1 && dayOfWeek <= 5 ? 22 : 0;
+    const season = 15 * Math.cos((i - 315) * 2 * Math.PI / 365);
+    const value = Math.round(30 + weekdayBoost + season + (i * 37 % 23));
+    const iso = date.toISOString().slice(0, 10);
+    rows.push({
+      [day.name]: cell(iso, iso),
+      [count.name]: cell(value, value.toLocaleString())
+    });
+  }
+  return { fields: { dimension_like: [day], measure_like: [count] }, rows };
+})();
+
 // Descriptions say what the chart does with the data, in the chart's own terms.
 export const CHARTS = [
   { id: 'treemap_dual', family: 'part_to_whole', name: 'Treemap', data: REVENUE_AND_MARGIN,
@@ -210,7 +246,35 @@ export const CHARTS = [
     blurb: 'The distribution of one measure as a box per group: the middle ' +
       'half of the rows, the median, whiskers to the furthest row inside ' +
       '1.5 times the interquartile range, and each row beyond drawn on its ' +
-      'own. A group too small for a box is drawn as its rows.' }
+      'own. A group too small for a box is drawn as its rows.' },
+  { id: 'strip', family: 'distribution', name: 'Strip / Beeswarm', data: ORDERS,
+    blurb: 'One dot per row, positioned by a measure and optionally split ' +
+      'into groups. Pack the dots into a beeswarm or spread them with ' +
+      'jitter to see individual values, clusters and gaps.' },
+  { id: 'pie', family: 'part_to_whole', name: 'Pie / Donut', data: REVENUE_AND_MARGIN,
+    blurb: 'One slice per value of a dimension, sized by its share of the ' +
+      'measure total. Small slices can be grouped into Other. The donut ' +
+      'option puts the total in the centre.' },
+  { id: 'waffle', family: 'part_to_whole', name: 'Waffle', data: REVENUE_AND_MARGIN,
+    blurb: 'A grid of 100 squares showing the share of each value of a ' +
+      'dimension. A query with two measures and no dimension can show ' +
+      'one measure as a share of the other.' },
+  { id: 'funnel', family: 'part_to_whole', name: 'Funnel', data: FUNNEL_STAGES,
+    blurb: 'One centred bar per stage in query order. A measure gives each ' +
+      'stage its width, with conversion and drop-off shown between ' +
+      'consecutive stages.' },
+  { id: 'table', family: 'grid', name: 'Table', data: REVENUE_AND_MARGIN,
+    blurb: 'One column per field, with values formatted by Looker. Measure ' +
+      'columns can add colour scales or bars, and headers and dimensions ' +
+      'stay visible as the rows and measures scroll.' },
+  { id: 'heatmap', family: 'grid', name: 'Heatmap', data: MONTHS,
+    blurb: 'Two dimensions form the rows and columns. A measure gives each ' +
+      'cell its value and colour, so patterns and outliers are visible ' +
+      'across the matrix.' },
+  { id: 'calendar_heatmap', family: 'grid', name: 'Calendar Heatmap', data: DAILY_ORDERS,
+    blurb: 'One measure per day, laid out in weeks across and weekdays ' +
+      'down. Each calendar year gets a band so weekly patterns and ' +
+      'seasonal changes can be compared.' }
 ];
 
 export const chartById = (id) => CHARTS.find((c) => c.id === id);
@@ -228,7 +292,9 @@ const context = {
     this._errors = this._errors || [];
     this._errors.push(err);
   },
-  trigger() {}
+  trigger(event, options) {
+    if (event === 'registerOptions') this.options = options;
+  }
 };
 
 window.looker = {
