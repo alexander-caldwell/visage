@@ -51,7 +51,7 @@ code { font-family: var(--mono); font-size: 0.9em; color: var(--ink-2); word-bre
 .subtitle { font-size: clamp(21px, 2.6vw, 32px); font-weight: 500; line-height: 1.2;
   letter-spacing: -0.02em; color: var(--ink); margin: 14px 0 0; text-wrap: balance; }
 
-.mark { width: 22px; height: 22px; display: block; flex: 0 0 auto; }
+.mark { width: 22px; height: 22px; display: block; flex: 0 0 auto; color: var(--accent); }
 .crumb .mark { display: inline-block; vertical-align: -5px; margin-right: 6px; }
 h1 { font-size: clamp(44px, 7.5vw, 88px); line-height: 1.02; font-weight: 600;
   letter-spacing: -0.035em; margin: 8px 0 0; text-wrap: balance; }
