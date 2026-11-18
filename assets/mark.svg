@@ -3,8 +3,12 @@
     svg { color: #525aff; }
     @media (prefers-color-scheme: dark) { svg { color: #8b93ff; } }
   </style>
-  <path id="mask" fill="currentColor" fill-rule="evenodd" d="
-    M3 4h18v7a9 9 0 0 1-9 9 9 9 0 0 1-9-9V4Z
-    M6.5 9.5a2 2.4 0 1 0 4 0 2 2.4 0 1 0-4 0Z
-    M13.5 9.5a2 2.4 0 1 0 4 0 2 2.4 0 1 0-4 0Z"/>
+  <g id="mask">
+    <path d="M12 2.9c-4.9 0-7.7 1.4-7.7 4.5v3.1c0 4.1 1.6 7.1 4.9 9.5a4.7 4.7 0 0 0 5.6 0c3.3-2.4 4.9-5.4 4.9-9.5V7.4c0-3.1-2.8-4.5-7.7-4.5Z"
+      fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/>
+    <g fill="currentColor">
+      <ellipse cx="8.9" cy="10.5" rx="1.35" ry="1.8"/>
+      <ellipse cx="15.1" cy="10.5" rx="1.35" ry="1.8"/>
+    </g>
+  </g>
 </svg>
