@@ -388,6 +388,61 @@ measure to compare against, and optionally a date dimension.
 Options: compare to, good direction, theme, main colour (the sparkline), show
 legend (the comparison caption), show axis titles, number label, sparkline title.
 
+### `progress_bar.js`
+
+A measure against a target, drawn as a bar filling toward it. Query shape: one
+measure and a second measure as the target, optionally one dimension.
+
+- With no dimension: one large number, its share of the target, and one bar.
+- With a dimension: one bar per row down the tile, in query order. Each track
+  ends at that row's own target, so this reads progress, not size. For rows on
+  one shared scale, use the bullet bar.
+- The number leads: each row states its value, then its share of the target.
+- Past the target the bar fills, takes the second colour, and says "over". Near
+  100% the share keeps one decimal, so a row 0.3% over never reads "100% over".
+- No share is given against a target that is missing, zero or below zero, or for
+  a missing value. The row says which instead.
+- The over-target colour follows Good Direction by default: green when higher is
+  better, red when lower is better. A chosen colour always wins.
+- Names wrap, shrink, then cut from the middle keeping the end. When the tile is
+  too short for every row, it shows the rows that fit and says how many.
+- Each row answers on hover and keyboard focus with the value, the target, the
+  share, and how far to go or how far over. Enter or Space opens the drill menu.
+- Theme follows the tile, with its own colour steps in dark mode.
+
+Options: good direction, theme, main colour, colour when over target, show
+header, show field names, target label, measure label.
+
+### `box_plot.js`
+
+The distribution of one measure as a box per group. Query shape: one measure
+and a dimension naming each row, optionally a second dimension that splits the
+rows into groups. The sibling of the violin, laid out the same way: the measure
+on the vertical axis, one group per column.
+
+- Which dimension makes the groups is worked out from the data, by the same rule
+  as the violin: the one with fewer distinct values. Overridable.
+- The box is the middle half of the rows, the line the median. Whiskers reach
+  the furthest row within 1.5 times the interquartile range, and each row beyond
+  is drawn as its own circle; or whiskers run lowest to highest. The caption
+  states which.
+- A group of fewer than five rows is drawn as its rows with a median tick, not a
+  box, since a box over three values implies a spread nobody measured.
+- Every group prints its median and row count above it.
+- Optional mean line, median line, percentile line, and every row as a dot.
+- Extreme values kept, pulled in, or left out, as in the violin.
+- Group names wrap, shrink, turn on their side, then cut from the middle keeping
+  the end. The full name is in the tooltip.
+- Each group answers on hover and keyboard focus with its row count, quartiles,
+  median, mean, whisker ends and how many rows lie beyond. Each outlier answers
+  for its own row. Enter or Space opens the drill menu.
+- One hue for every box. Theme follows the tile.
+
+Options: measure to plot, one box per group, order the boxes by, extreme values,
+whiskers reach, mean line, median line, percentile line, show every row as a
+dot, theme, box colour, show median and row count, show axes, show legend, show
+axis titles, axis titles.
+
 ### `diagnostic.js`
 
 Paints, as plain text, what Looker hands the visualisation: element size, row
@@ -417,6 +472,8 @@ Instance-wide, no LookML change. Admin > Platform > Visualizations > Add:
 | `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/histogram.js` |
 | `violin` | Violin | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/violin.js` |
 | `kpi_tile` | KPI Tile | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/kpi_tile.js` |
+| `progress_bar` | Progress Bar | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/progress_bar.js` |
+| `box_plot` | Box Plot | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/box_plot.js` |
 | `diagnostic` | Diagnostic | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/diagnostic.js` |
 
 `@2` tracks the newest 2.x release, so a registration picks up fixes without

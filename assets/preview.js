@@ -200,7 +200,17 @@ export const CHARTS = [
   { id: 'kpi_tile', family: 'single_value', name: 'KPI Tile', data: REVENUE_BY_MONTH,
     blurb: 'One measure as a headline number, with its change against a ' +
       'second measure or the previous period, marked by whether the change ' +
-      'is good. A date dimension adds a sparkline of the measure over time.' }
+      'is good. A date dimension adds a sparkline of the measure over time.' },
+  { id: 'progress_bar', family: 'single_value', name: 'Progress Bar', data: HOURS_VS_BUDGET,
+    blurb: 'A measure against a target, as a bar filling toward it, with the ' +
+      'value and its share of the target stated. One bar for a single ' +
+      'figure, or one per row down the tile, each measured against its own ' +
+      'target. Past the target the bar fills and says so.' },
+  { id: 'box_plot', family: 'distribution', name: 'Box Plot', data: ORDERS,
+    blurb: 'The distribution of one measure as a box per group: the middle ' +
+      'half of the rows, the median, whiskers to the furthest row inside ' +
+      '1.5 times the interquartile range, and each row beyond drawn on its ' +
+      'own. A group too small for a box is drawn as its rows.' }
 ];
 
 export const chartById = (id) => CHARTS.find((c) => c.id === id);
