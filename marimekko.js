@@ -31,10 +31,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.14.1. The version is logged once on load, so the browser console says
+// Build v1.15.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('marimekko build v1.14.1');
+if (window.console && console.log) console.log('marimekko build v1.15.0');
 
 /* visage:manifest
 { "id": "marimekko", "family": "part_to_whole",
@@ -199,13 +199,13 @@ looker.plugins.visualizations.add({
       '  --mrk-muted: #94a3b8;' +
       '  --mrk-grid: #e5e7eb;' +
       '  --mrk-hairline: rgba(11,11,11,0.10);' +
-      '  --mrk-c0: #525aff; --mrk-k0: #151d2d;' +
+      '  --mrk-c0: #525aff; --mrk-k0: #ffffff;' +
       '  --mrk-c1: #eb6834; --mrk-k1: #151d2d;' +
       '  --mrk-c2: #1baf7a; --mrk-k2: #151d2d;' +
       '  --mrk-c3: #eda100; --mrk-k3: #151d2d;' +
       '  --mrk-c4: #e87ba4; --mrk-k4: #151d2d;' +
       '  --mrk-c5: #008300; --mrk-k5: #ffffff;' +
-      '  --mrk-c6: #ad93f1; --mrk-k6: #ffffff;' +
+      '  --mrk-c6: #ad93f1; --mrk-k6: #151d2d;' +
       '  --mrk-c7: #e34948; --mrk-k7: #151d2d;' +
       '  --mrk-other: #aab1c2; --mrk-other-ink: #151d2d;' +
       '  --mrk-s0: #95acff; --mrk-i0: #151d2d;' +
@@ -430,6 +430,12 @@ looker.plugins.visualizations.add({
 
     // A hue chosen in the config has no matching ink token, so its contrast is
     // measured here the same way the palette's own pairs were.
+    var options = vis.options;
+    function paletteOverride(key, slot) {
+      var chosen = config[key] && config[key][slot];
+      return chosen && String(chosen).toLowerCase() !== options[key].default[slot] ? chosen : null;
+    }
+
     function inkFor(fill) {
       var hex = String(fill || '').trim().replace('#', '');
       if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
@@ -819,8 +825,7 @@ looker.plugins.visualizations.add({
           item.className = 'mrk-key';
           var swatch = document.createElement('div');
           swatch.className = 'mrk-swatch';
-          swatch.style.background = (config.series_colours && config.series_colours[i])
-            || 'var(--mrk-c' + i + ')';
+          swatch.style.background = paletteOverride('series_colours', i) || 'var(--mrk-c' + i + ')';
           var name = document.createElement('span');
           name.textContent = key;
           item.appendChild(swatch);
@@ -1022,7 +1027,7 @@ looker.plugins.visualizations.add({
         var colHeight = Math.max(1, Math.round((column.rate / maxRate) * plotHeight));
         var top = plotTop + plotHeight - colHeight;
 
-        var chosenMain = config.main_colour && config.main_colour[0];
+        var chosenMain = paletteOverride('main_colour', 0);
         var fill = chosenMain || 'var(--mrk-c0)';
         var ink = chosenMain ? inkFor(chosenMain) : 'var(--mrk-k0)';
         if (column.isOther) {
@@ -1105,7 +1110,7 @@ looker.plugins.visualizations.add({
           var slot = nested ? columnSlot : slotFor[segment.name];
           if (column.isOther) slot = null;
           var chosen = slot === null ? null
-            : (config.series_colours && config.series_colours[slot]);
+            : paletteOverride('series_colours', slot);
           var fill = chosen || (slot === null ? 'var(--mrk-other)' : 'var(--mrk-c' + slot + ')');
           var ink = chosen ? inkFor(chosen)
             : (slot === null ? 'var(--mrk-other-ink)' : 'var(--mrk-k' + slot + ')');

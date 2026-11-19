@@ -11,10 +11,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v2.0.0. The version is logged once on load, so the browser console says
+// Build v2.1.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('grouped_column build v2.0.0');
+if (window.console && console.log) console.log('grouped_column build v2.1.0');
 
 /* visage:manifest
 { "id": "grouped_column", "family": "comparison",
@@ -40,7 +40,7 @@ if (window.console && console.log) console.log('grouped_column build v2.0.0');
   var SPEC = {
     id: 'grouped_column',
     label: 'Column',
-    version: '2.0.0',
+    version: '2.1.0',
     family: 'comparison',
 
     // Declared for the catalogue and the gallery. Looker ignores keys it does
@@ -81,6 +81,14 @@ if (window.console && console.log) console.log('grouped_column build v2.0.0');
       '  --v-c0: #525aff; --v-c1: #eb6834; --v-c2: #1baf7a;' +
       '  --v-c3: #eda100; --v-c4: #e87ba4; --v-c5: #008300;' +
       '  --v-c6: #ad93f1; --v-c7: #e34948; --v-other: #aab1c2;' +
+      '  --v-seq-0: #95acff; --v-seq-ink-0: #151d2d; --v-seq-1: #788cff; --v-seq-ink-1: #151d2d;' +
+      '  --v-seq-2: #606dff; --v-seq-ink-2: #151d2d; --v-seq-3: #4c52f4; --v-seq-ink-3: #ffffff;' +
+      '  --v-seq-4: #3b3dcb; --v-seq-ink-4: #ffffff; --v-seq-5: #2c2e9b; --v-seq-ink-5: #ffffff;' +
+      '  --v-seq-6: #1e2368; --v-seq-ink-6: #ffffff;' +
+      '  --v-neg-3: #9b3a3f; --v-neg-ink-3: #ffffff; --v-neg-2: #e85856; --v-neg-ink-2: #151d2d;' +
+      '  --v-neg-1: #e4a0a2; --v-neg-ink-1: #151d2d; --v-neutral: #e5e7eb; --v-neutral-ink: #151d2d;' +
+      '  --v-pos-1: #a3a8f4; --v-pos-ink-1: #151d2d; --v-pos-2: #525aff; --v-pos-ink-2: #ffffff;' +
+      '  --v-pos-3: #3d45b6; --v-pos-ink-3: #ffffff;' +
       '  position: relative; width: 100%; height: 100%; overflow: hidden;' +
       '  background: var(--v-surface);' +
       '  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;' +
@@ -91,7 +99,15 @@ if (window.console && console.log) console.log('grouped_column build v2.0.0');
       '  --v-axis: #31384a; --v-hairline: rgba(255,255,255,0.10);' +
       '  --v-c0: #7078ff; --v-c1: #d95926; --v-c2: #199e70;' +
       '  --v-c3: #c98500; --v-c4: #d55181; --v-c5: #008300;' +
-      '  --v-c6: #8f7ce8; --v-c7: #e66767; --v-other: #3a4054; }' +
+      '  --v-c6: #8f7ce8; --v-c7: #e66767; --v-other: #3a4054;' +
+      '  --v-seq-0: #c1d3ff; --v-seq-ink-0: #151d2d; --v-seq-1: #a5b9ff; --v-seq-ink-1: #151d2d;' +
+      '  --v-seq-2: #8ba0ff; --v-seq-ink-2: #151d2d; --v-seq-3: #7286fb; --v-seq-ink-3: #151d2d;' +
+      '  --v-seq-4: #7078ff; --v-seq-ink-4: #151d2d; --v-seq-5: #474ee0; --v-seq-ink-5: #ffffff;' +
+      '  --v-seq-6: #372ad2; --v-seq-ink-6: #ffffff;' +
+      '  --v-neg-3: #f0a4a4; --v-neg-ink-3: #151d2d; --v-neg-2: #e66767; --v-neg-ink-2: #151d2d;' +
+      '  --v-neg-1: #87525d; --v-neg-ink-1: #ffffff; --v-neutral: #3a4054; --v-neutral-ink: #ffffff;' +
+      '  --v-pos-1: #5259a1; --v-pos-ink-1: #ffffff; --v-pos-2: #7078ff; --v-pos-ink-2: #151d2d;' +
+      '  --v-pos-3: #a9aeff; --v-pos-ink-3: #151d2d; }' +
       // Inset from the tile edge, and clear of the plot by 8px or more.
       // Flush into the corner reads as a mistake.
       '.v-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center;' +
@@ -424,9 +440,14 @@ if (window.console && console.log) console.log('grouped_column build v2.0.0');
 
     // A colour option overrides the theme token; left at its default the token
     // wins, so an untouched chart still answers to a dark dashboard.
-    function seriesColour(config, index) {
-      var chosen = config.series_colours && config.series_colours[index];
-      return chosen || 'var(--v-c' + (index % 8) + ')';
+    function seriesColour(config, options, index, key) {
+      key = key || 'series_colours';
+      var slot = key === 'series_colours' ? index : 0;
+      var chosen = config[key] && config[key][slot];
+      var option = options[key];
+      var defaultColour = option && option.default && option.default[slot];
+      if (chosen && String(chosen).toLowerCase() !== defaultColour) return chosen;
+      return index < 8 ? 'var(--v-c' + index + ')' : 'var(--v-other)';
     }
 
     // Returns the object Looker registers. Everything that has ever blanked a
@@ -508,7 +529,7 @@ if (window.console && console.log) console.log('grouped_column build v2.0.0');
                   root.appendChild(node);
                   return node;
                 },
-                colour: function (index) { return seriesColour(config, index); },
+                colour: function (index, key) { return seriesColour(config, OPTIONS, index, key); },
                 title: function (option, auto) { return axisTitle(config, option, auto); },
                 axisTitles: function (node, xAuto, yAuto) {
                   return drawAxisTitles(config, node, width, height, xAuto, yAuto);
@@ -913,10 +934,9 @@ if (window.console && console.log) console.log('grouped_column build v2.0.0');
     // resolves differently in dark mode, so read what the root actually has.
     var rootStyle = window.getComputedStyle(c.root);
     function solidColour(index) {
-      var chosen = config.series_colours && config.series_colours[index];
-      if (chosen) return chosen;
-      var token = (rootStyle.getPropertyValue('--v-c' + (index % 8)) || '').trim();
-      return token || '#525aff';
+      var fill = c.colour(index);
+      var token = /^var\((--[\w-]+)\)$/.exec(fill);
+      return token ? rootStyle.getPropertyValue(token[1]).trim() : fill;
     }
 
     // A rounded far end, square at the baseline, so a bar reads as sitting on

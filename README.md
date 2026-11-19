@@ -58,7 +58,9 @@ off. Option labels in the Looker config panel are Title Case.
 
 **Colour.** Follows the value or the entity, never the row's position, so
 filtering never repaints the rows that remain. Sequential is one hue light to
-dark; categorical is eight hues in fixed order, never cycled.
+dark; categorical is eight hues in fixed order, never cycled. Chart defaults
+follow the tile’s light or dark palette. Custom colours selected in the
+controls override those defaults.
 
 ## Charts
 

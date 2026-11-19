@@ -14,10 +14,21 @@
 // shrink and thin out and are never clipped, every column answers on hover and
 // on keyboard focus, and the theme follows the tile.
 //
-// Build v1.4.0. The version is logged once on load, so the browser console says
+// Build v1.5.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('histogram build v1.4.0');
+if (window.console && console.log) console.log('histogram build v1.5.0');
+
+/* visage:manifest
+{ "id": "histogram", "family": "distribution",
+  "shapes": ["1d2m"],
+  "checks": [
+    { "fixture": "resolution_times" },
+    { "fixture": "resolution_times", "config": {"bin_mode": "count", "bin_count": 8}, "name": "resolution_times [8 bins]" },
+    { "fixture": "resolution_times", "config": {"outliers": "exclude"}, "name": "resolution_times [outliers excluded]" },
+    { "fixture": "resolution_times", "config": {"height_by": "share"}, "name": "resolution_times [share of rows]" }
+  ] }
+*/
 
 looker.plugins.visualizations.add({
   id: 'histogram',
@@ -557,17 +568,21 @@ looker.plugins.visualizations.add({
       return withWhite >= withInk ? '#ffffff' : '#151d2d';
     }
 
-    var baseRgb = toRgb((config.bar_colour && config.bar_colour[0]) || '#525aff');
-    // Dark tiles get their own steps. The darkest end of a light scale
-    // disappears against a dark surface, so the ramp is built from the surface
-    // outwards in each theme rather than flipped.
+    var chosen = config.bar_colour && config.bar_colour[0];
+    var custom = chosen && String(chosen).toLowerCase() !== vis.options.bar_colour.default[0];
+    var baseRgb = toRgb(custom ? chosen : isDark ? '#7078ff' : '#525aff');
+    // Keep the existing shading behaviour for a custom hue. The default uses
+    // the same sequential steps as the heatmap and treemap.
+    var steps = (isDark
+      ? ['#c1d3ff', '#a5b9ff', '#8ba0ff', '#7286fb', '#7078ff', '#474ee0', '#372ad2']
+      : ['#95acff', '#788cff', '#606dff', '#4c52f4', '#3b3dcb', '#2c2e9b', '#1e2368']).map(toRgb);
     var rampFrom = isDark ? mix(baseRgb, [26, 26, 25], 0.55) : mix(baseRgb, [255, 255, 255], 0.72);
     var rampTo = isDark ? mix(baseRgb, [255, 255, 255], 0.22) : baseRgb;
 
     function barRgb(share) {
-      if (config.shade_bars !== 'by_height') return isDark ? rampTo : baseRgb;
+      if (config.shade_bars !== 'by_height') return isDark && custom ? rampTo : baseRgb;
       var t = Math.max(0, Math.min(1, share));
-      return mix(rampFrom, rampTo, 0.25 + 0.75 * t);
+      return custom ? mix(rampFrom, rampTo, 0.25 + 0.75 * t) : steps[Math.round(t * 6)];
     }
 
     function emptyMessage(text) {

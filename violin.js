@@ -20,10 +20,19 @@
 // wrap and shrink and turn on their side and are never clipped, every violin
 // answers on hover and on keyboard focus, and the theme follows the tile.
 //
-// Build v1.0.0. The version is logged once on load, so the browser console says
+// Build v1.1.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('violin build v1.0.0');
+if (window.console && console.log) console.log('violin build v1.1.0');
+
+/* visage:manifest
+{ "id": "violin", "family": "distribution",
+  "shapes": ["2d2m"],
+  "checks": [
+    { "fixture": "utilisation" },
+    { "fixture": "orders_by_channel" }
+  ] }
+*/
 
 looker.plugins.visualizations.add({
   id: 'violin',
@@ -655,11 +664,10 @@ looker.plugins.visualizations.add({
       return withWhite >= withInk ? '#ffffff' : '#151d2d';
     }
 
-    var baseRgb = toRgb((config.main_colour && config.main_colour[0]) || '#525aff');
-    // Dark tiles get their own steps. The darkest end of a light scale
-    // disappears against a dark surface, so the body colour is built from the
-    // surface outwards in each theme rather than flipped.
-    var bodyRgb = isDark ? mix(baseRgb, [255, 255, 255], 0.18) : baseRgb;
+    var chosen = config.main_colour && config.main_colour[0];
+    var custom = chosen && String(chosen).toLowerCase() !== vis.options.main_colour.default[0];
+    var baseRgb = toRgb(custom ? chosen : isDark ? '#7078ff' : '#525aff');
+    var bodyRgb = isDark && custom ? mix(baseRgb, [255, 255, 255], 0.18) : baseRgb;
     var bodyHex = toHex(bodyRgb);
     var boxHex = toHex(isDark ? mix(bodyRgb, [18, 18, 28], 0.45) : mix(bodyRgb, [21, 29, 45], 0.35));
     var dotHex = toHex(isDark ? mix(bodyRgb, [255, 255, 255], 0.35) : mix(bodyRgb, [21, 29, 45], 0.25));

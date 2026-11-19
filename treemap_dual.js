@@ -7,10 +7,19 @@
 // Self-contained: the squarify layout is inlined, so there are no dependencies
 // to declare in the manifest and nothing to load from a CDN at render time.
 //
-// Build v1.11.0. The version is logged once on load, so the browser console says
+// Build v1.12.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('treemap_dual build v1.11.0');
+if (window.console && console.log) console.log('treemap_dual build v1.12.0');
+
+/* visage:manifest
+{ "id": "treemap_dual", "family": "part_to_whole",
+  "shapes": ["1d1m", "1d2m"],
+  "checks": [
+    { "fixture": "treemap" },
+    { "fixture": "one_measure" }
+  ] }
+*/
 
 looker.plugins.visualizations.add({
   id: 'treemap_dual',
@@ -588,13 +597,14 @@ looker.plugins.visualizations.add({
     // Returns the pair of tokens for a row: the fill, and the text colour that
     // reads on it. Labels sit inside a coloured fill, which is the one place
     // text takes its colour from the data.
+    var defaultColour = vis.options.main_colour.default[0];
     function tokensFor(d) {
       // The main colour applies where colour is not carrying a measure. Its ink
       // is left to the token, since a user-chosen hue could be any lightness:
       // the label is placed outside a box it cannot sit inside.
       if (!colourByMeasure) {
-        var flat = (config.main_colour && config.main_colour[0]);
-        return flat
+        var flat = config.main_colour && config.main_colour[0];
+        return flat && String(flat).toLowerCase() !== defaultColour
           ? { fill: flat, ink: inkFor(flat) }
           : { fill: 'var(--tmd-flat)', ink: 'var(--tmd-flat-ink)' };
       }

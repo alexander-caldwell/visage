@@ -7,10 +7,20 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.9.0. The version is logged once on load, so the browser console says
+// Build v1.10.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('dumbbell build v1.9.0');
+if (window.console && console.log) console.log('dumbbell build v1.10.0');
+
+/* visage:manifest
+{ "id": "dumbbell", "family": "comparison",
+  "shapes": ["1d2m"],
+  "checks": [
+    { "fixture": "example" },
+    { "fixture": "engagements" },
+    { "fixture": "example", "config": {"sort_by": "gap"}, "name": "example [sorted by gap]" }
+  ] }
+*/
 
 looker.plugins.visualizations.add({
   id: 'dumbbell',
@@ -333,8 +343,13 @@ looker.plugins.visualizations.add({
 
     // A colour option overrides the theme token; left alone, the token wins so
     // the chart still answers to a dark dashboard.
-    var colourA = (config.colour_a && config.colour_a[0]) || 'var(--dmb-a)';
-    var colourB = (config.colour_b && config.colour_b[0]) || 'var(--dmb-b)';
+    var options = vis.options;
+    function endpointFill(key, token) {
+      var chosen = config[key] && config[key][0];
+      return chosen && String(chosen).toLowerCase() !== options[key].default[0] ? chosen : token;
+    }
+    var colourA = endpointFill('colour_a', 'var(--dmb-a)');
+    var colourB = endpointFill('colour_b', 'var(--dmb-b)');
     var dotRadius = Math.max(2, Math.min(14, Number(config.marker_size) || 5));
     var connectorWidth = Math.max(1, Math.min(10, Number(config.connector_width) || 2));
 

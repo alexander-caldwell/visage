@@ -7,10 +7,19 @@
 // no innerHTML, errors surface through addError, labels wrap and shrink, every
 // row answers on hover and on keyboard focus, and the theme follows the tile.
 //
-// Build v2.7.0. The version is logged once on load, so the browser console says
+// Build v2.8.0. The version is logged once on load, so the browser console says
 // which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('bullet_bar build v2.7.0');
+if (window.console && console.log) console.log('bullet_bar build v2.8.0');
+
+/* visage:manifest
+{ "id": "bullet_bar", "family": "comparison",
+  "shapes": ["1d2m"],
+  "checks": [
+    { "fixture": "example" },
+    { "fixture": "engagements" }
+  ] }
+*/
 
 looker.plugins.visualizations.add({
   id: 'bullet_bar',
@@ -92,7 +101,7 @@ looker.plugins.visualizations.add({
       '  --bb-ink-2: #475569;' +
       '  --bb-muted: #94a3b8;' +
       '  --bb-track: #eff0ff;' +
-      '  --bb-marker: #151d2d;' +
+      '  --bb-marker: #151d2d; --bb-bar: #525aff; --bb-over: #eb6834;' +
       '  --bb-hairline: rgba(11,11,11,0.10);' +
       '  position: relative; width: 100%; height: 100%; overflow: hidden;' +
       '  background: var(--bb-surface);' +
@@ -101,7 +110,8 @@ looker.plugins.visualizations.add({
       '}' +
       '.bullet-bar-root.bb-dark { --bb-surface: #12121c; --bb-ink: #ffffff;' +
       '  --bb-ink-2: #cbd5e1; --bb-muted: #94a3b8; --bb-track: #252a3a;' +
-      '  --bb-marker: #e8e9f2; --bb-hairline: rgba(255,255,255,0.10); }' +
+      '  --bb-marker: #e8e9f2; --bb-bar: #7078ff; --bb-over: #d95926;' +
+      '  --bb-hairline: rgba(255,255,255,0.10); }' +
       '.bullet-bar-root text { font-size: 12px; fill: var(--bb-ink); }' +
       '.bullet-bar-root .bb-label { text-anchor: end; }' +
       '.bullet-bar-root .bb-value { text-anchor: start; fill: var(--bb-ink-2);' +
@@ -509,8 +519,13 @@ looker.plugins.visualizations.add({
       tip.removeAttribute('data-shown');
     }
 
-    var barColour = (config.bar_colour && config.bar_colour[0]) || '#525aff';
-    var overColour = (config.over_colour && config.over_colour[0]) || '#eb6834';
+    var options = vis.options;
+    function barFill(key, token) {
+      var chosen = config[key] && config[key][0];
+      return chosen && String(chosen).toLowerCase() !== options[key].default[0] ? chosen : token;
+    }
+    var barColour = barFill('bar_colour', 'var(--bb-bar)');
+    var overColour = barFill('over_colour', 'var(--bb-over)');
 
     data.forEach(function (row, i) {
       var y = padTop + i * rowHeight;
