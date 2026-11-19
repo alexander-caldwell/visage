@@ -18,10 +18,10 @@
 // Self-contained: no dependencies to declare in the manifest and nothing to
 // load from a CDN at render time.
 //
-// Build v1.0.1. The version is logged once on load, so the browser console
+// Build v1.1.0. The version is logged once on load, so the browser console
 // says which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('pie build v1.0.1');
+if (window.console && console.log) console.log('pie build v1.1.0');
 
 /* visage:manifest
 { "id": "pie", "family": "part_to_whole",
@@ -43,7 +43,7 @@ if (window.console && console.log) console.log('pie build v1.0.1');
   var SPEC = {
     id: 'pie',
     label: 'Pie',
-    version: '1.0.1',
+    version: '1.1.0',
     family: 'part_to_whole',
 
     // Declared for the catalogue and the gallery. Looker ignores keys it does
@@ -940,7 +940,9 @@ if (window.console && console.log) console.log('pie build v1.0.1');
     var keep = asked > 0 ? Math.min(asked, 8) : FIVE;
     var shown = parts.length > keep ? parts.slice(0, keep) : parts;
     var rest = parts.slice(shown.length);
-    var slots = slotsFor(shown.map(function (x) { return x.name; }));
+    // Reserve the same slots as the other part-to-whole view before
+    // applying this chart’s display limit.
+    var slots = slotsFor(parts.slice(0, 8).map(function (x) { return x.name; }));
 
     var groups = shown.map(function (x) {
       return {

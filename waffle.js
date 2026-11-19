@@ -21,10 +21,10 @@
 //
 // Self-contained, with optional PNG artwork supplied through the Style panel.
 //
-// Build v1.1.1. The version is logged once on load, so the browser console
+// Build v1.2.0. The version is logged once on load, so the browser console
 // says which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('waffle build v1.1.1');
+if (window.console && console.log) console.log('waffle build v1.2.0');
 
 /* visage:manifest
 { "id": "waffle", "family": "part_to_whole",
@@ -47,7 +47,7 @@ if (window.console && console.log) console.log('waffle build v1.1.1');
   var SPEC = {
     id: 'waffle',
     label: 'Waffle',
-    version: '1.1.1',
+    version: '1.2.0',
     family: 'part_to_whole',
 
     // Declared for the catalogue and the gallery. Looker ignores keys it does
@@ -968,7 +968,9 @@ if (window.console && console.log) console.log('waffle build v1.1.1');
       var keep = asked > 0 ? Math.min(asked, 8) : 8;
       var shown = parts.length > keep ? parts.slice(0, keep) : parts;
       var rest = parts.slice(shown.length);
-      var slots = slotsFor(shown.map(function (x) { return x.name; }));
+      // Reserve the same slots as the other part-to-whole view before
+      // applying this chart’s display limit.
+      var slots = slotsFor(parts.slice(0, 8).map(function (x) { return x.name; }));
 
       groups = shown.map(function (x) {
         return {
