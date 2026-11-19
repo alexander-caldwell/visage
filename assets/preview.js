@@ -226,6 +226,12 @@ export const CHARTS = [
       'for trend and turning points, where the shape matters more than ' +
       'any single value. Fills to an area, stacks into bands, or runs to ' +
       '100%, and can smooth to a rolling average.' },
+  { id: 'slope', family: 'time', name: 'Slope', data: MONTHS,
+    caption: 'See what rose or fell between two periods on a shared scale.',
+    blurb: 'Two values per category on a shared vertical scale, joined by ' +
+      'a line to show the direction and size of change. Use two measures ' +
+      'or one measure with a date dimension to compare the first and last ' +
+      'periods.' },
   { id: 'grouped_column', family: 'comparison', name: 'Column', data: HOURS_VS_BUDGET,
     caption: 'Compare measures across categories using columns, bars or lollipops.',
     blurb: 'One group per value of a dimension, one column per measure, on a ' +

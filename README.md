@@ -121,6 +121,24 @@ becomes one line per value.
 Options: fill, start scale at zero, missing periods, rolling average, theme,
 show point markers, series colours, legend, axis titles.
 
+### `slope.js`
+
+Two endpoints per category on one vertical scale, joined by a line to show
+the direction and size of change. Query shape: one category dimension and two
+measures in query order, or one category dimension, one date dimension and one
+measure. With a date dimension the chart compares the first and last periods.
+
+- Labels give the values at both ends. The tooltip shows the change in absolute
+  and percentage terms.
+- **Good Direction** sets whether rising or falling values count as improvement,
+  or uses a single hue when neither direction is preferred.
+- The chart shows up to 25 categories and reports when it has omitted rows.
+- For date queries, configure how to handle missing periods and optionally
+  average a number of periods at each end.
+
+Options: start scale at zero, missing periods, average periods at each end,
+good direction, series colours, legend, theme and axis titles.
+
 ### `grouped_column.js`
 
 One group per dimension value, one column per measure, with orientation,
@@ -486,6 +504,10 @@ dimension and one measure, or no dimension and two measures (part and whole).
 Options: group the tail, share or absolute labels, label strategy, show values,
 series colours, legend and theme.
 
+Under **Style**, enter a direct HTTPS PNG URL or a base64 PNG data URL in
+**Cell Icon PNG URL** to repeat an icon in each filled square. A transparent
+PNG lets the series colour show through. Leave the field blank for plain cells.
+
 ### `funnel.js`
 
 Centred bars show volume through an ordered process. Query shape: one stage
@@ -569,6 +591,7 @@ Instance-wide, no LookML change. Admin > Platform > Visualizations > Add:
 | `bullet_bar` | Bullet Bar | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/bullet_bar.js` |
 | `dumbbell` | Dumbbell | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/dumbbell.js` |
 | `line_series` | Line | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/line_series.js` |
+| `slope` | Slope | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/slope.js` |
 | `scatter_plot` | Scatter | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/scatter_plot.js` |
 | `histogram` | Histogram | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/histogram.js` |
 | `violin` | Violin | `https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/violin.js` |

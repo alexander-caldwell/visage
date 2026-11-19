@@ -19,13 +19,12 @@
 // absolute value, beside the grid. Rows with no value and rows below zero are
 // left out of the total, and the caption says how many.
 //
-// Self-contained: no dependencies to declare in the manifest and nothing to
-// load from a CDN at render time.
+// Self-contained, with optional PNG artwork supplied through the Style panel.
 //
-// Build v1.0.0. The version is logged once on load, so the browser console
+// Build v1.1.0. The version is logged once on load, so the browser console
 // says which build a Looker instance is actually running.
 
-if (window.console && console.log) console.log('waffle build v1.0.0');
+if (window.console && console.log) console.log('waffle build v1.1.0');
 
 /* visage:manifest
 { "id": "waffle", "family": "part_to_whole",
@@ -38,7 +37,9 @@ if (window.console && console.log) console.log('waffle build v1.0.0');
     { "fixture": "progress_edge", "config": {} },
     { "fixture": "engagements", "config": {} },
     { "fixture": "progress_single", "config": {} },
-    { "fixture": "progress_single", "config": { "share_or_absolute": "share" } }
+    { "fixture": "progress_single", "config": { "share_or_absolute": "share" } },
+    { "fixture": "one_measure", "config": { "cell_icon_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAH0lEQVR4nGNgQAL/oYABG/iPBkhXQJkV6JIYiihSAAAOKod5k8uHagAAAABJRU5ErkJggg==" } },
+    { "fixture": "progress_single", "config": { "cell_icon_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAH0lEQVR4nGNgQAL/oYABG/iPBkhXQJkV6JIYiihSAAAOKod5k8uHagAAAABJRU5ErkJggg==", "label_strategy": "none" } }
   ] }
 */
 
@@ -46,7 +47,7 @@ if (window.console && console.log) console.log('waffle build v1.0.0');
   var SPEC = {
     id: 'waffle',
     label: 'Waffle',
-    version: '1.0.0',
+    version: '1.1.0',
     family: 'part_to_whole',
 
     // Declared for the catalogue and the gallery. Looker ignores keys it does
@@ -627,6 +628,14 @@ if (window.console && console.log) console.log('waffle build v1.0.0');
       section: 'Style',
       order: 5
     },
+    cell_icon_url: {
+      type: 'string',
+      label: 'Cell Icon PNG URL',
+      placeholder: 'HTTPS URL or PNG data URL',
+      default: '',
+      section: 'Style',
+      order: 6
+    },
     show_legend: {
       type: 'boolean',
       label: 'Show Key',
@@ -809,20 +818,32 @@ if (window.console && console.log) console.log('waffle build v1.0.0');
 
   // 10 x 10, filled row by row from the top left. cellAt(k) gives the fill
   // and the part each cell belongs to.
-  function drawGrid(c, svg, x0, y0, side, cellAt, hover) {
+  function drawGrid(svg, x0, y0, side, cellAt, hover, iconUrl) {
     var step = side / 10;
     var gap = Math.max(1, Math.round(step * 0.12));
     var size = Math.max(1, step - gap);
+    var iconInset = size * 0.15;
     var firsts = {};
     for (var k = 0; k < CELLS; k++) {
       var at = cellAt(k);
+      var x = x0 + (k % 10) * step;
+      var y = y0 + Math.floor(k / 10) * step;
       var rect = V.el('rect', {
         class: 'wf-cell v-mark' + (at.fill ? '' : ' wf-empty'),
-        x: x0 + (k % 10) * step, y: y0 + Math.floor(k / 10) * step,
-        width: size, height: size, rx: Math.min(2, size / 5)
+        x: x, y: y, width: size, height: size, rx: Math.min(2, size / 5)
       });
       if (at.fill) rect.setAttribute('fill', at.fill);
       svg.appendChild(rect);
+      if (iconUrl && at.fill) {
+        var icon = V.el('image', {
+          x: x + iconInset, y: y + iconInset,
+          width: size - 2 * iconInset, height: size - 2 * iconInset,
+          'pointer-events': 'none', 'aria-hidden': 'true'
+        });
+        icon.addEventListener('error', function (event) { event.currentTarget.remove(); });
+        icon.setAttribute('href', iconUrl);
+        svg.appendChild(icon);
+      }
       var focusable = hover.focusCells && !firsts[at.key];
       firsts[at.key] = true;
       hover.bind(rect, at.key, focusable);
@@ -852,6 +873,8 @@ if (window.console && console.log) console.log('waffle build v1.0.0');
     }
 
     var config = c.config;
+    var iconUrl = typeof config.cell_icon_url === 'string' ? config.cell_icon_url.trim() : '';
+    if (!/^(https:\/\/|data:image\/png;base64,)/i.test(iconUrl)) iconUrl = '';
     var W = c.width, H = c.height;
     var pad = W < 420 || H < 260 ? 8 : 14;
     var asShare = config.share_or_absolute === 'share';
@@ -1029,9 +1052,9 @@ if (window.console && console.log) console.log('waffle build v1.0.0');
           answer(c, node, part.name, tip, part.links, focusable);
         }
       };
-      drawGrid(c, svg, gx, gy, side, function (k) {
+      drawGrid(svg, gx, gy, side, function (k) {
         return k < part.cells ? { fill: part.fill, key: 0 } : { fill: null, key: 0 };
-      }, hoverOne);
+      }, hoverOne, iconUrl);
 
       if (keyOn) {
         var hit = V.el('rect', { class: 'wf-hit', x: kx - 2, y: ky - 2, width: kw + 4, height: kh + 4, rx: 4 });
@@ -1084,10 +1107,10 @@ if (window.console && console.log) console.log('waffle build v1.0.0');
           answer(c, node, g.name, g.tip, g.links, focusable);
         }
       };
-      drawGrid(c, svg, gx, gy, side, function (k) {
+      drawGrid(svg, gx, gy, side, function (k) {
         var g = groups[cellOwner[k]];
         return { fill: g.fill, key: cellOwner[k] };
-      }, hoverParts);
+      }, hoverParts, iconUrl);
 
       if (keyOn) {
         var count = groups.length;
