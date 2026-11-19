@@ -1,20 +1,54 @@
-// The dashboard switch. Bound once, on both pages: binding it inside the render
-// pass is what made every click add another copy of everything.
+const themeKey = 'visage-theme';
+const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+function savedTheme() {
+  try {
+    const value = localStorage.getItem(themeKey);
+    if (value === 'light' || value === 'dark') return value;
+  } catch {
+    // The site can still follow the system when storage is unavailable.
+  }
+  return 'system';
+}
+
 export function bindTheme(onChange) {
-  const button = document.getElementById('theme');
-  if (!button) return;
+  const select = document.getElementById('theme');
+  const root = document.documentElement;
+  let preference = savedTheme();
 
-  const label = () =>
-    (document.documentElement.getAttribute('data-theme') === 'dark'
-      ? 'Light dashboard' : 'Dark dashboard');
+  function apply(notify = true) {
+    const theme = preference === 'system'
+      ? (systemTheme.matches ? 'dark' : 'light')
+      : preference;
+    const changed = root.dataset.theme !== theme;
+    root.dataset.theme = theme;
+    select.value = preference;
+    if (notify && changed) onChange?.();
+  }
 
-  button.textContent = label();
-  button.addEventListener('click', () => {
-    const root = document.documentElement;
-    root.setAttribute('data-theme',
-      root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-    button.textContent = label();
-    onChange();
+  // Apply before the caller starts drawing the charts.
+  apply(false);
+
+  select.addEventListener('change', () => {
+    preference = select.value;
+    try {
+      if (preference === 'system') localStorage.removeItem(themeKey);
+      else localStorage.setItem(themeKey, preference);
+    } catch {
+      // The selection still applies in this page when storage is unavailable.
+    }
+    apply();
+  });
+  systemTheme.addEventListener('change', () => apply());
+  window.addEventListener('storage', (event) => {
+    if (event.key !== themeKey && event.key !== null) return;
+    preference = savedTheme();
+    apply();
+  });
+  window.addEventListener('pageshow', (event) => {
+    if (!event.persisted) return;
+    preference = savedTheme();
+    apply();
   });
 }
 

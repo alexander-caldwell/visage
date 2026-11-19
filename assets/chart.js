@@ -1,6 +1,6 @@
 import { CHARTS, chartById, renderInto, defaultConfig, optionType,
-         displayValue, appliesNow, REGISTRATION_BASE } from './preview.js';
-import { bindTheme, bindResize } from './theme.js';
+         displayValue, appliesNow, REGISTRATION_BASE } from './preview.js?v=2';
+import { bindTheme, bindResize } from './theme.js?v=2';
 
 const params = new URLSearchParams(location.search);
 const chart = chartById(params.get('id')) || CHARTS[0];
@@ -30,12 +30,19 @@ document.getElementById('copy').addEventListener('click', async (event) => {
 let vis = null;
 let config = null;
 let rendering = false;
+let redraw = false;
 
 async function draw() {
-  if (rendering) return;
+  if (rendering) {
+    redraw = true;
+    return;
+  }
   rendering = true;
   try {
-    vis = await renderInto(tile, chart, config);
+    do {
+      redraw = false;
+      vis = await renderInto(tile, chart, config);
+    } while (redraw);
   } catch (err) {
     tile.classList.add('failed');
     tile.textContent = err.message;
@@ -172,8 +179,8 @@ async function start() {
     tableSlot.replaceChildren(heading, list);
   }
 
-  bindTheme(draw);
   bindResize(draw);
 }
 
+bindTheme(draw);
 start();

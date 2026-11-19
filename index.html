@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-chart-release="v2.4.2">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Visage — custom visualisations for Looker</title>
 <link rel="icon" href="assets/mark.svg?v=3" type="image/svg+xml">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/site.css?v=2">
 </head>
 <body>
 <div class="wrap">
@@ -26,7 +26,14 @@
           Looker makes, with its controls read out of the file rather than written down.
           Search by name, by the data it needs, or by what you are trying to show.</p>
       </div>
-      <button id="theme" type="button">Dark dashboard</button>
+      <label class="theme-setting">
+        Theme
+        <select id="theme">
+          <option value="system">System</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </label>
     </div>
   </header>
 
@@ -62,14 +69,13 @@
   <div id="families"></div>
 
   <footer>
-    <p>The figures are invented sample data, not anyone's numbers. The dashboard switch
-      shows what each chart does on a dark dashboard: it reads the background of the tile it
-      is drawn into rather than the viewer's system setting.</p>
+    <p>The figures are invented sample data. Theme follows your system setting
+      by default. Choose Light or Dark to preview the charts on that dashboard.</p>
     <p><a href="docs/?doc=hosting">Hosting</a> &middot;
        <a href="docs/?doc=approach">Technical approach</a> &middot;
        <a href="https://github.com/alexander-caldwell/visage">Repository</a></p>
   </footer>
 </div>
-<script type="module" src="assets/index.js"></script>
+<script type="module" src="assets/index.js?v=2"></script>
 </body>
 </html>

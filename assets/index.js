@@ -1,5 +1,5 @@
-import { CHARTS, loadChart, renderInto, shortShape } from './preview.js';
-import { bindTheme, bindResize } from './theme.js';
+import { CHARTS, loadChart, renderInto, shortShape } from './preview.js?v=2';
+import { bindTheme, bindResize } from './theme.js?v=2';
 
 const families = document.getElementById('families');
 const search = document.getElementById('search');

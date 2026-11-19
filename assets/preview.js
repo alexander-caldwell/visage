@@ -2,7 +2,7 @@
 // provides, the sample data, and helpers both pages use. Charts are loaded from
 // this site's own directory, so the page always shows the files in this repo.
 
-const CHART_SOURCE = './';
+const CHART_RELEASE = document.documentElement.dataset.chartRelease;
 
 export const REGISTRATION_BASE =
   'https://cdn.jsdelivr.net/gh/alexander-caldwell/visage@2/';
@@ -354,7 +354,7 @@ export function loadChart(id) {
     if (loaded.has(id)) return loaded.get(id);
     await new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = CHART_SOURCE + id + '.js';
+      script.src = './' + id + '.js?v=' + encodeURIComponent(CHART_RELEASE);
       script.onload = resolve;
       script.onerror = () => reject(new Error('could not load ' + id + '.js'));
       document.head.appendChild(script);

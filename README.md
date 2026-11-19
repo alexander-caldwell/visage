@@ -664,7 +664,8 @@ are told to hold the file for 7 days on top of that.
 1. Edit the chart and check it in the harness (screenshot, both sizes).
 2. Bump the build string at the top of the file, which is logged on load so the
    browser console says which build an instance is running.
-3. Commit, tag, push both:
+3. Set `data-chart-release` in `index.html` and `chart.html` to the new tag so
+   the gallery requests the updated chart files. Commit, tag, push both:
 
 ```
 git commit -am "..." && git tag -a v1.1.2 -m "..." && git push origin main && git push origin v1.1.2

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-chart-release="v2.4.2">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Visage</title>
 <link rel="icon" href="assets/mark.svg?v=3" type="image/svg+xml">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/site.css?v=2">
 </head>
 <body>
 <div class="wrap">
@@ -16,7 +16,14 @@
     <h1 id="name">Chart</h1>
     <span class="shape" id="shape">needs: …</span>
     <span class="build" id="id"></span>
-    <button id="theme" type="button">Dark dashboard</button>
+    <label class="theme-setting">
+      Theme
+      <select id="theme">
+        <option value="system">System</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </label>
   </div>
 
   <p class="standfirst" id="blurb"></p>
@@ -48,6 +55,6 @@
        <a href="index.html">All charts</a></p>
   </footer>
 </div>
-<script type="module" src="assets/chart.js"></script>
+<script type="module" src="assets/chart.js?v=2"></script>
 </body>
 </html>

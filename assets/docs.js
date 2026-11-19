@@ -1,4 +1,4 @@
-import { bindTheme } from './theme.js';
+import { bindTheme } from './theme.js?v=2';
 
 // The markdown files are the source of truth; this page is a wrapper so they
 // read in the site's own type rather than GitHub's.
@@ -26,4 +26,4 @@ fetch(file)
     target.appendChild(message);
   });
 
-bindTheme(() => {});
+bindTheme();
